@@ -32,12 +32,16 @@ Moreover, the tool doesn't support all of wadl specification. It will work ONLY 
 
 ## Command line use :
 
-org.setareh.wadl.codegen.WadlCodeGenerator FILEPATH PACKAGE_NAME OUTPUT_DIRECTORY MODULE_NAME
+    org.setareh.wadl.codegen.WadlCodeGenerator FILEPATH PACKAGE_NAME OUTPUT_DIRECTORY MODULE_NAME
 
-FILEPATH : path of the file add "file:" before the local path
-PACKAGE_NAME : name of the package for java or prefix for objectiveC
-OUTPUT_DIRECTORY : where you want to generate files
-MODULE_NAME : name of the module use to generate code. Actually "ANDROID" or "IOS"
+    FILEPATH : path of the file add "file:" before the local path
+    PACKAGE_NAME : name of the package for java or prefix for objectiveC
+    OUTPUT_DIRECTORY : where you want to generate files
+    MODULE_NAME : name of the module use to generate code. Actually "ANDROID" or "IOS"
+
+example :
+
+    org.setareh.wadl.codegen.WadlCodeGenerator file:/Users/alex/example.wadl com.company generated ANDROID
 
 ## Maven plugin use :
 
@@ -80,15 +84,26 @@ Then create another project with a single pom file like this (change UPPERCASE n
     </project>
 
 Then use maven to generate sources :
+
     > mvn clean compile
 
 In the target directory, there is two jars, one for ANDROID and one for IOS.
 
+## Framework use by the generated sources :
+    ### for Android :
+    GSon
+    AndroidHttpClient
+
+    ### for iOS :
+    AFNetworking
+
 ## This tools is based on :
-MXJC : https://github.com/bulldog2011/mxjc thanks to Bulldog
-WADLTO : org.apache.cxf.tools.wadlto
-JAXB : https://jaxb.java.net
-FREEMARKER : http://freemarker.org
+
+    MXJC : https://github.com/bulldog2011/mxjc thanks to Bulldog
+    WADLTO : org.apache.cxf.tools.wadlto
+    JAXB : https://jaxb.java.net
+    FREEMARKER : http://freemarker.org
+    SWAGGER CODE GEN : https://github.com/wordnik/swagger-codegen
 
 
 
