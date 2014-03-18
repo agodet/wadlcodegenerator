@@ -6,8 +6,6 @@
 #import <Foundation/Foundation.h>
 #import "${generatedPrefix}Enum.h"
 
-@class ${projectPrefix}${enum.name};
-
 [#if enum.docComment??]
 /**
  @file
@@ -22,7 +20,7 @@
  ${constant.docComment?replace("\n", "\n ")?replace("\t", "")}
 */
   [/#if]
-extern ${projectPrefix}${enum.name} * ${enum.name?upper_case}_${constant.name?upper_case};
+extern ${generatedPrefix}${enum.name} * ${enum.name?upper_case}_${constant.name?upper_case};
   [/#list]
 
 typedef enum {

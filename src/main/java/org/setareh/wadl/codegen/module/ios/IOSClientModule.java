@@ -22,7 +22,6 @@ public class IOSClientModule extends AbstractClientModule {
 	private URL clientClassImplementationTemplate;
 	private URL enumDeclarationTemplate;
 	private URL enumDefinitionTemplate;
-	private URL commonHeaderTemplate;
     private URL clientDateImplTemplate;
     private URL clientDateIntTemplate;
     private URL clientFileImplTemplate;
@@ -59,7 +58,6 @@ public class IOSClientModule extends AbstractClientModule {
 		enumDefinitionTemplate = this.getTemplateURL("client-enum-definition.ftl");
         parentEnumDeclarationTemplate = this.getTemplateURL("client-enum-parent-implementation.ftl");
         parentEnumDefinitionTemplate = this.getTemplateURL("client-enum-parent-interface.ftl");
-		commonHeaderTemplate = this.getTemplateURL("client-common-header.ftl");
         clientDateImplTemplate = this.getTemplateURL("client-date-implementation.ftl");
         clientDateIntTemplate = this.getTemplateURL("client-date-interface.ftl");
         clientFileImplTemplate = this.getTemplateURL("client-file-implementation.ftl");
@@ -84,7 +82,7 @@ public class IOSClientModule extends AbstractClientModule {
 		info("Generating the Pico client classes...");
 		
 		if (config.prefix == null) {
-			warn("No prefix is provided, it's recommended to add prefix for Pico binding to avoid possible conflict");
+			warn("No prefix is provided, it's recommended to add prefix to avoid possible conflict");
 		}
 
         final String projectPrefix = config.prefix;
@@ -93,8 +91,7 @@ public class IOSClientModule extends AbstractClientModule {
 
         fmModel.put("generatedPrefix",GENERATED_PREFIX);
         fmModel.put("projectPrefix",projectPrefix);
-		
-		String relativePath = null;
+
 		// generate classes
 		info("Generating classes ...");
 		for(ClassInfo classInfo : cgModel.getClasses()) {
@@ -102,8 +99,7 @@ public class IOSClientModule extends AbstractClientModule {
 			fmModel.put("superClassImports", this.getSuperClassImports(classInfo, GENERATED_PREFIX));
 			fmModel.put("fieldClassImports", this.getFieldImports(classInfo, projectPrefix, GENERATED_PREFIX));
 			fmModel.put("clazz", classInfo);
-			
-			relativePath = ClassNameUtil.packageNameToPath(classInfo.getPackageName());
+
 			FileInfo classIntf = this.generateFile(clientClassIntTemplate, fmModel, GENERATED_PREFIX + classInfo.getName(), "h", "Generated", SOURCE_FOLDER);
 			targetFileSet.add(classIntf);
 			FileInfo classImpl = this.generateFile(clientClassImplementationTemplate, fmModel, GENERATED_PREFIX + classInfo.getName(), "m", "Generated", SOURCE_FOLDER);
@@ -118,30 +114,12 @@ public class IOSClientModule extends AbstractClientModule {
 		info("Generating enums ...");
 		for(EnumInfo enumInfo : cgModel.getEnums()) {
 			fmModel.put("enum", enumInfo);
-			relativePath = ClassNameUtil.packageNameToPath(enumInfo.getPackageName());
+
 			FileInfo enumDec = this.generateFile(enumDeclarationTemplate, fmModel, GENERATED_PREFIX + enumInfo.getName(), "h", "Generated", SOURCE_FOLDER);
 			targetFileSet.add(enumDec);
 			FileInfo enumDef = this.generateFile(enumDefinitionTemplate, fmModel, GENERATED_PREFIX + enumInfo.getName(), "m", "Generated", SOURCE_FOLDER);
 			targetFileSet.add(enumDef);
-            fmModel.put("clazz", enumInfo);
-            FileInfo clientSubClassInt = this.generateFile(clientSubClassIntTemplate, fmModel, projectPrefix + enumInfo.getName(), "h", "Classes", SOURCE_FOLDER);
-            targetFileSet.add(clientSubClassInt);
-            FileInfo clientSubClassImpl = this.generateFile(clientSubClassImplTemplate, fmModel, projectPrefix + enumInfo.getName(), "m", "Classes", SOURCE_FOLDER);
-            targetFileSet.add(clientSubClassImpl);
 		}
-		
-		// generate common header
-		/*info("Generating common header ...");
-		fmModel.put("classes", cgModel.getClasses());
-		fmModel.put("enums", cgModel.getEnums());
-		
-		if (relativePath == null) {
-			relativePath = "";
-		}
-		relativePath += File.separator + "common";
-		String commonTypeFileName = projectPrefix + "CommonTypes";
-		FileInfo commonHeader = this.generateFile(commonHeaderTemplate, fmModel, projectPrefix + commonTypeFileName, "h", "Classes", SOURCE_FOLDER);
-		targetFileSet.add(commonHeader);*/
 
         FileInfo clientDateImpl = this.generateFile(clientDateImplTemplate, fmModel, GENERATED_PREFIX + "DateFormatterUtils", "m", "Generated", SOURCE_FOLDER);
         targetFileSet.add(clientDateImpl);
