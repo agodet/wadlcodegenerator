@@ -6,6 +6,8 @@
 #import <Foundation/Foundation.h>
 #import "${generatedPrefix}Enum.h"
 
+@class ${generatedPrefix}${enum.name};
+
 [#if enum.docComment??]
 /**
  @file
