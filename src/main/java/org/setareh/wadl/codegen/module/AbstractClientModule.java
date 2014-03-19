@@ -158,7 +158,7 @@ public abstract class AbstractClientModule implements ClientModule {
 
         if(reservedWordCache.contains(name))
         {
-            return "_" + name;
+            return name + "_rw";
         }
 
         return name;
