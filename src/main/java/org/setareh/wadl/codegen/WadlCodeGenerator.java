@@ -58,22 +58,22 @@ public class WadlCodeGenerator {
             shemaCompiler.setErrorListener(new ErrorListener() {
                 @Override
                 public void error(SAXParseException e) {
-                    //To change body of implemented methods use File | Settings | File Templates.
+                    throw new RuntimeException(e);
                 }
 
                 @Override
                 public void fatalError(SAXParseException e) {
-                    //To change body of implemented methods use File | Settings | File Templates.
+                    throw new RuntimeException(e);
                 }
 
                 @Override
                 public void warning(SAXParseException e) {
-                    //To change body of implemented methods use File | Settings | File Templates.
+                    throw new RuntimeException(e);
                 }
 
                 @Override
                 public void info(SAXParseException e) {
-                    //To change body of implemented methods use File | Settings | File Templates.
+                    throw new RuntimeException(e);
                 }
             });
             //shemaCompiler.setEntityResolver(OASISCatalogManager.getCatalogManager(bus).getEntityResolver());
@@ -84,14 +84,14 @@ public class WadlCodeGenerator {
 
 
             ErrorReceiver receiver = new ErrorReceiverFilter() {
-                public void info(SAXParseException exception) {
-
+                @Override
+                public void error(SAXParseException exception) {
+                    throw new RuntimeException(exception);
                 }
-                public void warning(SAXParseException exception) {
 
-                }
-                public void pollAbort() throws AbortException {
-
+                @Override
+                public void fatalError(SAXParseException exception) {
+                    throw new RuntimeException(exception);
                 }
             };
 
