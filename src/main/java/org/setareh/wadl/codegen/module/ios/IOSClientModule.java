@@ -96,7 +96,7 @@ public class IOSClientModule extends AbstractClientModule {
 		info("Generating classes ...");
 		for(ClassInfo classInfo : cgModel.getClasses()) {
 			this.convertFieldsType(classInfo);
-			fmModel.put("superClassImports", this.getSuperClassImports(classInfo, GENERATED_PREFIX));
+			fmModel.put("superClassImports", this.getSuperClassImports(classInfo, projectPrefix));
 			fmModel.put("fieldClassImports", this.getFieldImports(classInfo, projectPrefix, GENERATED_PREFIX));
 			fmModel.put("clazz", classInfo);
 
