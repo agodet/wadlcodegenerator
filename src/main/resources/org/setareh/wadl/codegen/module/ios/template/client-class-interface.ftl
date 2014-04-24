@@ -21,7 +21,7 @@
  ${clazz.docComment?default("(public class)")?replace("\n", "\n ")?replace("\t", "")}
 
 */
-@interface ${generatedPrefix}${clazz.name} : [#if clazz.superClass??]${generatedPrefix}${clazz.superClass.name}[#else]${generatedPrefix}Object[/#if]
+@interface ${generatedPrefix}${clazz.name} : [#if clazz.superClass??]${projectPrefix}${clazz.superClass.name}[#else]${generatedPrefix}Object[/#if]
 
 [#function getPrimitiveTypeName type]
   [#assign index = type?last_index_of("_") ]
@@ -49,6 +49,6 @@
 
 [/#list]
 
-- (id) initWithValues[#list clazz.fields as field][#if field_index = 0]${field.name?cap_first}[#else] ${field.name}[/#if]: ([#if field.type.collection]NSMutableArray[#elseif field.type.enum]NSString[#elseif field.any]NSMutableArray[#elseif field.type.primitive]${field.type.fullName}[#else]${projectPrefix}${field.type.fullName}[/#if] *) ${field.name}Param[/#list];
+- (id) initWithValues[#list clazz.fields as field][#if field_index = 0]${field.name?cap_first}[#else] ${field.name}[/#if]: ([#if field.type.collection]NSMutableArray/*${projectPrefix}${field.type.typeParameters[0].fullName}*/[#elseif field.type.enum]${generatedPrefix}${field.type.fullName}[#elseif field.any]NSMutableArray[#elseif field.type.primitive]${field.type.fullName}[#else]${projectPrefix}${field.type.fullName}[/#if] *) ${field.name}Param[/#list];
 
 @end
