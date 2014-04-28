@@ -45,7 +45,7 @@
             [#assign fieldType = "${projectPrefix}${field.type.fullName}"]
         [/#if]
     [/#if]
-@property ([#if field.fixedValue]readonly, [/#if]nonatomic, retain) ${fieldType} *${field.name}
+@property ([#if field.fixedValue]readonly, [/#if]nonatomic, retain) ${fieldType} *${field.name};
 
 [/#list]
 - (id) initWithValues[#list clazz.fields as field][#if !field.value??][#if field_index = 0]${field.name?cap_first}[#else] ${field.name}[/#if]: ([#if field.type.collection]NSMutableArray/*${projectPrefix}${field.type.typeParameters[0].fullName}*/[#elseif field.type.enum]${generatedPrefix}${field.type.fullName}[#elseif field.propertyKindAny]NSMutableArray[#elseif field.type.primitive]${field.type.fullName}[#else]${projectPrefix}${field.type.fullName}[/#if] *) ${field.name}Param[/#if][/#list];

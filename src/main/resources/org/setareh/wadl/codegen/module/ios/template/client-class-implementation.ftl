@@ -32,7 +32,7 @@
             [#assign fieldType = "${projectPrefix}${field.type.fullName}"]
         [/#if]
     [/#if]
-    @property (readwrite, nonatomic, retain) ${fieldType} *${field.name}
+    @property (readwrite, nonatomic, retain) ${fieldType} *${field.name};
 [/#if]
 [/#list]
 @end
