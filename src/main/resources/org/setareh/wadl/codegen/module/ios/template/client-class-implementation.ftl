@@ -63,7 +63,32 @@
     return self;
 }
 
--(id) initWithValues[#list clazz.fields as field][#if !field.value??][#if field_index = 0]${field.name?cap_first}[#else] ${field.name}[/#if]: ([#if field.type.collection]NSMutableArray/*${projectPrefix}${field.type.typeParameters[0].fullName}*/[#elseif field.type.enum]${generatedPrefix}${field.type.fullName}[#elseif field.propertyKindAny]NSMutableArray[#elseif field.type.primitive]${field.type.fullName}[#else]${projectPrefix}${field.type.fullName}[/#if] *) ${field.name}Param[/#if][/#list]
+[#assign fieldIndex = 0]
+[#assign values = ""]
+[#list clazz.fields as field]
+    [#if !field.value??]
+        [#if fieldIndex == 0]
+            [#assign values = "${values}${field.name?cap_first}"]
+        [#else]
+            [#assign values = "${values} ${field.name}"]
+        [/#if]
+        [#assign values = "${values}: ("]
+        [#if field.type.collection]
+            [#assign values = "${values}NSMutableArray/*${projectPrefix}${field.type.typeParameters[0].fullName}*/"]
+        [#elseif field.type.enum]
+            [#assign values = "${values}${generatedPrefix}${field.type.fullName}"]
+        [#elseif field.propertyKindAny]
+            [#assign values = "${values}NSMutableArray"]
+        [#elseif field.type.primitive]
+            [#assign values = "${values}${field.type.fullName}"]
+        [#else]
+            [#assign values = "${values}${projectPrefix}${field.type.fullName}"]
+        [/#if]
+        [#assign values = "${values}*) ${field.name}Param"]
+        [#assign fieldIndex = fieldIndex + 1]
+    [/#if]
+[/#list]
+-(id) initWithValues${values}
 {
     self = [self init];
     if(self) {
