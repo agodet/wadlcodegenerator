@@ -45,7 +45,7 @@
             [#assign fieldType = "${projectPrefix}${field.type.fullName}"]
         [/#if]
     [/#if]
-@property ([#if field.fixedValue]readonly, [/#if]nonatomic, retain) ${fieldType} *${field.name};
+@property (nonatomic, [#if field.fixedValue]readonly[#else]strong[/#if]) ${fieldType} *${field.name};
 
 [/#list]
 [#assign fieldIndex = 0]
