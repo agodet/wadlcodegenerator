@@ -22,18 +22,15 @@ public class FieldInfo {
 	// doc comments
 	private String docComment;
 	
-	// is schema element, map to xml element
-	private boolean isElement = false;
-	// is schema attribute, map to xml attribute
-	private boolean isAttribute = false;
-	// is schema value, map to xml text value
-	private boolean isValue = false;
-	// is schema any, map to any
-	private boolean isAny = false;
-	
 	private ElementAnnotation elementAnnotation;
 	
 	private AttributeAnnotation attributeAnnotation;
+    private String value;
+    private boolean fixedValue = false;
+    private boolean propertyKindElement;
+    private boolean propertyKindAttribute;
+    private boolean propertyKindValue;
+    private boolean propertyKindAny;
 
     /**
 	 * doc comment of this field
@@ -77,62 +74,6 @@ public class FieldInfo {
 	public void setType(TypeInfo type) {
 		this.type = type;
 	}
-	/**
-	 * whether this field maps to xml element 
-	 * @return whether this filed maps to xml element
-	 */
-	public boolean isElement() {
-		return isElement;
-	}
-	/**
-	 * set whether this field maps to xml element
-	 * @param isElement
-	 */
-	public void setElement(boolean isElement) {
-		this.isElement = isElement;
-	}
-	/**
-	 * whether this field maps to xml attribute
-	 * @return whether this field maps to xml attribute
-	 */
-	public boolean isAttribute() {
-		return isAttribute;
-	}
-	/**
-	 * set whether this field maps to xml attribute
-	 * @param isAttribute
-	 */
-	public void setAttribute(boolean isAttribute) {
-		this.isAttribute = isAttribute;
-	}
-	/**
-	 * whether this field maps to xml text value
-	 * @return whether this field maps to xml text value
-	 */
-	public boolean isValue() {
-		return isValue;
-	}
-	/**
-	 * set whether this field maps to xml text value
-	 * @param isValue
-	 */
-	public void setValue(boolean isValue) {
-		this.isValue = isValue;
-	}
-	/**
-	 * whether this field maps to xml any
-	 * @return whether this field maps to xml any
-	 */
-	public boolean isAny() {
-		return isAny;
-	}
-	/**
-	 * set whether this field maps to xml any
-	 * @param isAny
-	 */
-	public void setAny(boolean isAny) {
-		this.isAny = isAny;
-	}
 	
 	public ElementAnnotation getElementAnnotation() {
 		return elementAnnotation;
@@ -161,5 +102,53 @@ public class FieldInfo {
     public boolean isModifiedName()
     {
         return this.initialName != this.name;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setFixedValue(boolean fixed) {
+        this.fixedValue = fixed;
+    }
+
+    public boolean isFixedValue() {
+        return fixedValue;
+    }
+
+    public void setPropertyKindElement(boolean propertyKindElement) {
+        this.propertyKindElement = propertyKindElement;
+    }
+
+    public boolean isPropertyKindElement() {
+        return propertyKindElement;
+    }
+
+    public void setPropertyKindAttribute(boolean propertyKindAttribute) {
+        this.propertyKindAttribute = propertyKindAttribute;
+    }
+
+    public boolean isPropertyKindAttribute() {
+        return propertyKindAttribute;
+    }
+
+    public void setPropertyKindValue(boolean propertyKindValue) {
+        this.propertyKindValue = propertyKindValue;
+    }
+
+    public boolean isPropertyKindValue() {
+        return propertyKindValue;
+    }
+
+    public void setPropertyKindAny(boolean propertyKindAny) {
+        this.propertyKindAny = propertyKindAny;
+    }
+
+    public boolean isPropertyKindAny() {
+        return propertyKindAny;
     }
 }

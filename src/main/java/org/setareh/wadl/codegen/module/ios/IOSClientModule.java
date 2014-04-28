@@ -4,7 +4,6 @@ import org.setareh.wadl.codegen.model.*;
 import org.setareh.wadl.codegen.module.AbstractClientModule;
 import org.setareh.wadl.codegen.module.ModuleException;
 import org.setareh.wadl.codegen.module.ModuleName;
-import org.setareh.wadl.codegen.utils.ClassNameUtil;
 import freemarker.template.SimpleHash;
 
 import java.net.URL;
@@ -79,7 +78,7 @@ public class IOSClientModule extends AbstractClientModule {
 		// container for target codes
 		Set<FileInfo> targetFileSet = new HashSet<FileInfo>();
 		
-		info("Generating the Pico client classes...");
+		info("Generating the client classes...");
 		
 		if (config.prefix == null) {
 			warn("No prefix is provided, it's recommended to add prefix to avoid possible conflict");
@@ -239,7 +238,7 @@ public class IOSClientModule extends AbstractClientModule {
 	private void prefixType(TypeInfo type, String prefix) {
 		if (type == null) return; // be cautious
 		// for ios primitives, do not prefix
-		if (Java2PicoTypeMapper.lookupPicoType(type.getFullName()) != null) {
+		if (Java2TypeMapper.lookupType(type.getFullName()) != null) {
 			return;
 		}
 		String name = type.getName();
@@ -287,7 +286,7 @@ public class IOSClientModule extends AbstractClientModule {
                 {
                     imports.add(generatedPrefix + paraType.getFullName());
                 }
-                else if (!paraType.isPrimitive() && !field.isAny()) {
+                else if (!paraType.isPrimitive() && !field.isPropertyKindAny()) {
 					imports.add(projectPrefix + paraType.getFullName());
 				}
 			}
@@ -310,24 +309,24 @@ public class IOSClientModule extends AbstractClientModule {
 			}
 		}
 	}
-	
+
 	/**
 	 * Check and covert a type
-	 * 
+	 *
 	 * @param type
 	 */
 	private void convertType(TypeInfo type) {
 		if (type == null) return; // be cautious
-		String picoPrimitiveType = Java2PicoTypeMapper.lookupPicoType(type.getFullName());
-		if (picoPrimitiveType != null)  {// ios primitive type
-			type.setFullName(PicoTypeMapper.lookupWrapper(picoPrimitiveType));
-			type.setName(picoPrimitiveType); // ios primitive
+		String primitiveType = Java2TypeMapper.lookupType(type.getFullName());
+		if (primitiveType != null)  {// ios primitive type
+			type.setFullName(TypeMapper.lookupWrapper(primitiveType));
+			type.setName(primitiveType); // ios primitive
 			type.setPrimitive(true);
 		} else if (type.isEnum()) {
-			type.setName(PicoType.ENUM); // ios enum type
+			type.setName(Type.ENUM); // ios enum type
 			type.setPrimitive(true); // treat enum as primitive type
 		} else {
-			type.setName(PicoType.OBJECT);
+			type.setName(Type.OBJECT);
 			type.setPrimitive(false);
 		}
 	}

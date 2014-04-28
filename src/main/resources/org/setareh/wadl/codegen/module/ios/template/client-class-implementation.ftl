@@ -11,14 +11,66 @@
 #import "${import}.h"
 [/#list]
 
+@interface ${generatedPrefix}${clazz.name} ()
+[#list clazz.fields as field]
+[#if field.fixedValue]
+    [#if field.type.collection]
+        [#assign type = field.type.typeParameters?first]
+        [#assign fieldType = "NSMutableArray/*"]
+        [#if !type.primitive]
+            [#assign fieldType = "${fieldType}${projectPrefix}"]
+        [/#if]
+        [#assign fieldType = "${fieldType}${type.fullName}*/"]
+    [#elseif field.type.enum]
+            [#assign fieldType = "${generatedPrefix}${field.type.fullName}"]
+    [#elseif field.propertyKindAny]
+            [#assign fieldType = "NSMutableArray"]
+    [#else]
+        [#if field.type.primitive]
+                [#assign fieldType = "${field.type.fullName}"]
+        [#else]
+            [#assign fieldType = "${projectPrefix}${field.type.fullName}"]
+        [/#if]
+    [/#if]
+    @property (readwrite, nonatomic, retain) ${fieldType} *${field.name}
+[/#if]
+[/#list]
+@end
+
 @implementation ${generatedPrefix}${clazz.name}
 
--(id) initWithValues[#list clazz.fields as field][#if field_index = 0]${field.name?cap_first}[#else] ${field.name}[/#if]: ([#if field.type.collection]NSMutableArray/*${projectPrefix}${field.type.typeParameters[0].fullName}*/[#elseif field.type.enum]${generatedPrefix}${field.type.fullName}[#elseif field.any]NSMutableArray[#elseif field.type.primitive]${field.type.fullName}[#else]${projectPrefix}${field.type.fullName}[/#if] *) ${field.name}Param[/#list]
-{
+- (id)init {
     self = [super init];
+    if (self) {
+    [#list clazz.fields as field]
+    [#if field.value??]
+    [#if field.type.enum]
+        self.${field.name} = ${field.type.fullName?upper_case}_${field.value};
+    [#elseif field.type.primitive]
+        [#if field.type.name == "DATE"]
+            self.${field.name} = [${generatedPrefix}DateFormatterUtils convertToDate:dict${"["}@"${field.initialName}"]];
+        [#elseif field.type.name == "STRING"]
+            self.${field.name} = @"${field.value}";
+        [#else]
+            self.${field.name} = ${field.value};
+        [/#if]
+    [#else]
+        //self.${field.name} = ${field.value};
+    [/#if]
+    [/#if]
+    [/#list]
+    }
+    return self;
+}
+
+-(id) initWithValues[#list clazz.fields as field][#if !field.value??][#if field_index = 0]${field.name?cap_first}[#else] ${field.name}[/#if]: ([#if field.type.collection]NSMutableArray/*${projectPrefix}${field.type.typeParameters[0].fullName}*/[#elseif field.type.enum]${generatedPrefix}${field.type.fullName}[#elseif field.propertyKindAny]NSMutableArray[#elseif field.type.primitive]${field.type.fullName}[#else]${projectPrefix}${field.type.fullName}[/#if] *) ${field.name}Param[/#if][/#list]
+{
+    self = [self init];
     if(self) {
     [#list clazz.fields as field]
+    [#if !field.value??]
         self.${field.name} = ${field.name}Param;
+    [/#if]
     [/#list]
     }
     return self;
@@ -80,7 +132,7 @@
     if(self.${field.name} != nil) {
         dict${"["}@"${field.initialName}"] = self.${field.name}.value;
     }
-[#elseif field.type.primitive || field.any]
+[#elseif field.type.primitive || field.propertyKindAny]
     if(self.${field.name} != nil) {
         [#if field.type.name == "DATE"]
             dict${"["}@"${field.initialName}"] = [${generatedPrefix}DateFormatterUtils formatWithDate:self.${field.name}] ;

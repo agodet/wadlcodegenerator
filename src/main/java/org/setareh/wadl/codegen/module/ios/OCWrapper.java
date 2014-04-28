@@ -19,6 +19,6 @@ public class OCWrapper {
 	
 	public static final String NSINPUTSTREAM = "NSInputStream";
 	
-	public static final String PICO_ANYELEMENT = "PicoAnyElement";
+	public static final String ANYELEMENT = "AnyElement";
 
 }

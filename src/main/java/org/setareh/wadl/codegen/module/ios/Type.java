@@ -6,7 +6,7 @@ package org.setareh.wadl.codegen.module.ios;
  * @author bulldog
  *
  */
-public abstract class PicoType {
+public abstract class Type {
 	
 	// primitives
 	public static final String INTEGER = "INTEGER";

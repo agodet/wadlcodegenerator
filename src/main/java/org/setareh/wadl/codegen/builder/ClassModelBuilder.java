@@ -6,6 +6,8 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import com.sun.xml.bind.v2.model.core.PropertyKind;
+import com.sun.xml.xsom.XSElementDecl;
 import org.setareh.wadl.codegen.model.*;
 import org.setareh.wadl.codegen.model.annotation.AttributeAnnotation;
 import org.setareh.wadl.codegen.model.annotation.ElementAnnotation;
@@ -30,7 +32,6 @@ import com.sun.tools.xjc.outline.ClassOutline;
 import com.sun.tools.xjc.outline.FieldOutline;
 import com.sun.tools.xjc.outline.Outline;
 import com.sun.xml.bind.api.impl.NameConverter;
-import com.sun.xml.bind.v2.model.core.PropertyKind;
 import com.sun.xml.xsom.XSComponent;
 import com.sun.xml.xsom.XSParticle;
 import com.sun.xml.xsom.XSTerm;
@@ -85,11 +86,11 @@ public class ClassModelBuilder {
 			
 			// build field model
 			for (FieldOutline fo : co.getDeclaredFields()) {
-				
+
 				FieldInfo attrInfo = new FieldInfo();
 				// field name
                 ClientModule clientModule = ModuleFactory.getModule(cgConfig.module);
-				attrInfo.setName(clientModule.generateSafeName(fo.getPropertyInfo().getName(false)));
+                attrInfo.setName(clientModule.generateSafeName(fo.getPropertyInfo().getName(false)));
                 attrInfo.setInitialName(fo.getPropertyInfo().getName(false));
 				
 				// raw type of this field
@@ -165,13 +166,13 @@ public class ClassModelBuilder {
 				// schema kind
 				CPropertyInfo cProp = fo.getPropertyInfo();
 				if (cProp.kind() == PropertyKind.ELEMENT) {
-					attrInfo.setElement(true);
+					attrInfo.setPropertyKindElement(true);
 				} else if (cProp.kind() == PropertyKind.ATTRIBUTE) {
-					attrInfo.setAttribute(true);
+					attrInfo.setPropertyKindAttribute(true);
 				} else if (cProp.kind() == PropertyKind.VALUE) {
-					attrInfo.setValue(true);
+					attrInfo.setPropertyKindValue(true);
 				} else if (cProp.kind() == PropertyKind.REFERENCE) {
-					attrInfo.setAny(true);
+					attrInfo.setPropertyKindAny(true);
 				}
 				
 				// Annotation
@@ -201,6 +202,18 @@ public class ClassModelBuilder {
 				if (xsComp != null && xsComp instanceof XSParticle) {
 					XSParticle xsParticle = (XSParticle) xsComp;
 					XSTerm xsTerm = xsParticle.getTerm();
+                    XSElementDecl elemndecl = xsTerm.asElementDecl();
+                    if(elemndecl.getDefaultValue() != null)
+                    {
+                        attrInfo.setValue(elemndecl.getDefaultValue().value);
+                        attrInfo.setFixedValue(false);
+                    }
+                    else if(elemndecl.getFixedValue() != null)
+                    {
+                        attrInfo.setValue(elemndecl.getFixedValue().value);
+                        attrInfo.setFixedValue(true);
+                    }
+
 					String attrDoc = ModelBuilder.getDocumentation(xsTerm);
 					attrInfo.setDocComment(attrDoc);
 				}

@@ -22,9 +22,26 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
     private static final long serialVersionUID = -1L;
 
     [#list clazz.fields as field]
+    [#compress]
+    [#if field.value??]
+        [#if field.type.enum]
+            [#assign value = "${field.type.name}.${field.value}"]
+        [#elseif field.type.name == "Date"]
+            [#assign value = "null // TODO implements date formatter"];
+        [#elseif field.type.name == "String"]
+            [#assign value = "\"${field.value}\""]
+        [#elseif field.type.primitive]
+            [#assign value = "${field.value}"]
+        [#else]
+            [#assign value = "null // TODO not implemented ?"]
+        [/#if]
+    [/#if]
+
     [#if field.modifiedName]
-    @SerializedName("${field.initialName}")[/#if]
-	public ${field.type.name} ${field.name};
-	
+    @SerializedName("${field.initialName}")
+    [/#if]
+	[/#compress]
+	[#if field.fixedValue]final [/#if]public ${field.type.name} ${field.name} [#if field.value??]= ${value}[/#if];
+
     [/#list]
 }

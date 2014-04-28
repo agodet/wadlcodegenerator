@@ -14,7 +14,6 @@ import org.setareh.wadl.codegen.utils.ClassNameUtil;
 import freemarker.template.SimpleHash;
 
 /**
- * <h1>Nano Client Module</h1>
  * 
  * @author bulldog
  *
@@ -72,7 +71,7 @@ public class AndroidClientModule extends AbstractClientModule {
 		// container for target codes
 		Set<FileInfo> targetFileSet = new HashSet<FileInfo>();
 		
-		info("Generating the Nano client classes...");
+		info("Generating the client classes...");
 		
 		// adjust package name of nested class
 		adjustPackageNameOfNestClass(cgModel.getClasses());
@@ -183,17 +182,17 @@ public class AndroidClientModule extends AbstractClientModule {
 			}
 		}
 	}
-	
+
 	/**
 	 * Check and convert a type
-	 * 
+	 *
 	 * @param type, TypeInfo instance
 	 */
 	private void convertType(TypeInfo type) {
 		String targetTypeFullName = typeMapping.get(type.getFullName());
 		if (targetTypeFullName != null) {
 			type.setFullName(targetTypeFullName);
-			type.setName(ClassNameUtil.stripQualifier(targetTypeFullName));			
+			type.setName(ClassNameUtil.stripQualifier(targetTypeFullName));
 		} else {
 			if (type.isCollection()) { // special handling for collection type
 				for(String oldTypeFullName : typeMapping.keySet()) {

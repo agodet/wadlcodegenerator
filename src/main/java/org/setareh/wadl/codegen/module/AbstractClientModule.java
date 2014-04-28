@@ -4,6 +4,10 @@ import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.util.Set;
 
+import org.setareh.wadl.codegen.model.TypeInfo;
+import org.setareh.wadl.codegen.module.ios.Java2TypeMapper;
+import org.setareh.wadl.codegen.module.ios.Type;
+import org.setareh.wadl.codegen.module.ios.TypeMapper;
 import org.xml.sax.helpers.LocatorImpl;
 
 import org.setareh.wadl.codegen.model.FileInfo;
@@ -165,6 +169,5 @@ public abstract class AbstractClientModule implements ClientModule {
     }
 
     protected abstract Set<String> getReservedWords();
-
 
 }

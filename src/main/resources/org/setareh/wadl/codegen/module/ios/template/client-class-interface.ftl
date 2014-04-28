@@ -23,32 +23,31 @@
 */
 @interface ${generatedPrefix}${clazz.name} : [#if clazz.superClass??]${projectPrefix}${clazz.superClass.name}[#else]${generatedPrefix}Object[/#if]
 
-[#function getPrimitiveTypeName type]
-  [#assign index = type?last_index_of("_") ]
-  [#return type?substring(index + 1)?lower_case]
-[/#function]
-
 [#list clazz.fields as field]
 /**
  ${field.docComment?default("(public property)")?replace("\n", "\n ")?replace("\t", "")}
 */
-[#if field.type.collection]
-[#assign type = field.type.typeParameters?first]
-@property (nonatomic, retain) NSMutableArray/*[#if !type.primitive]${projectPrefix}[/#if]${type.fullName}*/ *${field.name};
-[#elseif field.type.enum]
-@property (nonatomic, retain) ${generatedPrefix}${field.type.fullName} *${field.name};
-[#elseif field.any]
-@property (nonatomic, retain) NSMutableArray *${field.name};
-[#else]
-    [#if field.type.primitive]
-@property (nonatomic, retain) ${field.type.fullName} *${field.name};
+    [#if field.type.collection]
+        [#assign type = field.type.typeParameters?first]
+        [#assign fieldType = "NSMutableArray/*"]
+        [#if !type.primitive]
+            [#assign fieldType = "${fieldType}${projectPrefix}"]
+        [/#if]
+        [#assign fieldType = "${fieldType}${type.fullName}*/"]
+    [#elseif field.type.enum]
+            [#assign fieldType = "${generatedPrefix}${field.type.fullName}"]
+    [#elseif field.propertyKindAny]
+            [#assign fieldType = "NSMutableArray"]
     [#else]
-@property (nonatomic, retain) ${projectPrefix}${field.type.fullName} *${field.name};
+        [#if field.type.primitive]
+                [#assign fieldType = "${field.type.fullName}"]
+        [#else]
+            [#assign fieldType = "${projectPrefix}${field.type.fullName}"]
+        [/#if]
     [/#if]
-[/#if]
+@property ([#if field.fixedValue]readonly, [/#if]nonatomic, retain) ${fieldType} *${field.name}
 
 [/#list]
-
-- (id) initWithValues[#list clazz.fields as field][#if field_index = 0]${field.name?cap_first}[#else] ${field.name}[/#if]: ([#if field.type.collection]NSMutableArray/*${projectPrefix}${field.type.typeParameters[0].fullName}*/[#elseif field.type.enum]${generatedPrefix}${field.type.fullName}[#elseif field.any]NSMutableArray[#elseif field.type.primitive]${field.type.fullName}[#else]${projectPrefix}${field.type.fullName}[/#if] *) ${field.name}Param[/#list];
+- (id) initWithValues[#list clazz.fields as field][#if !field.value??][#if field_index = 0]${field.name?cap_first}[#else] ${field.name}[/#if]: ([#if field.type.collection]NSMutableArray/*${projectPrefix}${field.type.typeParameters[0].fullName}*/[#elseif field.type.enum]${generatedPrefix}${field.type.fullName}[#elseif field.propertyKindAny]NSMutableArray[#elseif field.type.primitive]${field.type.fullName}[#else]${projectPrefix}${field.type.fullName}[/#if] *) ${field.name}Param[/#if][/#list];
 
 @end

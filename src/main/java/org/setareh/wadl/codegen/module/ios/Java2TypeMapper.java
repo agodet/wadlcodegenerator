@@ -23,7 +23,7 @@ import com.sun.xml.xsom.impl.util.Uri;
  * @author bulldog
  *
  */
-public class Java2PicoTypeMapper {
+public class Java2TypeMapper {
 	
 	/**
 	 * java to objc primitive type mapping
@@ -61,15 +61,15 @@ public class Java2PicoTypeMapper {
 	private static void initPrimitiveMap() {
 		primitiveMap = new HashMap<String, String>();
 		
-		primitiveMap.put(int.class.getName(), PicoType.INTEGER);
-		primitiveMap.put(boolean.class.getName(), PicoType.BOOL);
-		primitiveMap.put(long.class.getName(), PicoType.LONG);
-		primitiveMap.put(double.class.getName(), PicoType.DOUBLE);
-		primitiveMap.put(float.class.getName(), PicoType.FLOAT);
-		primitiveMap.put(short.class.getName(), PicoType.SHORT);
-		primitiveMap.put(byte.class.getName(), PicoType.BYTE);
-		primitiveMap.put(char.class.getName(), PicoType.CHAR); //string or int?
-		primitiveMap.put("byte[]", PicoType.DATA);
+		primitiveMap.put(int.class.getName(), Type.INTEGER);
+		primitiveMap.put(boolean.class.getName(), Type.BOOL);
+		primitiveMap.put(long.class.getName(), Type.LONG);
+		primitiveMap.put(double.class.getName(), Type.DOUBLE);
+		primitiveMap.put(float.class.getName(), Type.FLOAT);
+		primitiveMap.put(short.class.getName(), Type.SHORT);
+		primitiveMap.put(byte.class.getName(), Type.BYTE);
+		primitiveMap.put(char.class.getName(), Type.CHAR); //string or int?
+		primitiveMap.put("byte[]", Type.DATA);
 	}
 
 	/**
@@ -78,15 +78,15 @@ public class Java2PicoTypeMapper {
 	private static void initLanguageMap() {
 		languageMap = new HashMap<String, String>();
 		
-		languageMap.put(Boolean.class.getName(), PicoType.BOOL);
-		languageMap.put(Integer.class.getName(), PicoType.INTEGER);
-		languageMap.put(Long.class.getName(), PicoType.LONG);
-		languageMap.put(Double.class.getName(), PicoType.DOUBLE);
-		languageMap.put(Float.class.getName(), PicoType.FLOAT);
-		languageMap.put(Short.class.getName(), PicoType.SHORT);
-		languageMap.put(Byte.class.getName(), PicoType.BYTE);
-		languageMap.put(Character.class.getName(), PicoType.CHAR);
-		languageMap.put(String.class.getName(), PicoType.STRING);
+		languageMap.put(Boolean.class.getName(), Type.BOOL);
+		languageMap.put(Integer.class.getName(), Type.INTEGER);
+		languageMap.put(Long.class.getName(), Type.LONG);
+		languageMap.put(Double.class.getName(), Type.DOUBLE);
+		languageMap.put(Float.class.getName(), Type.FLOAT);
+		languageMap.put(Short.class.getName(), Type.SHORT);
+		languageMap.put(Byte.class.getName(), Type.BYTE);
+		languageMap.put(Character.class.getName(), Type.CHAR);
+		languageMap.put(String.class.getName(), Type.STRING);
 	}
 	
 	
@@ -96,11 +96,11 @@ public class Java2PicoTypeMapper {
 	private static void initUtilityMap() {
 		utilityMap = new HashMap<String, String>();
 		
-		utilityMap.put(Date.class.getName(), PicoType.DATE);
-		utilityMap.put(Locale.class.getName(), PicoType.STRING);
-		utilityMap.put(Currency.class.getName(), PicoType.STRING);
-		utilityMap.put(GregorianCalendar.class.getName(), PicoType.DATE);
-		utilityMap.put(TimeZone.class.getName(), PicoType.STRING);
+		utilityMap.put(Date.class.getName(), Type.DATE);
+		utilityMap.put(Locale.class.getName(), Type.STRING);
+		utilityMap.put(Currency.class.getName(), Type.STRING);
+		utilityMap.put(GregorianCalendar.class.getName(), Type.DATE);
+		utilityMap.put(TimeZone.class.getName(), Type.STRING);
 	}
 	
 	
@@ -110,10 +110,10 @@ public class Java2PicoTypeMapper {
 	private static void initXMLMap() {
 		xmlMap = new HashMap<String, String>();
 		
-		xmlMap.put(XMLGregorianCalendar.class.getName(), PicoType.DATE);
-		xmlMap.put(Duration.class.getName(), PicoType.DURATION);
-		xmlMap.put(QName.class.getName(), PicoType.QNAME);
-		xmlMap.put(Object.class.getName(), PicoType.ANYELEMENT);
+		xmlMap.put(XMLGregorianCalendar.class.getName(), Type.DATE);
+		xmlMap.put(Duration.class.getName(), Type.DURATION);
+		xmlMap.put(QName.class.getName(), Type.QNAME);
+		xmlMap.put(Object.class.getName(), Type.ANYELEMENT);
 	}
 	
 	/**
@@ -122,15 +122,15 @@ public class Java2PicoTypeMapper {
 	private static void initUrlMap() {
 		urlMap = new HashMap<String, String>();
 		
-		urlMap.put(URL.class.getName(), PicoType.STRING);
-		urlMap.put(Uri.class.getName(), PicoType.STRING);
+		urlMap.put(URL.class.getName(), Type.STRING);
+		urlMap.put(Uri.class.getName(), Type.STRING);
 	}
 	
 	private static void initMathMap() {
 		mathMap = new HashMap<String, String>();
 		
-		mathMap.put(BigDecimal.class.getName(), PicoType.DOUBLE);
-		mathMap.put(BigInteger.class.getName(), PicoType.LONG);
+		mathMap.put(BigDecimal.class.getName(), Type.DOUBLE);
+		mathMap.put(BigInteger.class.getName(), Type.LONG);
 	}
 	
 	static {
@@ -149,7 +149,7 @@ public class Java2PicoTypeMapper {
 	 * @param javaType
 	 * @return
 	 */
-	public static String lookupPicoType(String javaType) {		
+	public static String lookupType(String javaType) {
 		if (languageMap.containsKey(javaType)) {
 			return languageMap.get(javaType);			
 		}
