@@ -24,7 +24,6 @@ private static final Gson sGson;
 static {
 final GsonBuilder builder = new GsonBuilder();
 builder.setDateFormat("yyyy-MM-dd'T'kk:mm:ssZ");
-builder.setPrettyPrinting();
 sGson = builder.create();
 }
 
