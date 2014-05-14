@@ -27,13 +27,13 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
         [#if field.type.enum]
             [#assign value = "${field.type.name}.${field.value}"]
         [#elseif field.type.name == "Date"]
-            [#assign value = "null // TODO implements date formatter"];
+            [#assign value = "null /* TODO implements date formatter */"];
         [#elseif field.type.name == "String"]
             [#assign value = "\"${field.value}\""]
         [#elseif field.type.primitive]
             [#assign value = "${field.value}"]
         [#else]
-            [#assign value = "null // TODO not implemented ?"]
+            [#assign value = "null /* TODO not implemented ?*/"]
         [/#if]
     [/#if]
 

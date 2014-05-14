@@ -6,7 +6,7 @@
 
     <groupId>org.setareh</groupId>
     <artifactId>wadl-codegen-maven-plugin</artifactId>
-    <version>1.9.7</version>
+    <version>1.9.8</version>
     <packaging>maven-plugin</packaging>
 
     <properties>
