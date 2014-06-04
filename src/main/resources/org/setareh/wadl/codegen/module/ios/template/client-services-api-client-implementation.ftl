@@ -443,9 +443,6 @@ failure:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *e
     NSURLCredential *credential = [NSURLCredential credentialWithUser:self.authenticationLogin password:self.authenticationPassword persistence:NSURLCredentialPersistenceForSession];
     [requestOperation setCredential:credential];
 
-    //TODO Enlever la ligne ci-dessous
-    [requestOperation setAllowsInvalidSSLCertificate:YES];
-
     [requestOperation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
         if (success) {
             success(operation.request, operation.response, responseObject);

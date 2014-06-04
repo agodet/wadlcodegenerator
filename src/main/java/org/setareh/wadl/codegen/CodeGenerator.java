@@ -6,7 +6,6 @@ import org.setareh.wadl.codegen.model.CGServices;
 import org.setareh.wadl.codegen.model.FileInfo;
 import org.setareh.wadl.codegen.module.ClientModule;
 import org.setareh.wadl.codegen.module.ModuleException;
-import org.setareh.wadl.codegen.module.ModuleFactory;
 import org.setareh.wadl.codegen.writer.FileCodeWriter;
 import org.setareh.wadl.codegen.writer.ICodeWriter;
 
@@ -21,7 +20,7 @@ import java.util.Set;
 public class CodeGenerator {
 
     public static void generateModel(CGModel cgModel, CGConfig cgConfig){
-        ClientModule clientModule = ModuleFactory.getModule(cgConfig.module);
+        ClientModule clientModule = cgConfig.module.getClientModule();
         try {
             clientModule.init();
         } catch (ModuleException e) {
@@ -51,7 +50,7 @@ public class CodeGenerator {
 
     public static void generateServices(CGServices cgServices, CGConfig cgConfig) {
 
-        ClientModule clientModule = ModuleFactory.getModule(cgConfig.module);
+        ClientModule clientModule = cgConfig.module.getClientModule();
         try {
             clientModule.init();
         } catch (ModuleException e) {
@@ -80,7 +79,7 @@ public class CodeGenerator {
     }
 
     public static void generateProjectModel(CGConfig cgConfig) {
-        ClientModule clientModule = ModuleFactory.getModule(cgConfig.module);
+        ClientModule clientModule = cgConfig.module.getClientModule();
         try {
             clientModule.init();
         } catch (ModuleException e) {

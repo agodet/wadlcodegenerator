@@ -10,6 +10,7 @@ public class CGMethod {
     private String name;
     private String type;
     private String path;
+    private ClassInfo fault;
 
     public ClassInfo getRequest() {
         return request;
@@ -49,5 +50,13 @@ public class CGMethod {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public void setFault(ClassInfo fault) {
+        this.fault = fault;
+    }
+
+    public ClassInfo getFault() {
+        return fault;
     }
 }

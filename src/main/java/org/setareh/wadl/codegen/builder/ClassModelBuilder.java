@@ -14,7 +14,6 @@ import org.setareh.wadl.codegen.model.annotation.ElementAnnotation;
 import org.setareh.wadl.codegen.model.annotation.RootElementAnnotation;
 import org.setareh.wadl.codegen.model.annotation.XmlTypeAnnotation;
 import org.setareh.wadl.codegen.module.ClientModule;
-import org.setareh.wadl.codegen.module.ModuleFactory;
 import org.setareh.wadl.codegen.utils.ClassNameUtil;
 import org.setareh.wadl.codegen.utils.StringUtil;
 import com.sun.codemodel.ClassType;
@@ -89,7 +88,7 @@ public class ClassModelBuilder {
 
 				FieldInfo attrInfo = new FieldInfo();
 				// field name
-                ClientModule clientModule = ModuleFactory.getModule(cgConfig.module);
+                ClientModule clientModule = cgConfig.module.getClientModule();
                 attrInfo.setName(clientModule.generateSafeName(fo.getPropertyInfo().getName(false)));
                 attrInfo.setInitialName(fo.getPropertyInfo().getName(false));
 				

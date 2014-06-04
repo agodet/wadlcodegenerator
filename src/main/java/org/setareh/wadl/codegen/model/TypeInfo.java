@@ -117,7 +117,7 @@ public class TypeInfo implements Serializable {
 
 	/**
 	 * set simple name of this type
-	 * @param simple name
+	 * @param name
 	 */
 	public void setName(String name) {
 		this.name = name;

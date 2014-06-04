@@ -91,10 +91,37 @@ public class ServicesModelBuilder {
         cgMethod.setType(method.getName());
         //setRequestParameter with method.getRequest().getParam()
         cgMethod.setRequest(createClassInfo(method.getRequest().getRepresentation().get(0)));
-        cgMethod.setResponse(createClassInfo(method.getResponse().get(0).getRepresentation().get(0)));
+        for(Response response : method.getResponse())
+        {
+            if(isSuccessHttpCode(response))
+            {
+                cgMethod.setResponse(createClassInfo(response.getRepresentation().get(0)));
+            }
+            else
+            {
+                cgMethod.setFault(createClassInfo(response.getRepresentation().get(0)));
+            }
+        }
         cgMethod.setName(createMethodName(name));
         cgMethod.setPath(path);
         return cgMethod;
+    }
+
+    private static boolean isSuccessHttpCode(final Response response) {
+        boolean isSuccessHttpCode = false;
+
+        if(response.getStatus() == null)
+        {
+            isSuccessHttpCode = true;
+        }
+        else
+        {
+            if(response.getStatus().size() > 0 && (response.getStatus().get(0) / 100) == 2)
+            {
+                isSuccessHttpCode = true;
+            }
+        }
+        return isSuccessHttpCode;
     }
 
     private static String createClassName(String path) {
