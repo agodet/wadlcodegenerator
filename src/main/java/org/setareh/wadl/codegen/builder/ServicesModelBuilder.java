@@ -110,7 +110,7 @@ public class ServicesModelBuilder {
     private static boolean isSuccessHttpCode(final Response response) {
         boolean isSuccessHttpCode = false;
 
-        if(response.getStatus() == null)
+        if(response.getStatus() == null || response.getStatus().isEmpty())
         {
             isSuccessHttpCode = true;
         }

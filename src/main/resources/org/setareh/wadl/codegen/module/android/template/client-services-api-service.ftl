@@ -4,6 +4,7 @@ package ${packageName};
 import ${utilityPackageName}.ApiException;
 import ${utilityPackageName}.ApiInvoker;
 import ${utilityPackageName}.ApiConfig;
+import ${utilityPackageName}.Result;
 
 import java.util.Map;
 
@@ -24,11 +25,13 @@ mApiInvoker = new ApiInvoker();
 
 [#list methods as method]
 
-public ${method.response.name} ${method.name} (${method.request.name} body) throws ApiException {
+public Result<${method.response.name}, [#if method.fault??]${method.fault.name}[#else]Void[/#if]> ${method.name} (${method.request.name} body) throws ApiException {
     return mApiInvoker.invoke(
         mConfig.getBaseUrl() + "${method.path}",
         ApiInvoker.Method.${method.type},
-        body,${method.response.name}.class ,
+        body,
+        ${method.response.name}.class,
+        [#if method.fault??]${method.fault.name}[#else]Void[/#if].class,
         mConfig.getUserAgent(),
         mConfig.isDebugLogEnabled(),
         mConfig.getLogin(),

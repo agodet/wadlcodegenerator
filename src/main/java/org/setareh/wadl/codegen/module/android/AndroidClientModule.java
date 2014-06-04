@@ -1,105 +1,103 @@
 package org.setareh.wadl.codegen.module.android;
 
-import java.net.URL;
-import java.util.*;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-
+import freemarker.template.SimpleHash;
 import org.setareh.wadl.codegen.model.*;
 import org.setareh.wadl.codegen.module.AbstractClientModule;
 import org.setareh.wadl.codegen.module.ModuleException;
 import org.setareh.wadl.codegen.module.ModuleName;
 import org.setareh.wadl.codegen.utils.ClassNameUtil;
 
-import freemarker.template.SimpleHash;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.net.URL;
+import java.util.*;
 
 /**
- * 
  * @author bulldog
- *
  */
 public class AndroidClientModule extends AbstractClientModule {
-	
-	private static final String JAVA_DEFAULT_PACKAGE_NAME = "java.lang";
-	private static final String TEMPLATE_FOLDER = "template";
+
+    private static final String JAVA_DEFAULT_PACKAGE_NAME = "java.lang";
+    private static final String TEMPLATE_FOLDER = "template";
     private static final String SOURCE_FOLDER = "src/main/java";
-	
-	private Map<String, String> typeMapping = new HashMap<String, String>();
-	
-	// references to templates
-	private URL classTemplate;
-	private URL enumTemplate;
+
+    private Map<String, String> typeMapping = new HashMap<String, String>();
+
+    // references to templates
+    private URL classTemplate;
+    private URL enumTemplate;
     private URL apiExceptionTemplate;
     private URL apiConfigTemplate;
     private URL apiInvokerTemplate;
     private URL apiJSonUtilTemplate;
     private URL apiServiceTemplate;
     private URL projectModelTemplate;
+    private URL resultTemplate;
 
     @Override
-	public ModuleName getName() {
-		return ModuleName.ANDROID;
-	}
+    public ModuleName getName() {
+        return ModuleName.ANDROID;
+    }
 
-	@Override
-	public void init() throws ModuleException {
-		info("AndroidClientModule loading templates ...");
-		loadTemplates();
-		
-		// some custom type mappings
-		// android does not fully support these data types yet
-		typeMapping.put(XMLGregorianCalendar.class.getName(),
-				"java.util.Date");
-	}
-	
-	private void loadTemplates() throws ModuleException {
-		classTemplate = getTemplateURL("client-class-type.ftl");
-		enumTemplate = getTemplateURL("client-enum-type.ftl");
+    @Override
+    public void init() throws ModuleException {
+        info("AndroidClientModule loading templates ...");
+        loadTemplates();
+
+        // some custom type mappings
+        // android does not fully support these data types yet
+        typeMapping.put(XMLGregorianCalendar.class.getName(),
+                "java.util.Date");
+    }
+
+    private void loadTemplates() throws ModuleException {
+        classTemplate = getTemplateURL("client-class-type.ftl");
+        enumTemplate = getTemplateURL("client-enum-type.ftl");
         apiExceptionTemplate = getTemplateURL("client-services-api-exception.ftl");
+        resultTemplate = getTemplateURL("client-services-api-result.ftl");
         apiConfigTemplate = getTemplateURL("client-services-api-config.ftl");
         apiInvokerTemplate = getTemplateURL("client-services-api-invoker.ftl");
         apiJSonUtilTemplate = getTemplateURL("client-services-api-jsonutil.ftl");
         apiServiceTemplate = getTemplateURL("client-services-api-service.ftl");
         projectModelTemplate = getTemplateURL("client-pom.ftl");
-	}
+    }
 
-	@Override
-	public Set<FileInfo> generate(CGModel cgModel, CGConfig config) throws ModuleException {
-		// freemarker datamodel
-		SimpleHash fmModel = this.getFreemarkerModel();
-		
-		// container for target codes
-		Set<FileInfo> targetFileSet = new HashSet<FileInfo>();
-		
-		info("Generating the client classes...");
-		
-		// adjust package name of nested class
-		adjustPackageNameOfNestClass(cgModel.getClasses());
-		
-		fmModel.put("config", config);
-		
-		// generate classes
-		info("Generating classes ...");
-		for(ClassInfo classInfo : cgModel.getClasses()) {
-			this.convertFieldsType(classInfo);
-			fmModel.put("clazz", classInfo);
-			fmModel.put("imports", this.getClassImports(classInfo));
-			String relativePath = ClassNameUtil.packageNameToPath(classInfo.getPackageName());
-			FileInfo classFile = this.generateFile(classTemplate, fmModel, classInfo.getName(), "java", relativePath, SOURCE_FOLDER);
+    @Override
+    public Set<FileInfo> generate(CGModel cgModel, CGConfig config) throws ModuleException {
+        // freemarker datamodel
+        SimpleHash fmModel = this.getFreemarkerModel();
+
+        // container for target codes
+        Set<FileInfo> targetFileSet = new HashSet<FileInfo>();
+
+        info("Generating the client classes...");
+
+        // adjust package name of nested class
+        adjustPackageNameOfNestClass(cgModel.getClasses());
+
+        fmModel.put("config", config);
+
+        // generate classes
+        info("Generating classes ...");
+        for (ClassInfo classInfo : cgModel.getClasses()) {
+            this.convertFieldsType(classInfo);
+            fmModel.put("clazz", classInfo);
+            fmModel.put("imports", this.getClassImports(classInfo));
+            String relativePath = ClassNameUtil.packageNameToPath(classInfo.getPackageName());
+            FileInfo classFile = this.generateFile(classTemplate, fmModel, classInfo.getName(), "java", relativePath, SOURCE_FOLDER);
             targetFileSet.add(classFile);
-		}
-		
-		// generate enums
-		info("Generating enums ...");
-		for(EnumInfo enumInfo : cgModel.getEnums()) {
-			fmModel.put("enum", enumInfo);
-			String relativePath = ClassNameUtil.packageNameToPath(enumInfo.getPackageName());
-			FileInfo classFile = this.generateFile(enumTemplate, fmModel, enumInfo.getName(), "java", relativePath, SOURCE_FOLDER);
-			targetFileSet.add(classFile);
-		}
-		
-		return targetFileSet;
-	}
+        }
+
+        // generate enums
+        info("Generating enums ...");
+        for (EnumInfo enumInfo : cgModel.getEnums()) {
+            fmModel.put("enum", enumInfo);
+            String relativePath = ClassNameUtil.packageNameToPath(enumInfo.getPackageName());
+            FileInfo classFile = this.generateFile(enumTemplate, fmModel, enumInfo.getName(), "java", relativePath, SOURCE_FOLDER);
+            targetFileSet.add(classFile);
+        }
+
+        return targetFileSet;
+    }
 
     @Override
     public Set<FileInfo> generate(CGServices cgServices, CGConfig cgConfig) throws ModuleException {
@@ -115,6 +113,9 @@ public class AndroidClientModule extends AbstractClientModule {
         FileInfo apiExceptionFile = this.generateFile(apiExceptionTemplate, fmModel, "ApiException", "java", ClassNameUtil.packageNameToPath(utilityPackageName), SOURCE_FOLDER);
         targetFileSet.add(apiExceptionFile);
 
+        FileInfo resultFile = this.generateFile(resultTemplate, fmModel, "Result", "java", ClassNameUtil.packageNameToPath(utilityPackageName), SOURCE_FOLDER);
+        targetFileSet.add(resultFile);
+
         FileInfo apiConfigFile = this.generateFile(apiConfigTemplate, fmModel, "ApiConfig", "java", ClassNameUtil.packageNameToPath(utilityPackageName), SOURCE_FOLDER);
         targetFileSet.add(apiConfigFile);
 
@@ -128,8 +129,7 @@ public class AndroidClientModule extends AbstractClientModule {
 
         String servicePackageName = cgConfig.packageName + ".api";
 
-        for(CGService cgService : cgServices.getServices())
-        {
+        for (CGService cgService : cgServices.getServices()) {
             fmModel = this.getFreemarkerModel();
             fmModel.put("packageName", servicePackageName);
             fmModel.put("utilityPackageName", utilityPackageName);
@@ -148,7 +148,7 @@ public class AndroidClientModule extends AbstractClientModule {
         Set<FileInfo> targetFileSet = new HashSet<FileInfo>();
 
         SimpleHash fmModel = this.getFreemarkerModel();
-        fmModel.put("groupId",cgConfig.packageName);
+        fmModel.put("groupId", cgConfig.packageName);
         FileInfo apiJSonUtilFile = this.generateFile(projectModelTemplate, fmModel, "pom", "xml", "", "");
         targetFileSet.add(apiJSonUtilFile);
 
@@ -157,197 +157,196 @@ public class AndroidClientModule extends AbstractClientModule {
 
     private Set<String> getImports(List<CGMethod> methods) {
         Set<String> importList = new HashSet<String>();
-        for(CGMethod method : methods)
-        {
+        for (CGMethod method : methods) {
             importList.add(method.getRequest().getPackageName() + "." + method.getRequest().getName());
             importList.add(method.getResponse().getPackageName() + "." + method.getResponse().getName());
+            if (method.getFault() != null) {
+                importList.add(method.getFault().getPackageName() + "." + method.getFault().getName());
+            }
         }
 
         return importList;
     }
 
     /**
-	 * check every field of a class and convert type if necessary
-	 * 
-	 * @param clazz
-	 *            , ClassInfo instance to be converted
-	 */
-	private void convertFieldsType(ClassInfo clazz) {
-		for (FieldInfo field : clazz.getFields()) {
-			TypeInfo fieldType = field.getType();
-			convertType(fieldType);
-			// convert type parameters
-			for (TypeInfo paraType : fieldType.getTypeParameters()) {
-				convertType(paraType);
-			}
-		}
-	}
+     * check every field of a class and convert type if necessary
+     *
+     * @param clazz , ClassInfo instance to be converted
+     */
+    private void convertFieldsType(ClassInfo clazz) {
+        for (FieldInfo field : clazz.getFields()) {
+            TypeInfo fieldType = field.getType();
+            convertType(fieldType);
+            // convert type parameters
+            for (TypeInfo paraType : fieldType.getTypeParameters()) {
+                convertType(paraType);
+            }
+        }
+    }
 
-	/**
-	 * Check and convert a type
-	 *
-	 * @param type, TypeInfo instance
-	 */
-	private void convertType(TypeInfo type) {
-		String targetTypeFullName = typeMapping.get(type.getFullName());
-		if (targetTypeFullName != null) {
-			type.setFullName(targetTypeFullName);
-			type.setName(ClassNameUtil.stripQualifier(targetTypeFullName));
-		} else {
-			if (type.isCollection()) { // special handling for collection type
-				for(String oldTypeFullName : typeMapping.keySet()) {
-					if (type.getFullName().indexOf(oldTypeFullName) > 0) { // including type parameter?
-						String newTypeFullName = typeMapping.get(oldTypeFullName);
-						String newFullName = type.getFullName().replace(oldTypeFullName, newTypeFullName);
-						String oldSimpleName = ClassNameUtil.stripQualifier(oldTypeFullName);
-						String newSimpleName = ClassNameUtil.stripQualifier(newTypeFullName);
-						String newName = type.getName().replace(oldSimpleName, newSimpleName);
-						type.setFullName(newFullName);
-						type.setName(newName);
-					}
-				}
-			}
-		}
-	}
-	
-	
-	// for java implementation, we need to change nested class into package-member class,
-	// so package name should be adjusted accordingly
-	private void adjustPackageNameOfNestClass(List<ClassInfo> classes) {
-		for(ClassInfo classInfo : classes) {
-			// adjust class
-			if (classInfo.isNestClass()) {
-				String pkgName = classInfo.getPackageName().toLowerCase();
-				classInfo.setPackageName(pkgName);
-				classInfo.setFullName(pkgName + "." + classInfo.getName());
-			}
-			// adjust fields
-			for(FieldInfo fieldInfo : classInfo.getFields()) {
-				TypeInfo attrType = fieldInfo.getType();
-				
-				// no need to handle primitive type
-				if (attrType.isPrimitive())
-					continue;
-				
-				// handle array
-				if (attrType.isArray()) {
-					// T of T[]
-					TypeInfo elementType = attrType.getElementType();
-					// no need to handle primitive type
-					if (elementType.isPrimitive()) {
-						continue;
-					}
-					if (elementType.isNestClass()) {
-						String elementTypePackageName = ClassNameUtil
-								.getPackageName(elementType.getFullName());
-						elementTypePackageName = elementTypePackageName.toLowerCase();
-						elementType.setFullName(elementTypePackageName + "." + elementType.getName());
-					}
-					continue;
-				}
-				
-				if (attrType.isNestClass()) {
-					String attrTypePackageName = ClassNameUtil.getPackageName(attrType.getFullName());
-					attrTypePackageName = attrTypePackageName.toLowerCase();
-					attrType.setFullName(attrTypePackageName + "." + attrType.getName());
-				}
-				
-				// has type parameters?
-				for (TypeInfo paramType : attrType.getTypeParameters()) {
-					if (paramType.isNestClass()) {
-						String paramTypePackageName = ClassNameUtil
-								.getPackageName(paramType.getFullName());
-						paramTypePackageName = paramTypePackageName.toLowerCase();
-						paramType.setFullName(paramTypePackageName + "." + paramType.getName());
-					}
-				}
-			}
-		}
-	}
-	
-	/**
-	 * 
-	 * helper to find out all classes that should be imported by a class
-	 * 
-	 * @param clazz
-	 *            , ClassInfo instance
-	 * @return a set of class names that should be imported
-	 */
-	private Set<String> getClassImports(ClassInfo clazz) {
-		Set<String> imports = new HashSet<String>();
-		String clazzPackageName = clazz.getPackageName();
+    /**
+     * Check and convert a type
+     *
+     * @param type, TypeInfo instance
+     */
+    private void convertType(TypeInfo type) {
+        String targetTypeFullName = typeMapping.get(type.getFullName());
+        if (targetTypeFullName != null) {
+            type.setFullName(targetTypeFullName);
+            type.setName(ClassNameUtil.stripQualifier(targetTypeFullName));
+        } else {
+            if (type.isCollection()) { // special handling for collection type
+                for (String oldTypeFullName : typeMapping.keySet()) {
+                    if (type.getFullName().indexOf(oldTypeFullName) > 0) { // including type parameter?
+                        String newTypeFullName = typeMapping.get(oldTypeFullName);
+                        String newFullName = type.getFullName().replace(oldTypeFullName, newTypeFullName);
+                        String oldSimpleName = ClassNameUtil.stripQualifier(oldTypeFullName);
+                        String newSimpleName = ClassNameUtil.stripQualifier(newTypeFullName);
+                        String newName = type.getName().replace(oldSimpleName, newSimpleName);
+                        type.setFullName(newFullName);
+                        type.setName(newName);
+                    }
+                }
+            }
+        }
+    }
 
-		// extends super class?
-		if (clazz.getSuperClass() != null) {
-			TypeInfo superClassType = clazz.getSuperClass();
-			String superClassTypePackageName = ClassNameUtil
-					.getPackageName(superClassType.getFullName());
-			if (needImport(clazzPackageName, superClassTypePackageName)) {
-				imports.add(ClassNameUtil.erase(superClassType.getFullName()));
-			}
 
-		}
+    // for java implementation, we need to change nested class into package-member class,
+    // so package name should be adjusted accordingly
+    private void adjustPackageNameOfNestClass(List<ClassInfo> classes) {
+        for (ClassInfo classInfo : classes) {
+            // adjust class
+            if (classInfo.isNestClass()) {
+                String pkgName = classInfo.getPackageName().toLowerCase();
+                classInfo.setPackageName(pkgName);
+                classInfo.setFullName(pkgName + "." + classInfo.getName());
+            }
+            // adjust fields
+            for (FieldInfo fieldInfo : classInfo.getFields()) {
+                TypeInfo attrType = fieldInfo.getType();
 
-		// import field type
-		for (FieldInfo field : clazz.getFields()) {
-			TypeInfo attrType = field.getType();
-			String attrTypePackageName = ClassNameUtil.getPackageName(attrType.getFullName());
+                // no need to handle primitive type
+                if (attrType.isPrimitive())
+                    continue;
 
-			// no import for primitive type
-			if (attrType.isPrimitive())
-				continue;
+                // handle array
+                if (attrType.isArray()) {
+                    // T of T[]
+                    TypeInfo elementType = attrType.getElementType();
+                    // no need to handle primitive type
+                    if (elementType.isPrimitive()) {
+                        continue;
+                    }
+                    if (elementType.isNestClass()) {
+                        String elementTypePackageName = ClassNameUtil
+                                .getPackageName(elementType.getFullName());
+                        elementTypePackageName = elementTypePackageName.toLowerCase();
+                        elementType.setFullName(elementTypePackageName + "." + elementType.getName());
+                    }
+                    continue;
+                }
 
-			// import component type of array
-			if (attrType.isArray()) {
-				// T of T[]
-				TypeInfo elementType = attrType.getElementType();
-				// no import for primitive type
-				if (elementType.isPrimitive()) {
-					continue;
-				}
-				String elementTypePackageName = ClassNameUtil
-						.getPackageName(elementType.getFullName());
-				if (needImport(clazzPackageName, elementTypePackageName)) {
-					imports.add(ClassNameUtil.erase(elementType.getFullName()));
-				}
-				continue;
-			}
+                if (attrType.isNestClass()) {
+                    String attrTypePackageName = ClassNameUtil.getPackageName(attrType.getFullName());
+                    attrTypePackageName = attrTypePackageName.toLowerCase();
+                    attrType.setFullName(attrTypePackageName + "." + attrType.getName());
+                }
 
-			if (needImport(clazzPackageName, attrTypePackageName)) {
-				// erase type parameters before import
-				imports.add(ClassNameUtil.erase(attrType.getFullName()));
-			}
-			// has type parameters?
-			for (TypeInfo paramType : attrType.getTypeParameters()) {
-				String paramTypePackageName = ClassNameUtil
-						.getPackageName(paramType.getFullName());
-				if (needImport(clazzPackageName, paramTypePackageName)) {
-					// erase type parameters before import
-					imports.add(ClassNameUtil.erase(paramType.getFullName()));
-				}
-			}
-		}
+                // has type parameters?
+                for (TypeInfo paramType : attrType.getTypeParameters()) {
+                    if (paramType.isNestClass()) {
+                        String paramTypePackageName = ClassNameUtil
+                                .getPackageName(paramType.getFullName());
+                        paramTypePackageName = paramTypePackageName.toLowerCase();
+                        paramType.setFullName(paramTypePackageName + "." + paramType.getName());
+                    }
+                }
+            }
+        }
+    }
 
-		return imports;		
-	}
-	
-	private boolean needImport(String current, String target) {
-		if (!target.equals(current) && !target.startsWith(JAVA_DEFAULT_PACKAGE_NAME)) {
-			return true;
-		}
-		return false;
-	}
+    /**
+     * helper to find out all classes that should be imported by a class
+     *
+     * @param clazz , ClassInfo instance
+     * @return a set of class names that should be imported
+     */
+    private Set<String> getClassImports(ClassInfo clazz) {
+        Set<String> imports = new HashSet<String>();
+        String clazzPackageName = clazz.getPackageName();
 
-	@Override
-	protected URL getTemplateURL(String template) throws ModuleException {
-		URL url = AndroidClientModule.class.getResource(TEMPLATE_FOLDER + "/" + template);
-		if (url == null) {
-			throw new ModuleException("Fail to load required template file : "
-					+ template);
-		}
-		debug("AndroidClientModule get template : " + url.toString());
-		return url;
-	}
+        // extends super class?
+        if (clazz.getSuperClass() != null) {
+            TypeInfo superClassType = clazz.getSuperClass();
+            String superClassTypePackageName = ClassNameUtil
+                    .getPackageName(superClassType.getFullName());
+            if (needImport(clazzPackageName, superClassTypePackageName)) {
+                imports.add(ClassNameUtil.erase(superClassType.getFullName()));
+            }
+
+        }
+
+        // import field type
+        for (FieldInfo field : clazz.getFields()) {
+            TypeInfo attrType = field.getType();
+            String attrTypePackageName = ClassNameUtil.getPackageName(attrType.getFullName());
+
+            // no import for primitive type
+            if (attrType.isPrimitive())
+                continue;
+
+            // import component type of array
+            if (attrType.isArray()) {
+                // T of T[]
+                TypeInfo elementType = attrType.getElementType();
+                // no import for primitive type
+                if (elementType.isPrimitive()) {
+                    continue;
+                }
+                String elementTypePackageName = ClassNameUtil
+                        .getPackageName(elementType.getFullName());
+                if (needImport(clazzPackageName, elementTypePackageName)) {
+                    imports.add(ClassNameUtil.erase(elementType.getFullName()));
+                }
+                continue;
+            }
+
+            if (needImport(clazzPackageName, attrTypePackageName)) {
+                // erase type parameters before import
+                imports.add(ClassNameUtil.erase(attrType.getFullName()));
+            }
+            // has type parameters?
+            for (TypeInfo paramType : attrType.getTypeParameters()) {
+                String paramTypePackageName = ClassNameUtil
+                        .getPackageName(paramType.getFullName());
+                if (needImport(clazzPackageName, paramTypePackageName)) {
+                    // erase type parameters before import
+                    imports.add(ClassNameUtil.erase(paramType.getFullName()));
+                }
+            }
+        }
+
+        return imports;
+    }
+
+    private boolean needImport(String current, String target) {
+        if (!target.equals(current) && !target.startsWith(JAVA_DEFAULT_PACKAGE_NAME)) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    protected URL getTemplateURL(String template) throws ModuleException {
+        URL url = AndroidClientModule.class.getResource(TEMPLATE_FOLDER + "/" + template);
+        if (url == null) {
+            throw new ModuleException("Fail to load required template file : "
+                    + template);
+        }
+        debug("AndroidClientModule get template : " + url.toString());
+        return url;
+    }
 
     @Override
     protected Set<String> getReservedWords() {
