@@ -31,7 +31,7 @@ public Result<${method.response.name}, [#if method.fault??]${method.fault.name}[
         ApiInvoker.Method.${method.type},
         body,
         ${method.response.name}.class,
-        [#if method.fault??]${method.fault.name}[#else]Void[/#if].class,
+        [#if method.fault??]${method.fault.name}.class[#else]null[/#if],
         mConfig.getUserAgent(),
         mConfig.isDebugLogEnabled(),
         mConfig.getLogin(),
