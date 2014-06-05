@@ -4,7 +4,7 @@ package org.setareh.wadl.codegen.model;
  * @author: alexandre_godet
  * @since: MXXX
  */
-public class CGMethod {
+public class CGMethod implements Cloneable {
     private ClassInfo request;
     private ClassInfo response;
     private String name;
@@ -58,5 +58,17 @@ public class CGMethod {
 
     public ClassInfo getFault() {
         return fault;
+    }
+
+    @Override
+    public CGMethod clone() {
+        final CGMethod cgMethod = new CGMethod();
+        cgMethod.request = this.request;
+        cgMethod.response = this.response;
+        cgMethod.name = this.name;
+        cgMethod.type = this.type;
+        cgMethod.path = this.path;
+        cgMethod.fault = this.fault;
+        return cgMethod;
     }
 }

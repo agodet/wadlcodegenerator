@@ -1,12 +1,13 @@
 package org.setareh.wadl.codegen.module.ios;
 
+import freemarker.template.SimpleHash;
 import org.setareh.wadl.codegen.model.*;
 import org.setareh.wadl.codegen.module.AbstractClientModule;
 import org.setareh.wadl.codegen.module.ModuleException;
 import org.setareh.wadl.codegen.module.ModuleName;
-import freemarker.template.SimpleHash;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,13 +15,13 @@ import java.util.Set;
 public class IOSClientModule extends AbstractClientModule {
 
     private static final String SOURCE_FOLDER = "";
-    private final static  String GENERATED_PREFIX = "Generated";
+    private final static String GENERATED_PREFIX = "Generated";
 
-	// references to templates
-	private URL clientClassIntTemplate;
-	private URL clientClassImplementationTemplate;
-	private URL enumDeclarationTemplate;
-	private URL enumDefinitionTemplate;
+    // references to templates
+    private URL clientClassIntTemplate;
+    private URL clientClassImplementationTemplate;
+    private URL enumDeclarationTemplate;
+    private URL enumDefinitionTemplate;
     private URL clientDateImplTemplate;
     private URL clientDateIntTemplate;
     private URL clientFileImplTemplate;
@@ -37,24 +38,24 @@ public class IOSClientModule extends AbstractClientModule {
     private URL parentEnumDefinitionTemplate;
 
     @Override
-	public ModuleName getName() {
-		return ModuleName.IOS;
-	}
+    public ModuleName getName() {
+        return ModuleName.IOS;
+    }
 
-	@Override
-	public void init() throws ModuleException {
-		info("IOSClientModule loading templates ...");
-		loadTemplates();
-	}
-	
-	private void loadTemplates() throws ModuleException {
-		//load template
-		clientClassIntTemplate = this.getTemplateURL("client-class-interface.ftl");
-		clientClassImplementationTemplate = this.getTemplateURL("client-class-implementation.ftl");
+    @Override
+    public void init() throws ModuleException {
+        info("IOSClientModule loading templates ...");
+        loadTemplates();
+    }
+
+    private void loadTemplates() throws ModuleException {
+        //load template
+        clientClassIntTemplate = this.getTemplateURL("client-class-interface.ftl");
+        clientClassImplementationTemplate = this.getTemplateURL("client-class-implementation.ftl");
         clientSubClassImplTemplate = this.getTemplateURL("client-subclass-implementation.ftl");
         clientSubClassIntTemplate = this.getTemplateURL("client-subclass-interface.ftl");
-		enumDeclarationTemplate = this.getTemplateURL("client-enum-declaration.ftl");
-		enumDefinitionTemplate = this.getTemplateURL("client-enum-definition.ftl");
+        enumDeclarationTemplate = this.getTemplateURL("client-enum-declaration.ftl");
+        enumDefinitionTemplate = this.getTemplateURL("client-enum-definition.ftl");
         parentEnumDeclarationTemplate = this.getTemplateURL("client-enum-parent-implementation.ftl");
         parentEnumDefinitionTemplate = this.getTemplateURL("client-enum-parent-interface.ftl");
         clientDateImplTemplate = this.getTemplateURL("client-date-implementation.ftl");
@@ -67,58 +68,58 @@ public class IOSClientModule extends AbstractClientModule {
         clientServicesApiClientIntTemplate = this.getTemplateURL("client-services-api-client-interface.ftl");
         clientServicesApiServiceImplTemplate = this.getTemplateURL("client-services-api-service-implementation.ftl");
         clientServicesApiServiceIntTemplate = this.getTemplateURL("client-services-api-service-interface.ftl");
-	}
+    }
 
-	@Override
-	public Set<FileInfo> generate(CGModel cgModel, CGConfig config)
-			throws ModuleException {
-		// freemarker datamodel
-		SimpleHash fmModel = this.getFreemarkerModel();
-		
-		// container for target codes
-		Set<FileInfo> targetFileSet = new HashSet<FileInfo>();
-		
-		info("Generating the client classes...");
-		
-		if (config.prefix == null) {
-			warn("No prefix is provided, it's recommended to add prefix to avoid possible conflict");
-		}
+    @Override
+    public Set<FileInfo> generate(CGModel cgModel, CGConfig config)
+            throws ModuleException {
+        // freemarker datamodel
+        SimpleHash fmModel = this.getFreemarkerModel();
+
+        // container for target codes
+        Set<FileInfo> targetFileSet = new HashSet<FileInfo>();
+
+        info("Generating the client classes...");
+
+        if (config.prefix == null) {
+            warn("No prefix is provided, it's recommended to add prefix to avoid possible conflict");
+        }
 
         final String projectPrefix = config.prefix;
-		addPrefixTypeForClassInfo(cgModel, projectPrefix);
+        addPrefixTypeForClassInfo(cgModel, projectPrefix);
         addPrefixTypeForEnumInfo(cgModel, GENERATED_PREFIX);
 
-        fmModel.put("generatedPrefix",GENERATED_PREFIX);
-        fmModel.put("projectPrefix",projectPrefix);
+        fmModel.put("generatedPrefix", GENERATED_PREFIX);
+        fmModel.put("projectPrefix", projectPrefix);
 
-		// generate classes
-		info("Generating classes ...");
-		for(ClassInfo classInfo : cgModel.getClasses()) {
-			this.convertFieldsType(classInfo);
-			fmModel.put("superClassImports", this.getSuperClassImports(classInfo, projectPrefix));
-			fmModel.put("fieldClassImports", this.getFieldImports(classInfo, projectPrefix, GENERATED_PREFIX));
-			fmModel.put("clazz", classInfo);
+        // generate classes
+        info("Generating classes ...");
+        for (ClassInfo classInfo : cgModel.getClasses()) {
+            this.convertFieldsType(classInfo);
+            fmModel.put("superClassImports", this.getSuperClassImports(classInfo, projectPrefix));
+            fmModel.put("fieldClassImports", this.getFieldImports(classInfo, projectPrefix, GENERATED_PREFIX));
+            fmModel.put("clazz", classInfo);
 
-			FileInfo classIntf = this.generateFile(clientClassIntTemplate, fmModel, GENERATED_PREFIX + classInfo.getName(), "h", "Generated", SOURCE_FOLDER);
-			targetFileSet.add(classIntf);
-			FileInfo classImpl = this.generateFile(clientClassImplementationTemplate, fmModel, GENERATED_PREFIX + classInfo.getName(), "m", "Generated", SOURCE_FOLDER);
-			targetFileSet.add(classImpl);
+            FileInfo classIntf = this.generateFile(clientClassIntTemplate, fmModel, GENERATED_PREFIX + classInfo.getName(), "h", "Generated", SOURCE_FOLDER);
+            targetFileSet.add(classIntf);
+            FileInfo classImpl = this.generateFile(clientClassImplementationTemplate, fmModel, GENERATED_PREFIX + classInfo.getName(), "m", "Generated", SOURCE_FOLDER);
+            targetFileSet.add(classImpl);
             FileInfo clientSubClassInt = this.generateFile(clientSubClassIntTemplate, fmModel, projectPrefix + classInfo.getName(), "h", "Classes", SOURCE_FOLDER);
             targetFileSet.add(clientSubClassInt);
             FileInfo clientSubClassImpl = this.generateFile(clientSubClassImplTemplate, fmModel, projectPrefix + classInfo.getName(), "m", "Classes", SOURCE_FOLDER);
             targetFileSet.add(clientSubClassImpl);
-		}
-		
-		// generate enums
-		info("Generating enums ...");
-		for(EnumInfo enumInfo : cgModel.getEnums()) {
-			fmModel.put("enum", enumInfo);
+        }
 
-			FileInfo enumDec = this.generateFile(enumDeclarationTemplate, fmModel, GENERATED_PREFIX + enumInfo.getName(), "h", "Generated", SOURCE_FOLDER);
-			targetFileSet.add(enumDec);
-			FileInfo enumDef = this.generateFile(enumDefinitionTemplate, fmModel, GENERATED_PREFIX + enumInfo.getName(), "m", "Generated", SOURCE_FOLDER);
-			targetFileSet.add(enumDef);
-		}
+        // generate enums
+        info("Generating enums ...");
+        for (EnumInfo enumInfo : cgModel.getEnums()) {
+            fmModel.put("enum", enumInfo);
+
+            FileInfo enumDec = this.generateFile(enumDeclarationTemplate, fmModel, GENERATED_PREFIX + enumInfo.getName(), "h", "Generated", SOURCE_FOLDER);
+            targetFileSet.add(enumDec);
+            FileInfo enumDef = this.generateFile(enumDefinitionTemplate, fmModel, GENERATED_PREFIX + enumInfo.getName(), "m", "Generated", SOURCE_FOLDER);
+            targetFileSet.add(enumDef);
+        }
 
         FileInfo clientDateImpl = this.generateFile(clientDateImplTemplate, fmModel, GENERATED_PREFIX + "DateFormatterUtils", "m", "Generated", SOURCE_FOLDER);
         targetFileSet.add(clientDateImpl);
@@ -140,8 +141,8 @@ public class IOSClientModule extends AbstractClientModule {
         FileInfo parentEnumInt = this.generateFile(parentEnumDefinitionTemplate, fmModel, GENERATED_PREFIX + "Enum", "h", "Generated", SOURCE_FOLDER);
         targetFileSet.add(parentEnumInt);
 
-		return targetFileSet;
-	}
+        return targetFileSet;
+    }
 
     @Override
     public Set<FileInfo> generate(CGServices cgServices, CGConfig cgConfig) throws ModuleException {
@@ -149,22 +150,22 @@ public class IOSClientModule extends AbstractClientModule {
         SimpleHash fmModel = this.getFreemarkerModel();
         final String projectPrefix = cgConfig.prefix;
 
-        fmModel.put("generatedPrefix",GENERATED_PREFIX);
-        fmModel.put("projectPrefix",projectPrefix);
+        fmModel.put("generatedPrefix", GENERATED_PREFIX);
+        fmModel.put("projectPrefix", projectPrefix);
 
         // container for target codes
-        Set<FileInfo> targetFileSet = new HashSet<FileInfo>();
+        Set<FileInfo> targetFileSet = new HashSet<>();
 
         FileInfo clientObjectImpl = this.generateFile(clientServicesApiClientImplTemplate, fmModel, GENERATED_PREFIX + "ApiClient", "m", "Services", SOURCE_FOLDER);
         targetFileSet.add(clientObjectImpl);
         FileInfo clientObjectInt = this.generateFile(clientServicesApiClientIntTemplate, fmModel, GENERATED_PREFIX + "ApiClient", "h", "Services", SOURCE_FOLDER);
         targetFileSet.add(clientObjectInt);
 
-        for(CGService cgService : cgServices.getServices())
-        {
-            fmModel.put("imports", getImports(cgService.getMethods(), projectPrefix));
+        for (CGService cgService : cgServices.getServices()) {
+            final List<CGMethod> methods = dissociateMethodsWithSameName(cgService.getMethods());
+            fmModel.put("imports", getImports(methods, projectPrefix));
             fmModel.put("className", GENERATED_PREFIX + cgService.getName());
-            fmModel.put("methods", cgService.getMethods());
+            fmModel.put("methods", methods);
             FileInfo clientServicesApiServiceImpl = this.generateFile(clientServicesApiServiceImplTemplate, fmModel, GENERATED_PREFIX + cgService.getName() + "Api", "m", "Services", SOURCE_FOLDER);
             targetFileSet.add(clientServicesApiServiceImpl);
             FileInfo clientServicesApiServiceInt = this.generateFile(clientServicesApiServiceIntTemplate, fmModel, GENERATED_PREFIX + cgService.getName() + "Api", "h", "Services", SOURCE_FOLDER);
@@ -172,6 +173,32 @@ public class IOSClientModule extends AbstractClientModule {
         }
 
         return targetFileSet;
+    }
+
+    /**
+     * ObjC does not support overriding method names. We'll have to dissociate methods with their Type
+     * (GET, POST, PUT, DELETE, ...)
+     */
+    private List<CGMethod> dissociateMethodsWithSameName(List<CGMethod> methods) {
+        final HashSet<String> duplicateNames = new HashSet<>();
+        final HashSet<String> names = new HashSet<>();
+        for (CGMethod method : methods) {
+            final String name = method.getName();
+            if (!names.add(name)) {
+                duplicateNames.add(name);
+            }
+        }
+        final ArrayList<CGMethod> returnMethods = new ArrayList<CGMethod>();
+        for (CGMethod method : methods) {
+            if (duplicateNames.contains(method.getName())) {
+                final CGMethod clone = method.clone();
+                clone.setName(method.getName() + method.getType());
+                returnMethods.add(clone);
+            } else {
+                returnMethods.add(method);
+            }
+        }
+        return returnMethods;
     }
 
     @Override
@@ -182,8 +209,7 @@ public class IOSClientModule extends AbstractClientModule {
 
     private Set<String> getImports(List<CGMethod> methods, String prefix) {
         Set<String> importList = new HashSet<String>();
-        for(CGMethod method : methods)
-        {
+        for (CGMethod method : methods) {
             importList.add(prefix + method.getRequest().getName() + ".h");
             importList.add(prefix + method.getResponse().getName() + ".h");
         }
@@ -191,10 +217,9 @@ public class IOSClientModule extends AbstractClientModule {
         return importList;
     }
 
-    private void addPrefixTypeForEnumInfo(CGModel model, String prefix)
-    {
+    private void addPrefixTypeForEnumInfo(CGModel model, String prefix) {
         // add prefix on enum
-        for(EnumInfo enumInfo : model.getEnums()) {
+        for (EnumInfo enumInfo : model.getEnums()) {
             enumInfo.setName(enumInfo.getName());
             String newFullName = enumInfo.getPackageName() + "." + enumInfo.getName();
             enumInfo.setFullName(newFullName);
@@ -202,145 +227,140 @@ public class IOSClientModule extends AbstractClientModule {
     }
 
     // add prefix to avoid possible conflict
-	private void addPrefixTypeForClassInfo(CGModel model, String prefix) {
-		// add prefix on class
-		for(ClassInfo classInfo : model.getClasses()) {
-			String newFullName = classInfo.getPackageName() + "." + classInfo.getName();
-			classInfo.setFullName(newFullName);
+    private void addPrefixTypeForClassInfo(CGModel model, String prefix) {
+        // add prefix on class
+        for (ClassInfo classInfo : model.getClasses()) {
+            String newFullName = classInfo.getPackageName() + "." + classInfo.getName();
+            classInfo.setFullName(newFullName);
         }
-		
-		for(ClassInfo classInfo : model.getClasses()) {
-			// update super class reference
-			if (classInfo.getSuperClass() != null) {
-				TypeInfo superType = classInfo.getSuperClass();
-				this.prefixType(superType, prefix);
-			}
-			
-			// update field reference
-			for(FieldInfo field : classInfo.getFields()) {
-				TypeInfo fieldType = field.getType();
-				this.prefixType(fieldType, prefix);
-				
-				if (fieldType.isArray()) {
-					this.prefixType(fieldType.getElementType(), prefix);
-				}
-				
-				// convert type parameters
-				for(TypeInfo paraType : fieldType.getTypeParameters()) {
-					this.prefixType(paraType, prefix);
-				}
-			}
-		}
-	}
-	
-	
-	// add prefix in the type full name
-	private void prefixType(TypeInfo type, String prefix) {
-		if (type == null) return; // be cautious
-		// for ios primitives, do not prefix
-		if (Java2TypeMapper.lookupType(type.getFullName()) != null) {
-			return;
-		}
-		String name = type.getName();
-		type.setName(name);
-		type.setFullName(name); // remove package for ios
-	}
-	
-	private Set<String> getSuperClassImports(ClassInfo clazz, String generatedPrefix) {
-		Set<String> imports = new HashSet<String>();
-		
-		// extends super class?
-		if (clazz.getSuperClass() != null) {
-			TypeInfo superClassType = clazz.getSuperClass();
-			imports.add(generatedPrefix + superClassType.getFullName());
-		}
-		
-		return imports;
-	}
-	
-	private Set<String> getFieldImports(ClassInfo clazz, String projectPrefix, String generatedPrefix) {
-		Set<String> imports = new HashSet<String>();
-		
-		for(FieldInfo field : clazz.getFields()) {
-			TypeInfo fieldType = field.getType();
-			if (fieldType.isArray()) {
-				TypeInfo elementType = fieldType.getElementType();
+
+        for (ClassInfo classInfo : model.getClasses()) {
+            // update super class reference
+            if (classInfo.getSuperClass() != null) {
+                TypeInfo superType = classInfo.getSuperClass();
+                this.prefixType(superType, prefix);
+            }
+
+            // update field reference
+            for (FieldInfo field : classInfo.getFields()) {
+                TypeInfo fieldType = field.getType();
+                this.prefixType(fieldType, prefix);
+
+                if (fieldType.isArray()) {
+                    this.prefixType(fieldType.getElementType(), prefix);
+                }
+
+                // convert type parameters
+                for (TypeInfo paraType : fieldType.getTypeParameters()) {
+                    this.prefixType(paraType, prefix);
+                }
+            }
+        }
+    }
+
+
+    // add prefix in the type full name
+    private void prefixType(TypeInfo type, String prefix) {
+        if (type == null) return; // be cautious
+        // for ios primitives, do not prefix
+        if (Java2TypeMapper.lookupType(type.getFullName()) != null) {
+            return;
+        }
+        String name = type.getName();
+        type.setName(name);
+        type.setFullName(name); // remove package for ios
+    }
+
+    private Set<String> getSuperClassImports(ClassInfo clazz, String generatedPrefix) {
+        Set<String> imports = new HashSet<String>();
+
+        // extends super class?
+        if (clazz.getSuperClass() != null) {
+            TypeInfo superClassType = clazz.getSuperClass();
+            imports.add(generatedPrefix + superClassType.getFullName());
+        }
+
+        return imports;
+    }
+
+    private Set<String> getFieldImports(ClassInfo clazz, String projectPrefix, String generatedPrefix) {
+        Set<String> imports = new HashSet<String>();
+
+        for (FieldInfo field : clazz.getFields()) {
+            TypeInfo fieldType = field.getType();
+            if (fieldType.isArray()) {
+                TypeInfo elementType = fieldType.getElementType();
                 if (elementType != null && elementType.isEnum()) {
                     imports.add(generatedPrefix + elementType.getFullName());
+                } else if (elementType != null && !elementType.isPrimitive()) {
+                    imports.add(projectPrefix + elementType.getFullName());
                 }
-                else if(elementType != null && !elementType.isPrimitive()) {
-					imports.add(projectPrefix + elementType.getFullName());
-				}
-			} else {
-                if(fieldType.isEnum())
-                {
+            } else {
+                if (fieldType.isEnum()) {
                     imports.add(generatedPrefix + fieldType.getFullName());
+                } else if (!fieldType.isPrimitive() && !fieldType.isCollection()) {
+                    imports.add(projectPrefix + fieldType.getFullName());
                 }
-                else if (!fieldType.isPrimitive() && !fieldType.isCollection()) {
-					imports.add(projectPrefix + fieldType.getFullName());
-				}
-			}
-			// import type parameters
-			for(TypeInfo paraType : fieldType.getTypeParameters()) { // object type
-				if(paraType.isEnum())
-                {
+            }
+            // import type parameters
+            for (TypeInfo paraType : fieldType.getTypeParameters()) { // object type
+                if (paraType.isEnum()) {
                     imports.add(generatedPrefix + paraType.getFullName());
+                } else if (!paraType.isPrimitive() && !field.isPropertyKindAny()) {
+                    imports.add(projectPrefix + paraType.getFullName());
                 }
-                else if (!paraType.isPrimitive() && !field.isPropertyKindAny()) {
-					imports.add(projectPrefix + paraType.getFullName());
-				}
-			}
-		}
-		
-		return imports;
-	}
-	
-	private void convertFieldsType(ClassInfo clazz) {
-		for (FieldInfo field : clazz.getFields()) {
-			TypeInfo fieldType = field.getType();
-			convertType(fieldType);
-			// TODO should element type of array be converted?
+            }
+        }
+
+        return imports;
+    }
+
+    private void convertFieldsType(ClassInfo clazz) {
+        for (FieldInfo field : clazz.getFields()) {
+            TypeInfo fieldType = field.getType();
+            convertType(fieldType);
+            // TODO should element type of array be converted?
 //			if (fieldType.isArray()) { 
 //				convertType(fieldType.getElementType());
 //			}
-			// convert type parameters
-			for(TypeInfo paraType : fieldType.getTypeParameters()) {
-				convertType(paraType);
-			}
-		}
-	}
+            // convert type parameters
+            for (TypeInfo paraType : fieldType.getTypeParameters()) {
+                convertType(paraType);
+            }
+        }
+    }
 
-	/**
-	 * Check and covert a type
-	 *
-	 * @param type
-	 */
-	private void convertType(TypeInfo type) {
-		if (type == null) return; // be cautious
-		String primitiveType = Java2TypeMapper.lookupType(type.getFullName());
-		if (primitiveType != null)  {// ios primitive type
-			type.setFullName(TypeMapper.lookupWrapper(primitiveType));
-			type.setName(primitiveType); // ios primitive
-			type.setPrimitive(true);
-		} else if (type.isEnum()) {
-			type.setName(Type.ENUM); // ios enum type
-			type.setPrimitive(true); // treat enum as primitive type
-		} else {
-			type.setName(Type.OBJECT);
-			type.setPrimitive(false);
-		}
-	}
+    /**
+     * Check and covert a type
+     *
+     * @param type
+     */
+    private void convertType(TypeInfo type) {
+        if (type == null) return; // be cautious
+        String primitiveType = Java2TypeMapper.lookupType(type.getFullName());
+        if (primitiveType != null) {// ios primitive type
+            type.setFullName(TypeMapper.lookupWrapper(primitiveType));
+            type.setName(primitiveType); // ios primitive
+            type.setPrimitive(true);
+        } else if (type.isEnum()) {
+            type.setName(Type.ENUM); // ios enum type
+            type.setPrimitive(true); // treat enum as primitive type
+        } else {
+            type.setName(Type.OBJECT);
+            type.setPrimitive(false);
+        }
+    }
 
-	@Override
-	protected URL getTemplateURL(String template) throws ModuleException {
-		URL url = IOSClientModule.class.getResource("template/" + template);
-		if (url == null) {
-			throw new ModuleException("Fail to load required template file : "
-					+ template);
-		}
-		debug("IOSClientModule get template : " + url.toString());
-		return url;
-	}
+    @Override
+    protected URL getTemplateURL(String template) throws ModuleException {
+        URL url = IOSClientModule.class.getResource("template/" + template);
+        if (url == null) {
+            throw new ModuleException("Fail to load required template file : "
+                    + template);
+        }
+        debug("IOSClientModule get template : " + url.toString());
+        return url;
+    }
 
     @Override
     protected Set<String> getReservedWords() {
