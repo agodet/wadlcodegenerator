@@ -31,7 +31,6 @@ public class AndroidClientModule extends AbstractClientModule {
     private URL apiJSonUtilTemplate;
     private URL apiServiceTemplate;
     private URL projectModelTemplate;
-    private URL resultTemplate;
 
     @Override
     public ModuleName getName() {
@@ -53,7 +52,6 @@ public class AndroidClientModule extends AbstractClientModule {
         classTemplate = getTemplateURL("client-class-type.ftl");
         enumTemplate = getTemplateURL("client-enum-type.ftl");
         apiExceptionTemplate = getTemplateURL("client-services-api-exception.ftl");
-        resultTemplate = getTemplateURL("client-services-api-result.ftl");
         apiConfigTemplate = getTemplateURL("client-services-api-config.ftl");
         apiInvokerTemplate = getTemplateURL("client-services-api-invoker.ftl");
         apiJSonUtilTemplate = getTemplateURL("client-services-api-jsonutil.ftl");
@@ -101,7 +99,7 @@ public class AndroidClientModule extends AbstractClientModule {
 
     @Override
     public Set<FileInfo> generate(CGServices cgServices, CGConfig cgConfig) throws ModuleException {
-        Set<FileInfo> targetFileSet = new HashSet<FileInfo>();
+        Set<FileInfo> targetFileSet = new HashSet<>();
 
         // generation des classes utilitaires
 
@@ -112,9 +110,6 @@ public class AndroidClientModule extends AbstractClientModule {
 
         FileInfo apiExceptionFile = this.generateFile(apiExceptionTemplate, fmModel, "ApiException", "java", ClassNameUtil.packageNameToPath(utilityPackageName), SOURCE_FOLDER);
         targetFileSet.add(apiExceptionFile);
-
-        FileInfo resultFile = this.generateFile(resultTemplate, fmModel, "Result", "java", ClassNameUtil.packageNameToPath(utilityPackageName), SOURCE_FOLDER);
-        targetFileSet.add(resultFile);
 
         FileInfo apiConfigFile = this.generateFile(apiConfigTemplate, fmModel, "ApiConfig", "java", ClassNameUtil.packageNameToPath(utilityPackageName), SOURCE_FOLDER);
         targetFileSet.add(apiConfigFile);
@@ -134,6 +129,7 @@ public class AndroidClientModule extends AbstractClientModule {
             fmModel.put("packageName", servicePackageName);
             fmModel.put("utilityPackageName", utilityPackageName);
             fmModel.put("imports", getImports(cgService.getMethods()));
+            fmModel.put("faults", getFaults(cgService.getMethods()));
             fmModel.put("className", cgService.getName());
             fmModel.put("methods", cgService.getMethods());
             FileInfo apiServiceFile = this.generateFile(apiServiceTemplate, fmModel, cgService.getName() + "Api", "java", ClassNameUtil.packageNameToPath(servicePackageName), SOURCE_FOLDER);
@@ -141,6 +137,14 @@ public class AndroidClientModule extends AbstractClientModule {
         }
 
         return targetFileSet;
+    }
+
+    private Set<ClassInfo> getFaults(List<CGMethod> methods) {
+        final HashSet<ClassInfo> classes = new HashSet<>();
+        for (CGMethod method : methods) {
+            classes.addAll(method.getFaults());
+        }
+        return classes;
     }
 
     @Override
@@ -156,12 +160,12 @@ public class AndroidClientModule extends AbstractClientModule {
     }
 
     private Set<String> getImports(List<CGMethod> methods) {
-        Set<String> importList = new HashSet<String>();
+        Set<String> importList = new HashSet<>();
         for (CGMethod method : methods) {
             importList.add(method.getRequest().getPackageName() + "." + method.getRequest().getName());
             importList.add(method.getResponse().getPackageName() + "." + method.getResponse().getName());
-            if (method.getFault() != null) {
-                importList.add(method.getFault().getPackageName() + "." + method.getFault().getName());
+            for (ClassInfo classInfo : method.getFaults()) {
+                importList.add(classInfo.getPackageName() + "." + classInfo.getName());
             }
         }
 

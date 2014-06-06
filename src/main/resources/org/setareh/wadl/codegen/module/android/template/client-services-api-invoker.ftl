@@ -4,9 +4,6 @@ package ${packageName};
 import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
-import ${packageName}.ApiException;
-import ${packageName}.JsonUtil;
-
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -24,12 +21,8 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.net.URI;
-import java.net.URL;
+import java.io.*;
+import java.net.*;
 import java.util.Map;
 
 /**
@@ -43,18 +36,29 @@ public class ApiInvoker {
         GET, POST, PUT, DELETE, HEAD, OPTIONS, TRACE, CONNECT
     }
 
+    public static final class ApiFunctionalError extends Exception {
 
-    public static <T, F> Result<T, F> invoke(final String path,
-                                             final Method method,
-                                             final Object userRequest,
-                                             final Class<T> responseClass,
-                                             final Class<F> faultClass,
-                                             final String userAgent,
-                                             final boolean enableLogging,
-                                             final String login,
-                                             final String password,
-                                             final Map<String, String> extraHeaders)
-            throws ApiException {
+        public final Object nestedError;
+        public final int errorCode;
+
+        public ApiFunctionalError(int errorCode, Object nestedError) {
+            this.nestedError = nestedError;
+            this.errorCode = errorCode;
+        }
+    }
+
+
+    public static <T> T invoke(final String path,
+                               final Method method,
+                               final Object userRequest,
+                               final Class<T> responseClass,
+                               final Map<Integer, Class<?>> faultClasses,
+                               final String userAgent,
+                               final boolean enableLogging,
+                               final String login,
+                               final String password,
+                               final Map<String, String> extraHeaders)
+            throws ApiException, ApiFunctionalError {
         AndroidHttpClient client = null;
         try {
             final URL url = new URL(path);
@@ -140,15 +144,18 @@ public class ApiInvoker {
                             return null;
                         }
                         reader = enableLogging ? new LogInputStreamReader(content) : new InputStreamReader(content);
-                        return new Result<T, F>(JsonUtil.readJson(reader, responseClass));
+                        return JsonUtil.readJson(reader, responseClass);
                     default:
                         // Other responses
                         final InputStream errorContent = httpResponse.getEntity().getContent();
+                        final Class<?> faultClass = faultClasses.get(responseCode);
                         if (errorContent == null || faultClass == null) {
                             throw new ApiException("Error " + responseCode);
                         }
                         reader = enableLogging ? new LogInputStreamReader(errorContent) : new InputStreamReader(errorContent);
-                        return new Result<T, F>(JsonUtil.readJson(reader, faultClass), responseCode);
+
+                        final Object nestedError = JsonUtil.readJson(reader, faultClass);
+                        throw new ApiFunctionalError(responseCode, nestedError);
                 }
             } finally {
                 if (reader != null) {
@@ -159,8 +166,8 @@ public class ApiInvoker {
                     }
                 }
             }
-        } catch (final Exception e) {
-            throw new ApiException("Error while calling " + path + " with method " + method, e);
+        } catch (JsonUtil.JsonException | URISyntaxException | IOException e) {
+            throw new ApiException(e);
         } finally {
             try {
                 if (client != null) {

@@ -96,10 +96,8 @@ public class ServicesModelBuilder {
             if(isSuccessHttpCode(response))
             {
                 cgMethod.setResponse(createClassInfo(response.getRepresentation().get(0)));
-            }
-            else
-            {
-                cgMethod.setFault(createClassInfo(response.getRepresentation().get(0)));
+            } else {
+                cgMethod.addFault(response.getStatus().get(0), createClassInfo(response.getRepresentation().get(0)));
             }
         }
         cgMethod.setName(createMethodName(name));
@@ -113,9 +111,7 @@ public class ServicesModelBuilder {
         if(response.getStatus() == null || response.getStatus().isEmpty())
         {
             isSuccessHttpCode = true;
-        }
-        else
-        {
+        } else {
             if(response.getStatus().size() > 0 && (response.getStatus().get(0) / 100) == 2)
             {
                 isSuccessHttpCode = true;

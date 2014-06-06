@@ -1,5 +1,9 @@
 package org.setareh.wadl.codegen.model;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+
 /**
  * @author: alexandre_godet
  * @since: MXXX
@@ -10,7 +14,7 @@ public class CGMethod implements Cloneable {
     private String name;
     private String type;
     private String path;
-    private ClassInfo fault;
+    private HashMap<String, ClassInfo> faults = new HashMap<>();
 
     public ClassInfo getRequest() {
         return request;
@@ -52,12 +56,15 @@ public class CGMethod implements Cloneable {
         this.path = path;
     }
 
-    public void setFault(ClassInfo fault) {
-        this.fault = fault;
+    public void addFault(long errorCode, ClassInfo fault) {
+        this.faults.put(String.valueOf(errorCode), fault);
     }
 
-    public ClassInfo getFault() {
-        return fault;
+    public Map<String, ClassInfo> getFaultsMap() {
+        return faults;
+    }
+    public HashSet<ClassInfo> getFaults() {
+        return new HashSet<>(faults.values());
     }
 
     @Override
@@ -68,7 +75,7 @@ public class CGMethod implements Cloneable {
         cgMethod.name = this.name;
         cgMethod.type = this.type;
         cgMethod.path = this.path;
-        cgMethod.fault = this.fault;
+        cgMethod.faults.putAll(this.faults);
         return cgMethod;
     }
 }
