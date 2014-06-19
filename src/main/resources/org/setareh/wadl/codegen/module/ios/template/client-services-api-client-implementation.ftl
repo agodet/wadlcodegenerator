@@ -392,7 +392,9 @@ completionBlock:(void (^)(NSString*, NSError *))completionBlock {
 
     if(body != nil) {
         if([body isKindOfClass:[NSDictionary class]]){
-            [request setValue:requestContentType forHTTPHeaderField:@"Content-Type"];
+            if(requestContentType){
+                [request setValue:requestContentType forHTTPHeaderField:@"Content-Type"];
+            }
         }
         else if ([body isKindOfClass:[${generatedPrefix}File class]]){}
         else {

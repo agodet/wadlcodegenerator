@@ -63,7 +63,10 @@ static NSString * basePath = @"";
 
     [#if method.request??]
     NSString* requestContentType = @"application/json";
+    [#else]
+    NSString* requestContentType = nil;
     [/#if]
+
     NSString* responseContentType = @"application/json";
 
     NSMutableDictionary* queryParams = [[NSMutableDictionary alloc] init];
