@@ -14,8 +14,8 @@
 -(void) setBasePath:(NSString*)basePath;
 
 [#list methods as method]
--(NSNumber*) ${method.name}With[#if method.request??]CompletionBlock :(${projectPrefix}${method.request.name}*) body
-[/#if]completionHandler: (void (^)(${projectPrefix}${method.response.name}* output, NSError* error))completionBlock;
+-(NSNumber*) ${method.name}With[#if method.request??]CompletionBlock:(${projectPrefix}${method.request.name}*) body
+[/#if][#if method.requestParams??][#list method.requestParams as param]param${param.name}: (NSString *) ${param.name} [/#list][/#if]completionHandler: (void (^)(${projectPrefix}${method.response.name}* output, NSError* error))completionBlock{
 [/#list]
 
 @end
