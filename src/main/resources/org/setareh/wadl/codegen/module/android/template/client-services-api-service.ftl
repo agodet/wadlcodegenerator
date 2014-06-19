@@ -37,7 +37,7 @@ public ${className}Api(final ApiConfig config) {
 
 [#list methods as method]
 
-public ${method.response.name} ${method.name} (${method.request.name} body) throws
+public ${method.response.name} ${method.name} ([#if method.request??]${method.request.name} body[/#if]) throws
 [#list method.faults as fault]
         ${className}${fault.name}Exception,
 [/#list]
@@ -53,7 +53,7 @@ public ${method.response.name} ${method.name} (${method.request.name} body) thro
         return mApiInvoker.invoke(
                 mConfig.getBaseUrl() + "${method.path}",
                 ApiInvoker.Method.${method.type},
-                body,
+                [#if method.request??]body[#else]null[/#if],
                 ${method.response.name}.class,
                 faults,
                 mConfig.getUserAgent(),

@@ -162,8 +162,12 @@ public class AndroidClientModule extends AbstractClientModule {
     private Set<String> getImports(List<CGMethod> methods) {
         Set<String> importList = new HashSet<>();
         for (CGMethod method : methods) {
-            importList.add(method.getRequest().getPackageName() + "." + method.getRequest().getName());
-            importList.add(method.getResponse().getPackageName() + "." + method.getResponse().getName());
+            if (method.getRequest() != null) {
+                importList.add(method.getRequest().getPackageName() + "." + method.getRequest().getName());
+            }
+            if (method.getResponse() != null) {
+                importList.add(method.getResponse().getPackageName() + "." + method.getResponse().getName());
+            }
             for (ClassInfo classInfo : method.getFaults()) {
                 importList.add(classInfo.getPackageName() + "." + classInfo.getName());
             }

@@ -210,8 +210,12 @@ public class IOSClientModule extends AbstractClientModule {
     private Set<String> getImports(List<CGMethod> methods, String prefix) {
         Set<String> importList = new HashSet<String>();
         for (CGMethod method : methods) {
-            importList.add(prefix + method.getRequest().getName() + ".h");
-            importList.add(prefix + method.getResponse().getName() + ".h");
+            if (method.getRequest() != null) {
+                importList.add(prefix + method.getRequest().getName() + ".h");
+            }
+            if (method.getResponse() != null) {
+                importList.add(prefix + method.getResponse().getName() + ".h");
+            }
         }
 
         return importList;

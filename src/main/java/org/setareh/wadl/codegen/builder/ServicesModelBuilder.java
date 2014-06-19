@@ -1,10 +1,10 @@
 package org.setareh.wadl.codegen.builder;
 
+import org.setareh.wadl.codegen.generated.bo.*;
 import org.setareh.wadl.codegen.model.CGMethod;
 import org.setareh.wadl.codegen.model.CGService;
 import org.setareh.wadl.codegen.model.CGServices;
 import org.setareh.wadl.codegen.model.ClassInfo;
-import org.setareh.wadl.codegen.generated.bo.*;
 
 import java.util.List;
 
@@ -17,23 +17,21 @@ public class ServicesModelBuilder {
     public static void buildServicesModel(Application application, CGServices cgServices) {
         List<Resources> resourcesList = application.getResources();
 
-        for(Resources resources : resourcesList)
-        {
+        for (Resources resources : resourcesList) {
             List<Resource> resourceList = resources.getResource();
-            for(Resource resource : resourceList)
-            {
+            for (Resource resource : resourceList) {
                 cgServices.add(buildCGService(resource));
             }
         }
 
     }
+
     private static CGService buildCGService(Resource resource) {
 
         CGService cgService = new CGService();
 
         // TODO manage params
-        if(resource.getParam() != null)
-        {
+        if (resource.getParam() != null) {
             resource.getParam();
         }
 
@@ -42,39 +40,28 @@ public class ServicesModelBuilder {
 
         List<Object> methodOrResourceList = resource.getMethodOrResource();
 
-        if(methodOrResourceList != null && !methodOrResourceList.isEmpty())
-        {
-            for(Object methodOrResource : methodOrResourceList)
-            {
-                if(methodOrResource instanceof Method)
-                {
+        if (methodOrResourceList != null && !methodOrResourceList.isEmpty()) {
+            for (Object methodOrResource : methodOrResourceList) {
+                if (methodOrResource instanceof Method) {
                     CGMethod cgMethod = createMethod((Method) methodOrResource, resource.getPath(), resource.getPath());
                     cgService.add(cgMethod);
 
-                }
-                else if(methodOrResource instanceof Resource)
-                {
+                } else if (methodOrResource instanceof Resource) {
                     Resource includeResource = (Resource) methodOrResource;
                     List<Object> includeMethodOrResourceList = includeResource.getMethodOrResource();
 
                     // TODO manage params
-                    if(includeResource.getParam() != null)
-                    {
+                    if (includeResource.getParam() != null) {
                         List<Param> params = includeResource.getParam();
                     }
 
-                    if(includeMethodOrResourceList != null && !includeMethodOrResourceList.isEmpty())
-                    {
-                        for(Object includeMethodOrResource : includeMethodOrResourceList)
-                        {
-                            if(includeMethodOrResource instanceof Method)
-                            {
+                    if (includeMethodOrResourceList != null && !includeMethodOrResourceList.isEmpty()) {
+                        for (Object includeMethodOrResource : includeMethodOrResourceList) {
+                            if (includeMethodOrResource instanceof Method) {
                                 CGMethod cgMethod = createMethod((Method) includeMethodOrResource, includeResource.getPath(), resource.getPath() + includeResource.getPath());
                                 cgService.add(cgMethod);
 
-                            }
-                            else
-                            {
+                            } else {
                                 throw new RuntimeException("search for a method a this point");
                             }
                         }
@@ -90,11 +77,11 @@ public class ServicesModelBuilder {
         CGMethod cgMethod = new CGMethod();
         cgMethod.setType(method.getName());
         //setRequestParameter with method.getRequest().getParam()
-        cgMethod.setRequest(createClassInfo(method.getRequest().getRepresentation().get(0)));
-        for(Response response : method.getResponse())
-        {
-            if(isSuccessHttpCode(response))
-            {
+        if (method.getRequest() != null) {
+            cgMethod.setRequest(createClassInfo(method.getRequest().getRepresentation().get(0)));
+        }
+        for (Response response : method.getResponse()) {
+            if (isSuccessHttpCode(response)) {
                 cgMethod.setResponse(createClassInfo(response.getRepresentation().get(0)));
             } else {
                 cgMethod.addFault(response.getStatus().get(0), createClassInfo(response.getRepresentation().get(0)));
@@ -108,12 +95,10 @@ public class ServicesModelBuilder {
     private static boolean isSuccessHttpCode(final Response response) {
         boolean isSuccessHttpCode = false;
 
-        if(response.getStatus() == null || response.getStatus().isEmpty())
-        {
+        if (response.getStatus() == null || response.getStatus().isEmpty()) {
             isSuccessHttpCode = true;
         } else {
-            if(response.getStatus().size() > 0 && (response.getStatus().get(0) / 100) == 2)
-            {
+            if (response.getStatus().size() > 0 && (response.getStatus().get(0) / 100) == 2) {
                 isSuccessHttpCode = true;
             }
         }
@@ -121,12 +106,12 @@ public class ServicesModelBuilder {
     }
 
     private static String createClassName(String path) {
-        String className = path.replace("/","");
+        String className = path.replace("/", "");
         return Character.toUpperCase(className.charAt(0)) + className.substring(1);
     }
 
     private static String createMethodName(String path) {
-        return path.replace("/","");
+        return path.replace("/", "");
     }
 
     private static ClassInfo createClassInfo(Representation representation) {
@@ -148,26 +133,19 @@ public class ServicesModelBuilder {
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        for(String urlPart : splitBySlash)
-        {
-            if(!urlPart.startsWith("http") && !urlPart.isEmpty())
-            {
-                if(urlPart.contains("."))
-                {
+        for (String urlPart : splitBySlash) {
+            if (!urlPart.startsWith("http") && !urlPart.isEmpty()) {
+                if (urlPart.contains(".")) {
                     String[] splitByDot = urlPart.split("\\.");
 
-                    for(int i = splitByDot.length - 1; i >= 0; i--)
-                    {
+                    for (int i = splitByDot.length - 1; i >= 0; i--) {
                         String dotPart = splitByDot[i];
-                        if(!dotPart.startsWith("www"))
-                        {
+                        if (!dotPart.startsWith("www")) {
                             stringBuilder.append(escapeChars(dotPart));
                             stringBuilder.append(".");
                         }
                     }
-                }
-                else
-                {
+                } else {
                     stringBuilder.append(escapeChars(urlPart));
                     stringBuilder.append(".");
                 }
@@ -180,9 +158,8 @@ public class ServicesModelBuilder {
         return stringBuilder.toString();
     }
 
-    private static String escapeChars(String string)
-    {
-        return string.replace('-','_');
+    private static String escapeChars(String string) {
+        return string.replace('-', '_');
     }
 
 }

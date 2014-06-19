@@ -51,8 +51,8 @@ static NSString * basePath = @"";
 }
 
 [#list methods as method]
--(NSNumber*) ${method.name}WithCompletionBlock:(${projectPrefix}${method.request.name}*) body
-completionHandler: (void (^)(${projectPrefix}${method.response.name}* output, NSError* error))completionBlock{
+-(NSNumber*) ${method.name}With[#if method.request??]CompletionBlock:(${projectPrefix}${method.request.name}*) body
+[/#if]completionHandler: (void (^)(${projectPrefix}${method.response.name}* output, NSError* error))completionBlock{
 
     NSMutableString* requestUrl = [NSMutableString stringWithFormat:@"%@${method.path}", basePath];
 
@@ -66,7 +66,9 @@ completionHandler: (void (^)(${projectPrefix}${method.response.name}* output, NS
 
     NSMutableDictionary* queryParams = [[NSMutableDictionary alloc] init];
     NSMutableDictionary* headerParams = [[NSMutableDictionary alloc] init];
+
     id bodyDictionary = nil;
+    [#if method.request??]
     if(body != nil && [body isKindOfClass:[NSArray class]]){
         NSMutableArray * objs = [[NSMutableArray alloc] init];
         for (id dict in (NSArray*)body) {
@@ -103,7 +105,7 @@ completionHandler: (void (^)(${projectPrefix}${method.response.name}* output, NS
     if(body == nil) {
         // error
     }
-
+    [/#if]
     ${generatedPrefix}ApiClient* client = [${generatedPrefix}ApiClient sharedClientFromPool:basePath];
 
     return [client dictionary:requestUrl
