@@ -40,7 +40,7 @@ public ${className}Api(final ApiConfig config) {
 public ${method.response.name} ${method.name} (
     [#if method.requestParams??]
         [#list method.requestParams as param]
-        final String ${param?uncap_first}[#if param_has_next || method.request??],[/#if]
+        final String ${param.name?uncap_first}[#if param_has_next || method.request??],[/#if]
         [/#list]
     [/#if]
     [#if method.request??]${method.request.name} body[/#if]
@@ -59,9 +59,9 @@ public ${method.response.name} ${method.name} (
     [#-- Ajout des requestParams --]
     [#if method.requestParams??]
     /* Add extra parameters */
-    final String extraParamsFormat = "?[#list method.requestParams as param]${param}=%${param_index}$s[#if param_has_next]&[/#if][/#list]";
+    final String extraParamsFormat = "?[#list method.requestParams as param]${param.name}=%${param_index + 1}$s[#if param_has_next]&[/#if][/#list]";
 
-    final String extraParams = [#if method.requestParams?? && method.requestParams?length > 0]String.format(extraParamsFormat, [#list method.requestParams as param]${param?uncap_first}[#if param_has_next],[/#if][/#list])[#else]extraParamsFormat[/#if];
+    final String extraParams = [#if method.requestParams?? && method.requestParams?has_content]String.format(extraParamsFormat, [#list method.requestParams as param]${param.name?uncap_first}[#if param_has_next],[/#if][/#list])[#else]extraParamsFormat[/#if];
     [/#if]
     [#-- Fin des requestParams --]
 

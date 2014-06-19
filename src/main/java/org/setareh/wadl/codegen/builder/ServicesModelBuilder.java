@@ -1,11 +1,10 @@
 package org.setareh.wadl.codegen.builder;
 
 import org.setareh.wadl.codegen.generated.bo.*;
-import org.setareh.wadl.codegen.model.CGMethod;
-import org.setareh.wadl.codegen.model.CGService;
-import org.setareh.wadl.codegen.model.CGServices;
-import org.setareh.wadl.codegen.model.ClassInfo;
+import org.setareh.wadl.codegen.model.*;
 
+import javax.xml.namespace.QName;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -76,20 +75,37 @@ public class ServicesModelBuilder {
     private static CGMethod createMethod(Method method, String name, String path) {
         CGMethod cgMethod = new CGMethod();
         cgMethod.setType(method.getName());
-        //setRequestParameter with method.getRequest().getParam()
-        if (method.getRequest() != null) {
-            cgMethod.setRequest(createClassInfo(method.getRequest().getRepresentation().get(0)));
+
+        if (method.getRequest() != null && method.getRequest().getRepresentation() != null && !method.getRequest().getRepresentation().isEmpty()) {
+            cgMethod.setRequest(createClassInfo(method.getRequest().getRepresentation().get(0).getElement()));
+        }
+        if(method.getRequest() != null) {
+            cgMethod.setRequestParams(createParams(method.getRequest().getParam()));
         }
         for (Response response : method.getResponse()) {
             if (isSuccessHttpCode(response)) {
-                cgMethod.setResponse(createClassInfo(response.getRepresentation().get(0)));
+                cgMethod.setResponse(createClassInfo(response.getRepresentation().get(0).getElement()));
             } else {
-                cgMethod.addFault(response.getStatus().get(0), createClassInfo(response.getRepresentation().get(0)));
+                cgMethod.addFault(response.getStatus().get(0), createClassInfo(response.getRepresentation().get(0).getElement()));
             }
         }
         cgMethod.setName(createMethodName(name));
         cgMethod.setPath(path);
         return cgMethod;
+    }
+
+    private static List<CGParam> createParams(List<Param> params) {
+        List<CGParam> cgParams = new ArrayList<CGParam>();
+        if(params != null) {
+            for (Param param : params) {
+                CGParam cgParam = new CGParam();
+                cgParam.setName(param.getName());
+                cgParam.setClassInfo(createClassInfo(param.getType()));
+                cgParams.add(cgParam);
+            }
+        }
+
+        return cgParams;
     }
 
     private static boolean isSuccessHttpCode(final Response response) {
@@ -114,21 +130,21 @@ public class ServicesModelBuilder {
         return path.replace("/", "");
     }
 
-    private static ClassInfo createClassInfo(Representation representation) {
+    private static ClassInfo createClassInfo(QName qname) {
         final ClassInfo classInfo = new ClassInfo();
         classInfo.setAbstract(false);
-        classInfo.setPackageName(makePackage(representation));
-        classInfo.setName(makeName(representation));
+        classInfo.setPackageName(makePackage(qname));
+        classInfo.setName(makeName(qname));
         return classInfo;
     }
 
-    private static String makeName(Representation representation) {
-        String xmlClassName = representation.getElement().getLocalPart();
+    private static String makeName(QName qname) {
+        String xmlClassName = qname.getLocalPart();
         return createClassName(xmlClassName);
     }
 
-    private static String makePackage(Representation representation) {
-        String namespaceURI = representation.getElement().getNamespaceURI();
+    private static String makePackage(QName qname) {
+        String namespaceURI = qname.getNamespaceURI();
         String[] splitBySlash = namespaceURI.split("\\/");
 
         StringBuilder stringBuilder = new StringBuilder();

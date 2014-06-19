@@ -52,7 +52,7 @@ static NSString * basePath = @"";
 
 [#list methods as method]
 -(NSNumber*) ${method.name}With[#if method.request??]CompletionBlock:(${projectPrefix}${method.request.name}*) body
-[/#if]completionHandler: (void (^)(${projectPrefix}${method.response.name}* output, NSError* error))completionBlock{
+[/#if][#if method.requestParams??][#list method.requestParams as param]Param${param.name}: (NSString *) ${param.name} [/#list][/#if]completionHandler: (void (^)(${projectPrefix}${method.response.name}* output, NSError* error))completionBlock{
 
     NSMutableString* requestUrl = [NSMutableString stringWithFormat:@"%@${method.path}", basePath];
 
@@ -61,13 +61,23 @@ static NSString * basePath = @"";
         [requestUrl replaceCharactersInRange: [requestUrl rangeOfString:@".{format}"] withString:@".json"];
     }
 
+    [#if method.request??]
     NSString* requestContentType = @"application/json";
+    [/#if]
     NSString* responseContentType = @"application/json";
 
     NSMutableDictionary* queryParams = [[NSMutableDictionary alloc] init];
     NSMutableDictionary* headerParams = [[NSMutableDictionary alloc] init];
 
     id bodyDictionary = nil;
+    [#if method.type = "GET"]
+    bodyDictionary = [[NSMutableDictionary alloc] init];
+    [#if method.requestParams??]
+    [#list method.requestParams as param]
+    if(${param.name}) bodyDictionary${"[@"}"${param.name}"] = ${param.name};
+    [/#list]
+    [/#if]
+    [/#if]
     [#if method.request??]
     if(body != nil && [body isKindOfClass:[NSArray class]]){
         NSMutableArray * objs = [[NSMutableArray alloc] init];
