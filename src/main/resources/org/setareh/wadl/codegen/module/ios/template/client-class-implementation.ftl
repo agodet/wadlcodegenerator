@@ -106,43 +106,46 @@
     self = [#if clazz.superClass??][super initWithDictionnary:dict][#else][super init][/#if];
     if(self) {
     [#list clazz.fields as field]
-        [#if field.type.enum]
-        self.${field.name} = [${generatedPrefix}${field.type.fullName} fromString:dict${"["}@"${field.initialName}"]];
-        [#elseif field.type.collection || field.type.array]
-        id ${field.name}_dict = dict${"["}@"${field.initialName}"];
+        if (dict${"[@"}"${field.name}"] != [NSNull null])
+        {
+            [#if field.type.enum]
+            self.${field.name} = [${generatedPrefix}${field.type.fullName} fromString:dict${"["}@"${field.initialName}"]];
+            [#elseif field.type.collection || field.type.array]
+            id ${field.name}_dict = dict${"["}@"${field.initialName}"];
 
-        NSMutableArray * ${field.name}Array = [[NSMutableArray alloc] initWithCapacity:[(NSArray*)${field.name}_dict count]];
+            NSMutableArray * ${field.name}Array = [[NSMutableArray alloc] initWithCapacity:[(NSArray*)${field.name}_dict count]];
 
-        if([(NSArray*)${field.name}_dict count] > 0) {
-            [#assign typeParameter = field.type.typeParameters?first]
+            if([(NSArray*)${field.name}_dict count] > 0) {
+                [#assign typeParameter = field.type.typeParameters?first]
 
-            [#if typeParameter.enum]
-            for (NSString * dictValue in (NSArray*)${field.name}_dict) {
-            ${generatedPrefix}${typeParameter.fullName} * d = [${generatedPrefix}${typeParameter.fullName} fromString:dictValue];
-            [#elseif typeParameter.primitive]
-            for (${typeParameter.fullName}* dictValue in (NSArray*)${field.name}_dict) {
-            ${typeParameter.fullName} * d = dictValue;
+                [#if typeParameter.enum]
+                for (NSString * dictValue in (NSArray*)${field.name}_dict) {
+                ${generatedPrefix}${typeParameter.fullName} * d = [${generatedPrefix}${typeParameter.fullName} fromString:dictValue];
+                [#elseif typeParameter.primitive]
+                for (${typeParameter.fullName}* dictValue in (NSArray*)${field.name}_dict) {
+                ${typeParameter.fullName} * d = dictValue;
+                [#else]
+                for (NSDictionary* dict in (NSArray*)${field.name}_dict) {
+                ${projectPrefix}${typeParameter.fullName} * d = [[${projectPrefix}${typeParameter.fullName} alloc]initWithDictionnary:dict];
+                [/#if]
+
+                [${field.name}Array addObject:d];
+                }
+                self.${field.name} = ${field.name}Array;
+                }
+            [#elseif field.type.primitive]
+                [#if field.type.name == "DATE"]
+                    self.${field.name} = [${generatedPrefix}DateFormatterUtils convertToDate:dict${"["}@"${field.initialName}"]];
+                [#else]
+                    self.${field.name} = dict${"["}@"${field.initialName}"];
+                [/#if]
             [#else]
-            for (NSDictionary* dict in (NSArray*)${field.name}_dict) {
-            ${projectPrefix}${typeParameter.fullName} * d = [[${projectPrefix}${typeParameter.fullName} alloc]initWithDictionnary:dict];
+                NSDictionary * ${field.name}_dict = dict${"["}@"${field.initialName}"];
+                if(${field.name}_dict != nil) {
+                    self.${field.name} = [[${projectPrefix}${field.type.fullName} alloc]initWithDictionnary:${field.name}_dict];
+                }
             [/#if]
-
-            [${field.name}Array addObject:d];
-            }
-            self.${field.name} = ${field.name}Array;
-            }
-        [#elseif field.type.primitive]
-            [#if field.type.name == "DATE"]
-                self.${field.name} = [${generatedPrefix}DateFormatterUtils convertToDate:dict${"["}@"${field.initialName}"]];
-            [#else]
-                self.${field.name} = dict${"["}@"${field.initialName}"];
-            [/#if]
-        [#else]
-            NSDictionary * ${field.name}_dict = dict${"["}@"${field.initialName}"];
-            if(${field.name}_dict != nil) {
-                self.${field.name} = [[${projectPrefix}${field.type.fullName} alloc]initWithDictionnary:${field.name}_dict];
-            }
-        [/#if]
+        }
     [/#list]
     }
     return self;
