@@ -9,6 +9,8 @@ import ${utilityPackageName}.ApiConfig;
 import ${import};
 [/#list]
 import java.util.*;
+import java.io.*;
+import java.net.URLEncoder;
 
 public class ${className}Api {
 
@@ -61,7 +63,13 @@ public ${method.response.name} ${method.name} (
     /* Add extra parameters */
     final String extraParamsFormat = "?[#list method.requestParams as param]${param.name}=%${param_index + 1}$s[#if param_has_next]&[/#if][/#list]";
 
-    final String extraParams = [#if method.requestParams?? && method.requestParams?has_content]String.format(extraParamsFormat, [#list method.requestParams as param]${param.name?uncap_first}[#if param_has_next],[/#if][/#list])[#else]extraParamsFormat[/#if];
+    final String extraParams;
+    try{
+        extraParams = [#if method.requestParams?? && method.requestParams?has_content]String.format(extraParamsFormat, [#list method.requestParams as param]URLEncoder.encode(${param.name?uncap_first}, "UTF-8")[#if param_has_next],[/#if][/#list])[#else]extraParamsFormat[/#if];
+
+    } catch (UnsupportedEncodingException e) {
+        throw new RuntimeException(e);// Will never happen. For compilation.
+    }
     [/#if]
     [#-- Fin des requestParams --]
 
