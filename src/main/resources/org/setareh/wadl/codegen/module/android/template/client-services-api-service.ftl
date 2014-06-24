@@ -58,14 +58,16 @@ public ${method.response.name} ${method.name} (
     [/#list]
     }};
 
+    [#assign hasParams = method.requestParams?? && method.requestParams?has_content/]
+
     [#-- Ajout des requestParams --]
-    [#if method.requestParams??]
+    [#if hasParams]
     /* Add extra parameters */
     final String extraParamsFormat = "?[#list method.requestParams as param]${param.name}=%${param_index + 1}$s[#if param_has_next]&[/#if][/#list]";
 
     final String extraParams;
     try{
-        extraParams = [#if method.requestParams?? && method.requestParams?has_content]String.format(extraParamsFormat, [#list method.requestParams as param]URLEncoder.encode(${param.name?uncap_first}, "UTF-8")[#if param_has_next],[/#if][/#list])[#else]extraParamsFormat[/#if];
+        extraParams = [#if hasParams]String.format(extraParamsFormat, [#list method.requestParams as param]URLEncoder.encode(${param.name?uncap_first}, "UTF-8")[#if param_has_next],[/#if][/#list])[#else]extraParamsFormat[/#if];
 
     } catch (UnsupportedEncodingException e) {
         throw new RuntimeException(e);// Will never happen. For compilation.
@@ -75,7 +77,7 @@ public ${method.response.name} ${method.name} (
 
     try {
         return mApiInvoker.invoke(
-                mConfig.getBaseUrl() + "${method.path}"[#if method.requestParams??] + extraParams[/#if],
+                mConfig.getBaseUrl() + "${method.path}"[#if hasParams] + extraParams[/#if],
                 ApiInvoker.Method.${method.type},
                 [#if method.request??]body[#else]null[/#if],
                 ${method.response.name}.class,
