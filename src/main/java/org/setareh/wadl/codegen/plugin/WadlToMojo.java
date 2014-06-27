@@ -76,14 +76,13 @@ public class WadlToMojo extends AbstractMojo
                 throw new MojoExecutionException("error",e);
             }
 
-
             try {
                 String jarFileName = project.getArtifactId() + "-" + module.name() + "-" + project.getVersion() + ".jar";
                 // jar it
                 File file = new File(project.getBuild().getDirectory(), jarFileName);
                 makeJar(cgConfig.targetDir, file);
 
-                projectHelper.attachArtifact(this.project, ".jar", module.name(), file);
+                projectHelper.attachArtifact(this.project, "jar", module.name(), file);
             } catch (Exception e) {
                 throw new MojoExecutionException("error",e);
             }

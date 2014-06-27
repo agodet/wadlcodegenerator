@@ -84,7 +84,8 @@ public ${method.response.name} ${method.name} (
                 mConfig.isDebugLogEnabled(),
                 mConfig.getLogin(),
                 mConfig.getPassword(),
-                mConfig.getExtraHeaders());
+                mConfig.getExtraHeaders(),
+                mConfig.getComputedExtraHeaders());
     } catch (ApiInvoker.ApiFunctionalError apiFunctionalError) {
             switch(apiFunctionalError.errorCode) {
             [#list method.faultsMap?keys as key]

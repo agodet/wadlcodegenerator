@@ -462,4 +462,14 @@ failure:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *e
     self.authenticationPassword = password;
 }
 
+- (NSMutableURLRequest *)requestWithMethod:(NSString *)method path:(NSString *)path parameters:(NSDictionary *)parameters {
+    NSMutableURLRequest * request = [super requestWithMethod:method path:path parameters:parameters];
+
+    if (self.authorizationBlock) {
+    [request setValue: self.authorizationBlock(request.URL, request.HTTPMethod, request.HTTPBody) forHTTPHeaderField:@"Authorization"];
+    }
+
+    return request;
+}
+
 @end

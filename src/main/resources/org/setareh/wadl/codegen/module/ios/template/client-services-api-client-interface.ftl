@@ -16,6 +16,7 @@
 @property(nonatomic, readonly) NSOperationQueue* queue;
 @property(nonatomic, copy) NSString * authenticationLogin;
 @property(nonatomic, copy) NSString * authenticationPassword;
+@property (nonatomic, copy) NSString * (^authorizationBlock)(NSURL *url, NSString * method, NSData *body);
 
 +(${generatedPrefix}ApiClient *)sharedClientFromPool:(NSString *)baseUrl;
 

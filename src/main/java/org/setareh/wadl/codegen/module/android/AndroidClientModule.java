@@ -27,6 +27,7 @@ public class AndroidClientModule extends AbstractClientModule {
     private URL enumTemplate;
     private URL apiExceptionTemplate;
     private URL apiConfigTemplate;
+    private URL apiComputedHttpHeaderTemplate;
     private URL apiInvokerTemplate;
     private URL apiJSonUtilTemplate;
     private URL apiServiceTemplate;
@@ -53,6 +54,7 @@ public class AndroidClientModule extends AbstractClientModule {
         enumTemplate = getTemplateURL("client-enum-type.ftl");
         apiExceptionTemplate = getTemplateURL("client-services-api-exception.ftl");
         apiConfigTemplate = getTemplateURL("client-services-api-config.ftl");
+        apiComputedHttpHeaderTemplate = getTemplateURL("client-services-api-computed-http-header.ftl");
         apiInvokerTemplate = getTemplateURL("client-services-api-invoker.ftl");
         apiJSonUtilTemplate = getTemplateURL("client-services-api-jsonutil.ftl");
         apiServiceTemplate = getTemplateURL("client-services-api-service.ftl");
@@ -113,6 +115,9 @@ public class AndroidClientModule extends AbstractClientModule {
 
         FileInfo apiConfigFile = this.generateFile(apiConfigTemplate, fmModel, "ApiConfig", "java", ClassNameUtil.packageNameToPath(utilityPackageName), SOURCE_FOLDER);
         targetFileSet.add(apiConfigFile);
+
+        FileInfo apiComputedHttpHeader = this.generateFile(apiComputedHttpHeaderTemplate, fmModel, "ComputedHttpHeaderValue", "java", ClassNameUtil.packageNameToPath(utilityPackageName), SOURCE_FOLDER);
+        targetFileSet.add(apiComputedHttpHeader);
 
         FileInfo apiInvokerFile = this.generateFile(apiInvokerTemplate, fmModel, "ApiInvoker", "java", ClassNameUtil.packageNameToPath(utilityPackageName), SOURCE_FOLDER);
         targetFileSet.add(apiInvokerFile);

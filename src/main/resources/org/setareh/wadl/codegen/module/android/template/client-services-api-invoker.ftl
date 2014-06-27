@@ -57,7 +57,8 @@ public class ApiInvoker {
                                final boolean enableLogging,
                                final String login,
                                final String password,
-                               final Map<String, String> extraHeaders)
+                               final Map<String, String> extraHeaders,
+                               final Map<String, ComputedHttpHeaderValue> extraComputedHeaders)
             throws ApiException, ApiFunctionalError {
         AndroidHttpClient client = null;
         try {
@@ -123,10 +124,18 @@ public class ApiInvoker {
                     httpRequest.addHeader(entry.getKey(), entry.getValue());
                 }
             }
+
             httpRequest.addHeader("Content-Type", "application/json");
 
             // Invoke
             final HttpHost host = new HttpHost(url.getHost(), url.getPort(), url.getProtocol());
+
+            if (extraComputedHeaders != null) {
+                for (Map.Entry<String, ComputedHttpHeaderValue> entry : extraComputedHeaders.entrySet()) {
+                    httpRequest.addHeader(entry.getKey(), entry.getValue().computeHeader(host, httpRequest));
+                }
+            }
+
             final HttpResponse httpResponse = client.execute(host, httpRequest, credContext);
 
             final int responseCode = httpResponse.getStatusLine().getStatusCode();
