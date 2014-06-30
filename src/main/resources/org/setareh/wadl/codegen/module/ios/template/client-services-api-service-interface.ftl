@@ -7,10 +7,16 @@
 
 @interface ${className}Api: NSObject
 
+@property(nonatomic, copy, readonly) NSString * basePath;
+@property(nonatomic, copy, readonly) NSString * group;
+
++ (${className}Api*) sharedApiWithBasePath:(NSString *) basePath;
++ (${className}Api*) sharedApiWithBasePath:(NSString *) basePath  withGroup:(NSString *)group;
+
 -(void) addHeader:(NSString*)value forKey:(NSString*)key;
 -(unsigned long) requestQueueSize;
 - (void)setAuthenticationLogin:(NSString *)login andPassword:(NSString *)password;
-+(${className}Api*) sharedApiWithBasePath:(NSString *) basePath;
+- (void)setAuthorizationWithBlock:(NSString *(^)(NSURL *, NSString * method, NSData *body))authorizationBlock;
 -(void) setBasePath:(NSString*)basePath;
 
 [#list methods as method]

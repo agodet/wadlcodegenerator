@@ -6,35 +6,44 @@
 #import "${import}"
 [/#list]
 
+@interface ${className}Api ()
+
+@property(nonatomic, copy) NSString * basePath;
+@property(nonatomic, copy) NSString * group;
+
+@end
 
 @implementation ${className}Api
-static NSString * basePath = @"";
 
-+(${className}Api*) sharedApiWithBasePath:(NSString *) basePath {
++ (${className}Api*) sharedApiWithBasePath:(NSString *) basePath {
+    return [${className}Api sharedApiWithBasePath:basePath withGroup:nil];
+}
+
++ (${className}Api*) sharedApiWithBasePath:(NSString *) basePath  withGroup:(NSString *)group {
     static ${className}Api* singletonAPI = nil;
 
     if (singletonAPI == nil) {
-        singletonAPI = [[${className}Api alloc] init];
-        [singletonAPI setBasePath:basePath];
+        singletonAPI = [[${className}Api alloc] initWithBasePath:basePath group:group];
     }
     return singletonAPI;
 }
 
--(void) setBasePath:(NSString*)path {
-    basePath = path;
-}
-
 -(${generatedPrefix}ApiClient*) apiClient {
-    return [${generatedPrefix}ApiClient sharedClientFromPool:basePath];
+    return [${generatedPrefix}ApiClient sharedClientFromPool:self.basePath withGroup:self.group];
 }
 
 -(void) addHeader:(NSString*)value forKey:(NSString*)key {
     [[self apiClient] setHeaderValue:value forKey:key];
 }
 
--(id) init {
+-(id) initWithBasePath:basePath group:group {
     self = [super init];
+
+    self.basePath = basePath;
+    self.group = group;
+
     [self apiClient];
+
     return self;
 }
 
@@ -50,11 +59,15 @@ static NSString * basePath = @"";
     [[self apiClient] setAuthenticationLogin:login andPassword:password];
 }
 
+- (void)setAuthorizationWithBlock:(NSString *(^)(NSURL *, NSString * method, NSData *body))authorizationBlock {
+    [[self apiClient] setAuthorizationWithBlock:authorizationBlock];
+}
+
 [#list methods as method]
 -(NSNumber*) ${method.name}With[#if method.request??]CompletionBlock:(${projectPrefix}${method.request.name}*) body
 [/#if][#if method.requestParams??][#list method.requestParams as param]param${param.name}: (NSString *) ${param.name} [/#list][/#if]completionHandler: (void (^)(${projectPrefix}${method.response.name}* output, NSError* error))completionBlock{
 
-    NSMutableString* requestUrl = [NSMutableString stringWithFormat:@"%@${method.path}", basePath];
+    NSMutableString* requestUrl = [NSMutableString stringWithFormat:@"%@${method.path}", self.basePath];
 
     // remove format in URL if needed
     if ([requestUrl rangeOfString:@".{format}"].location != NSNotFound) {
@@ -119,7 +132,7 @@ static NSString * basePath = @"";
         // error
     }
     [/#if]
-    ${generatedPrefix}ApiClient* client = [${generatedPrefix}ApiClient sharedClientFromPool:basePath];
+    ${generatedPrefix}ApiClient* client = [${generatedPrefix}ApiClient sharedClientFromPool:self.basePath];
 
     return [client dictionary:requestUrl
     method:@"${method.type}"

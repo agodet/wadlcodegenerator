@@ -4,6 +4,7 @@
 
 #import "AFJSONRequestOperation.h"
 
+
 @implementation ${generatedPrefix}ApiClient
 
 static long requestId = 0;
@@ -46,6 +47,11 @@ diskSize:(unsigned long) diskSize {
 }
 
 +(${generatedPrefix}ApiClient *)sharedClientFromPool:(NSString *)baseUrl {
+    return [${generatedPrefix}ApiClient sharedClientFromPool:baseUrl withGroup:nil];
+}
+
++(${generatedPrefix}ApiClient *)sharedClientFromPool:(NSString *)baseUrl withGroup:(NSString *)group {
+
     static NSMutableDictionary *_pool = nil;
     if (queuedRequests == nil) {
         queuedRequests = [[NSMutableSet alloc]init];
@@ -62,16 +68,17 @@ diskSize:(unsigned long) diskSize {
         [${generatedPrefix}ApiClient configureCacheWithMemoryAndDiskCapacity:4*1024*1024 diskSize:32*1024*1024];
 
         // configure reachability
-        [${generatedPrefix}ApiClient configureCacheReachibilityForHost:baseUrl];
+        [${generatedPrefix}ApiClient configureCacheReachibilityForHost:baseUrl withGroup: group];
     }
 
     @synchronized(self) {
-        ${generatedPrefix}ApiClient * client = [_pool objectForKey:baseUrl];
+        NSString *shareKey = group ? [NSString stringWithFormat: @"%@_%@", group, baseUrl] : baseUrl;
+        ${generatedPrefix}ApiClient * client = [_pool objectForKey:shareKey];
         if (client == nil) {
             client = [[${generatedPrefix}ApiClient alloc] initWithBaseURL:[NSURL URLWithString:baseUrl]];
             [client registerHTTPOperationClass:[AFJSONRequestOperation class]];
             client.parameterEncoding = AFJSONParameterEncoding;
-            [_pool setValue:client forKey:baseUrl ];
+            [_pool setValue:client forKey:shareKey ];
             if(loggingEnabled) {
                 NSLog(@"new client for path %@", baseUrl);
             }
@@ -170,8 +177,12 @@ forKey:(NSString*) forKey {
     offlineState = state;
 }
 
-+(void) configureCacheReachibilityForHost:(NSString*)host {
-    [[${generatedPrefix}ApiClient sharedClientFromPool:host ] setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
+- (void)setAuthorizationWithBlock:(NSString *(^)(NSURL *, NSString * method, NSData *body))authorizationBlock {
+    self.authorizationBlock = authorizationBlock;
+}
+
++(void) configureCacheReachibilityForHost:(NSString*)host withGroup:(NSString *)group {
+    [[${generatedPrefix}ApiClient sharedClientFromPool:host withGroup: group] setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
         reachabilityStatus = status;
         switch (status) {
             case AFNetworkReachabilityStatusUnknown:

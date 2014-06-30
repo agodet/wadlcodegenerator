@@ -20,6 +20,8 @@
 
 +(${generatedPrefix}ApiClient *)sharedClientFromPool:(NSString *)baseUrl;
 
++ (${generatedPrefix}ApiClient *)sharedClientFromPool:(NSString *)baseUrl withGroup:(NSString *)group;
+
 +(NSOperationQueue*) sharedQueue;
 
 +(void)setLoggingEnabled:(bool) state;
@@ -68,6 +70,6 @@ responseContentType:(NSString*) responseContentType
 completionBlock:(void (^)(NSString*, NSError *))completionBlock;
 
 - (void)setAuthenticationLogin:(NSString *)login andPassword:(NSString *)password;
-
+- (void)setAuthorizationWithBlock:(NSString *(^)(NSURL *, NSString * method, NSData *body))authorizationBlock;
 @end
 

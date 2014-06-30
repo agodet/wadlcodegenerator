@@ -132,7 +132,7 @@ public class ApiInvoker {
 
             if (extraComputedHeaders != null) {
                 for (Map.Entry<String, ComputedHttpHeaderValue> entry : extraComputedHeaders.entrySet()) {
-                    httpRequest.addHeader(entry.getKey(), entry.getValue().computeHeader(host, httpRequest));
+                    httpRequest.addHeader(entry.getKey(), entry.getValue().computeHeader(url, method, httpRequest));
                 }
             }
 
