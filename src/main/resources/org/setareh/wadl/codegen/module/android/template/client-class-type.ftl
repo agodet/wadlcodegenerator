@@ -63,22 +63,8 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
             [#elseif field.type.primitive]
             created.${field.name} = source.read${field.type.name?cap_first}();
             [#elseif field.type.array]
-                [#if field.type.elementType.enum]
-            /* FIXME implement enum array parcel */
+            /* FIXME implement array */
             created.${field.name} = (${field.type.name}) source.readSerializable();
-                [#elseif field.type.elementType.name == "Date"]
-            /* FIXME implement Date array parcel */
-            created.${field.name} = (${field.type.name}) source.readSerializable();
-                [#elseif field.type.elementType.primitive]
-            /* FIXME implement primitive array parcel */
-            created.${field.name} = (${field.type.name}) source.readSerializable();
-                [#elseif field.type.elementType.name == "String"]
-            created.${field.name} = new java.util.ArrayList<>();
-            source.readStringList(created.${field.name});
-                [#else]
-            created.${field.name} = new java.util.ArrayList<>();
-            source.readTypedList(created.${field.name}, ${field.elementType.name}.CREATOR);
-                [/#if]
             [#elseif field.type.collection]
                 [#if field.type.typeParameters[0].enum]
             /* FIXME implement enum array parcel */
@@ -126,6 +112,8 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
             [#elseif field.type.primitive]
                 parcel.write${field.type.name?cap_first}(${field.name});
             [#elseif field.type.array]
+                parcel.writeSerializable(${field.name});
+            [#elseif field.type.collection]
                 parcel.writeList(${field.name});
             [/#if]
         [/#list]
