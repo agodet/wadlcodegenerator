@@ -2,3 +2,4 @@
 target
 atlassian-ide-plugin.xml
 generated
+.DS_Store
