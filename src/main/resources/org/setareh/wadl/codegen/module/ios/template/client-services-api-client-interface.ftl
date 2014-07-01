@@ -46,7 +46,7 @@
 
 +(void) setReachabilityChangeBlock:(void(^)(int))changeBlock;
 
-+(void) configureCacheReachibilityForHost:(NSString*)host;
++(void) configureCacheReachibilityForHost:(NSString*)host withGroup:(NSString *)group;
 
 -(void)setHeaderValue:(NSString*) value
 forKey:(NSString*) forKey;
