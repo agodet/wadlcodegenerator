@@ -181,6 +181,10 @@ forKey:(NSString*) forKey {
     self.authorizationBlock = authorizationBlock;
 }
 
++(void) configureCacheReachibilityForHost:(NSString*)host {
+    [self configureCacheReachibilityForHost:host withGroup:nil];
+}
+
 +(void) configureCacheReachibilityForHost:(NSString*)host withGroup:(NSString *)group {
     [[${generatedPrefix}ApiClient sharedClientFromPool:host withGroup: group] setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
         reachabilityStatus = status;
@@ -259,18 +263,19 @@ forKey:(NSString*) forKey {
 
 
 -(NSNumber*)  dictionary:(NSString*) path
-method:(NSString*) method
-queryParams:(NSDictionary*) queryParams
-body:(id) body
-headerParams:(NSDictionary*) headerParams
-requestContentType:(NSString*) requestContentType
-responseContentType:(NSString*) responseContentType
-completionBlock:(void (^)(NSDictionary*, NSError *))completionBlock {
+                  method:(NSString*) method
+             queryParams:(NSDictionary*) queryParams
+                    body:(id) body
+            headerParams:(NSDictionary*) headerParams
+      requestContentType:(NSString*) requestContentType
+     responseContentType:(NSString*) responseContentType
+      responseErrorCodes:(NSIndexSet *)responseErrorCodes
+         completionBlock:(void (^)(NSDictionary *, NSError *, NSDictionary *, NSInteger))completionBlock {
 
     NSMutableURLRequest * request = nil;
 
     if ([body isKindOfClass:[${generatedPrefix}File class]]){
-        GeneratedFile * file = (${generatedPrefix}File*) body;
+        ${generatedPrefix}File * file = (${generatedPrefix}File*) body;
 
         request = [self multipartFormRequestWithMethod:@"POST"
         path:path
@@ -330,24 +335,32 @@ completionBlock:(void (^)(NSDictionary*, NSError *))completionBlock {
     }
 
     NSNumber* requestId = [${generatedPrefix}ApiClient queueRequest];
-    AFJSONRequestOperation *op =
-    [self
-    JSONRequestOperationWithRequest:request
-    success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
-        if([self executeRequestWithId:requestId]) {
-            if(self.logServerResponses)
-                [self logResponse:JSON forRequest:request error:nil];
-            completionBlock(JSON, nil);
-        }
-    } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id data) {
-        if([self executeRequestWithId:requestId]) {
-            if(self.logServerResponses)
-                [self logResponse:nil forRequest:request error:error];
-            completionBlock(nil, error);
-        }
-    }
-    ];
-
+    
+    AFJSONRequestOperation *op = [self JSONRequestOperationWithRequest:request
+                                                               success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
+                                                                   if([self executeRequestWithId:requestId]) {
+                                                                       if(self.logServerResponses){
+                                                                           [self logResponse:JSON forRequest:request error:nil];
+                                                                       }
+                                                                       completionBlock(JSON, nil, nil, response.statusCode);
+                                                                   }
+                                                               } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id data) {
+                                                                   if([self executeRequestWithId:requestId]) {
+                                                                       if(self.logServerResponses){
+                                                                           [self logResponse:nil forRequest:request error:error];
+                                                                       }
+                                                                       if(responseErrorCodes){
+                                                                           if([responseErrorCodes containsIndex:response.statusCode]){
+                                                                               completionBlock(nil, nil, data, response.statusCode);
+                                                                           }
+                                                                           completionBlock(nil, error, nil, response.statusCode);
+                                                                       }
+                                                                       else {
+                                                                           completionBlock(nil, error, nil, response.statusCode);
+                                                                       }
+                                                                   }
+                                                               }];
+    
     [self enqueueHTTPRequestOperation:op];
     return requestId;
 }
@@ -367,7 +380,7 @@ completionBlock:(void (^)(NSString*, NSError *))completionBlock {
     NSMutableURLRequest * request = nil;
 
     if ([body isKindOfClass:[${generatedPrefix}File class]]){
-        GeneratedFile * file = (${generatedPrefix}File*) body;
+        ${generatedPrefix}File * file = (${generatedPrefix}File*) body;
 
         request = [self multipartFormRequestWithMethod:@"POST"
         path:path
@@ -425,19 +438,19 @@ completionBlock:(void (^)(NSString*, NSError *))completionBlock {
 
     NSNumber* requestId = [${generatedPrefix}ApiClient queueRequest];
     AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-    [op setCompletionBlockWithSuccess:
-    ^(AFHTTPRequestOperation *resp,
-    id responseObject) {
+    [op setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *resp, id responseObject) {
         NSString *response = [resp responseString];
         if([self executeRequestWithId:requestId]) {
-            if(self.logServerResponses)
+            if(self.logServerResponses){
                 [self logResponse:responseObject forRequest:request error:nil];
-        completionBlock(response, nil);
+            }
+            completionBlock(response, nil);
         }
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         if([self executeRequestWithId:requestId]) {
-            if(self.logServerResponses)
+            if(self.logServerResponses){
                 [self logResponse:nil forRequest:request error:error];
+            }
             completionBlock(nil, error);
         }
     }];
@@ -455,7 +468,6 @@ failure:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *e
     AFJSONRequestOperation *requestOperation = [[AFJSONRequestOperation alloc] initWithRequest:urlRequest];
     NSURLCredential *credential = [NSURLCredential credentialWithUser:self.authenticationLogin password:self.authenticationPassword persistence:NSURLCredentialPersistenceForSession];
     [requestOperation setCredential:credential];
-
     [requestOperation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
         if (success) {
             success(operation.request, operation.response, responseObject);

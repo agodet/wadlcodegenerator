@@ -65,9 +65,22 @@
 
 [#list methods as method]
 -(NSNumber*) ${method.name}With[#if method.request??]CompletionBlock:(${projectPrefix}${method.request.name}*) body
-[/#if][#if method.requestParams??][#list method.requestParams as param]param${param.name}: (NSString *) ${param.name} [/#list][/#if]completionHandler: (void (^)(${projectPrefix}${method.response.name}* output, NSError* error))completionBlock{
+[/#if][#if method.requestParams??][#list method.requestParams as param]param${param.name}: (NSString *) ${param.name} [/#list][/#if]completionHandler: (void (^)(${projectPrefix}${method.response.name}* output, NSError* error[#compress]
+    [#list method.faults as fault]
+        , ${projectPrefix}${fault.name} *${fault.name?uncap_first}Response
+    [/#list]
+[/#compress]))completionBlock{
 
     NSMutableString* requestUrl = [NSMutableString stringWithFormat:@"%@${method.path}", self.basePath];
+
+    [#if method.faultsMap?has_content]
+    NSMutableDictionary *errorCodes = [[NSMutableDictionary alloc] init];
+    NSMutableIndexSet *errorIndexes = [[NSMutableIndexSet alloc] init];
+    [#list method.faultsMap?keys as faultKey]
+        errorCodes[[NSNumber numberWithInt: ${faultKey}]] = @"${projectPrefix}${method.faultsMap[faultKey].name}";
+        [errorIndexes addIndex: ${faultKey}];
+    [/#list]
+    [/#if]
 
     // remove format in URL if needed
     if ([requestUrl rangeOfString:@".{format}"].location != NSNotFound) {
@@ -139,14 +152,38 @@
     queryParams:queryParams
     body:bodyDictionary
     headerParams:headerParams
-    requestContentType:requestContentType
+     requestContentType:requestContentType
     responseContentType:responseContentType
-    completionBlock:^(NSDictionary *data, NSError *error) {
+     responseErrorCodes:[#if method.faultsMap?has_content]errorIndexes[#else]nil[/#if]
+    completionBlock:^(NSDictionary *data, NSError *error, NSDictionary *errorData, NSInteger statusCode) {
 
     if (error) {
-        completionBlock(nil, error);
+        completionBlock(nil, error[#compress]
+            [#list method.faults as dummy],nil[/#list]
+        [/#compress]);
         return;
     }
+
+    [#if method.faultsMap?has_content]
+    if(errorData) {
+        NSString *className = errorCodes[[NSNumber numberWithInt:statusCode]];
+        id errorObject = [[NSClassFromString(className) alloc] initWithDictionary:errorData];
+        [#list method.faults as fault]
+            ${projectPrefix}${fault.name} *occured${fault.name} = nil;
+        [/#list]
+        switch(statusCode) {
+            [#list method.faultsMap?keys as faultKey]
+            case ${faultKey}:
+                occured${method.faultsMap[faultKey].name} = (${projectPrefix}${method.faultsMap[faultKey].name}*)errorObject;
+            break;
+            [/#list]
+        }
+        completionBlock(nil, nil[#compress]
+    [#list method.faults as fault], occured${fault.name}[/#list]
+    [/#compress]);
+        return;
+    }
+    [/#if]
 
     ${projectPrefix}${method.response.name} *result = nil;
 
@@ -154,7 +191,9 @@
         result = [[${projectPrefix}${method.response.name} alloc]initWithDictionnary: data];
     }
 
-    completionBlock(result , nil);
+    completionBlock(result , nil[#compress]
+    [#list method.faults as dummy], nil[/#list]
+[/#compress]);
     }
     ];
 }

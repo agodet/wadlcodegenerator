@@ -58,7 +58,8 @@ body:(id) body
 headerParams:(NSDictionary*) headerParams
 requestContentType:(NSString*) requestContentType
 responseContentType:(NSString*) responseContentType
-completionBlock:(void (^)(NSDictionary*, NSError *))completionBlock;
+responseErrorCodes:(NSIndexSet *)responseErrorCodes
+completionBlock:(void (^)(NSDictionary*, NSError *, NSDictionary*, NSInteger))completionBlock;
 
 -(NSNumber*)  stringWithCompletionBlock:(NSString*) path
 method:(NSString*) method
