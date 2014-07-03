@@ -132,7 +132,7 @@
         // error
     }
     [/#if]
-    ${generatedPrefix}ApiClient* client = [${generatedPrefix}ApiClient sharedClientFromPool:self.basePath];
+    ${generatedPrefix}ApiClient* client = [${generatedPrefix}ApiClient sharedClientFromPool:self.basePath withGroup: self.group];
 
     return [client dictionary:requestUrl
     method:@"${method.type}"
