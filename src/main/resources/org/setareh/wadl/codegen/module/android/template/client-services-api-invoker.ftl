@@ -82,7 +82,7 @@ public class ApiInvoker {
             final StringEntity outputEntity;
             if (userRequest != null) {
                 final String requestAsString = JsonUtil.toJson(userRequest);
-                outputEntity = new StringEntity(requestAsString);
+                outputEntity = new StringEntity(requestAsString, "UTF-8");
                 if (enableLogging) {
                     android.util.Log.d(REST_API_LOGGER, "Called " + url + " with json :\n" + requestAsString);
                 }
