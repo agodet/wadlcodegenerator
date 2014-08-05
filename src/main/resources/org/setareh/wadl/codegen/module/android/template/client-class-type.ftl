@@ -20,8 +20,6 @@ import com.google.gson.annotations.SerializedName;
 
 public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superClass??]extends ${clazz.superClass.name} [/#if]implements Parcelable {
 
-    private static final long serialVersionUID = -1L;
-
     [#list clazz.fields as field]
     [#compress]
     [#if field.value??]
