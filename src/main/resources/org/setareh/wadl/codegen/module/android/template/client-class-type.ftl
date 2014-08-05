@@ -4,7 +4,8 @@
 // DO NOT CHANGE!
 package ${clazz.packageName};
 
-import java.io.Serializable;
+import android.os.Parcelable;
+import android.os.Parcel;
 [#list imports as import]
 import ${import};
 [/#list]
@@ -17,7 +18,7 @@ import com.google.gson.annotations.SerializedName;
  */
 [/#if]
 
-public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superClass??]extends ${clazz.superClass.name} [/#if]implements Serializable {
+public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superClass??]extends ${clazz.superClass.name} [/#if]implements Parcelable {
 
     private static final long serialVersionUID = -1L;
 
@@ -44,4 +45,85 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
 	[#if field.fixedValue]final [/#if]public ${field.type.name} ${field.name} [#if field.value??]= ${value}[/#if];
 
     [/#list]
+
+    public ${clazz.name}(){}
+
+    public ${clazz.name}(Parcel source){
+        final ${clazz.name} created = new ${clazz.name}();
+
+        [#list clazz.fields as field]
+            [#if field.fixedValue]
+            [#-- Fixed value does not need to be parcelled --]
+            [#elseif field.type.enum]
+            created.${field.name} = (${field.type.name}) source.readSerializable();
+            [#elseif field.type.name == "Date"]
+            created.${field.name} = (Date) source.readSerializable();
+            [#elseif field.type.name == "String"]
+            created.${field.name} = source.readString();
+            [#elseif field.type.primitive]
+            created.${field.name} = source.read${field.type.name?cap_first}();
+            [#elseif field.type.array]
+            /* FIXME implement array */
+            created.${field.name} = (${field.type.name}) source.readSerializable();
+            [#elseif field.type.collection]
+                [#if field.type.typeParameters[0].enum]
+            /* FIXME implement enum array parcel */
+            created.${field.name} = (${field.type.name}) source.readSerializable();
+                [#elseif field.type.typeParameters[0].name == "Date"]
+            /* FIXME implement Date array parcel */
+            created.${field.name} = (${field.type.name}) source.readSerializable();
+                [#elseif field.type.typeParameters[0].primitive]
+            /* FIXME implement primitive array parcel */
+            created.${field.name} = (${field.type.name}) source.readSerializable();
+                [#elseif field.type.typeParameters[0].name == "String"]
+            created.${field.name} = new java.util.ArrayList<>();
+            source.readStringList(created.${field.name});
+                [#else]
+            created.${field.name} = new java.util.ArrayList<>();
+            source.readTypedList(created.${field.name}, ${field.type.typeParameters[0].name}.CREATOR);
+                [/#if]
+            [/#if]
+        [/#list]
+    }
+
+    public static final Creator<${clazz.name}> CREATOR = new Creator<${clazz.name}>() {
+        @Override
+        public ${clazz.name} createFromParcel(Parcel source) {
+            return new ${clazz.name}(source);
+        }
+
+        @Override
+        public ${clazz.name}[] newArray(int size) {
+            return new ${clazz.name}[size];
+        }
+    };
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        [#list clazz.fields as field]
+            [#if field.fixedValue]
+            [#-- Fixed value does not need to be parcelled --]
+            [#elseif field.type.enum]
+                parcel.writeSerializable(${field.name});
+            [#elseif field.type.name == "Date"]
+                parcel.writeSerializable(${field.name});
+            [#elseif field.type.name == "String"]
+                parcel.writeString(${field.name});
+            [#elseif field.type.primitive]
+                parcel.write${field.type.name?cap_first}(${field.name});
+            [#elseif field.type.array]
+                parcel.writeSerializable(${field.name});
+            [#elseif field.type.collection]
+                parcel.writeList(${field.name});
+            [/#if]
+        [/#list]
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+
+
 }
