@@ -58,6 +58,8 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
             created.${field.name} = (Date) source.readSerializable();
             [#elseif field.type.name == "String"]
             created.${field.name} = source.readString();
+            [#elseif field.type.name?lower_case == "boolean"]
+            created.${field.name} = source.readInt() == 1;
             [#elseif field.type.primitive]
             created.${field.name} = source.read${field.type.name?cap_first}();
             [#elseif field.type.array]
@@ -107,6 +109,8 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
                 parcel.writeSerializable(${field.name});
             [#elseif field.type.name == "String"]
                 parcel.writeString(${field.name});
+            [#elseif field.type.name?lower_case == "boolean"]
+                parcel.writeInt(${field.name} ? 1 : 0);
             [#elseif field.type.primitive]
                 parcel.write${field.type.name?cap_first}(${field.name});
             [#elseif field.type.array]
