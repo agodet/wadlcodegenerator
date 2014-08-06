@@ -25,8 +25,6 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
     [#if field.value??]
         [#if field.type.enum]
             [#assign value = "${field.type.name}.${field.value}"]
-        [#elseif field.type.name == "Date"]
-            [#assign value = "null /* TODO implements date formatter */"];
         [#elseif field.type.name == "String"]
             [#assign value = "\"${field.value}\""]
         [#elseif field.type.primitive]
@@ -56,16 +54,18 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
             [#-- Fixed value does not need to be parcelled --]
             [#elseif field.type.enum]
             this.${field.name} = (${field.type.name}) source.readSerializable();
-            [#elseif field.type.name == "Date"]
-            this.${field.name} = (Date) source.readSerializable();
             [#elseif field.type.name == "String"]
             this.${field.name} = source.readString();
             [#elseif field.type.name?lower_case == "boolean"]
             this.${field.name} = source.readInt() == 1;
             [#elseif field.type.primitive]
             this.${field.name} = source.read${field.type.name?cap_first}();
-            [#elseif field.type.array]
-            /* FIXME implement array */
+            [#elseif field.type.name == "Date"
+            || field.type.name == "Double"
+            || field.type.name == "Long"
+            || field.type.name == "Integer"
+            || field.type.name == "Float"
+            || field.type.array]
             this.${field.name} = (${field.type.name}) source.readSerializable();
             [#elseif field.type.collection]
                 [#if field.type.typeParameters[0].enum]
@@ -84,6 +84,8 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
             this.${field.name} = new java.util.ArrayList<>();
             source.readTypedList(this.${field.name}, ${field.type.typeParameters[0].name}.CREATOR);
                 [/#if]
+            [#elseif field.type.name == "Object"]
+            // ignored field "${field.name}"
             [#else]
             this.${field.name} = source.readParcelable(${field.type.name}.class.getClassLoader());
             [/#if]
@@ -112,21 +114,28 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
             [#if field.fixedValue]
             [#-- Fixed value does not need to be parcelled --]
             [#elseif field.type.enum]
-                parcel.writeSerializable(${field.name});
-            [#elseif field.type.name == "Date"]
-                parcel.writeSerializable(${field.name});
+        parcel.writeSerializable(${field.name});
             [#elseif field.type.name == "String"]
-                parcel.writeString(${field.name});
+        parcel.writeString(${field.name});
             [#elseif field.type.name?lower_case == "boolean"]
-                parcel.writeInt(${field.name} ? 1 : 0);
+        parcel.writeInt(${field.name} ? 1 : 0);
             [#elseif field.type.primitive]
-                parcel.write${field.type.name?cap_first}(${field.name});
+        parcel.write${field.type.name?cap_first}(${field.name});
+            [#elseif field.type.name == "Date"
+            || field.type.name == "Double"
+            || field.type.name == "Long"
+            || field.type.name == "Integer"
+            || field.type.name == "Float"
+            || field.type.array]
+        parcel.writeSerializable(${field.name});
             [#elseif field.type.array]
-                parcel.writeSerializable(${field.name});
+        parcel.writeSerializable(${field.name});
             [#elseif field.type.collection]
-                parcel.writeList(${field.name});
+        parcel.writeList(${field.name});
+            [#elseif field.type.name == "Object"]
+        // ignored field "${field.name}"
             [#else]
-                parcel.writeParcelable(${field.name}, i);
+        parcel.writeParcelable(${field.name}, i);
             [/#if]
         [/#list]
     }
