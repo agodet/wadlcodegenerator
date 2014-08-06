@@ -84,6 +84,8 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
             this.${field.name} = new java.util.ArrayList<>();
             source.readTypedList(this.${field.name}, ${field.type.typeParameters[0].name}.CREATOR);
                 [/#if]
+            [#else]
+            this.${field.name} = source.readParcelable(${field.type.name}.class.getClassLoader());
             [/#if]
         [/#list]
     }
@@ -123,6 +125,8 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
                 parcel.writeSerializable(${field.name});
             [#elseif field.type.collection]
                 parcel.writeList(${field.name});
+            [#else]
+                parcel.writeParcelable(${field.name}, i);
             [/#if]
         [/#list]
     }
