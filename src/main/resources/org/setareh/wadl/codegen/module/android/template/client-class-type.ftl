@@ -18,7 +18,7 @@ import com.google.gson.annotations.SerializedName;
  */
 [/#if]
 
-public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superClass??]extends ${clazz.superClass.name} [/#if]implements Parcelable {
+public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superClass??]extends ${clazz.superClass.name} [#else] implements Parcelable [/#if]{
 
     [#list clazz.fields as field]
     [#compress]
@@ -47,40 +47,42 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
     public ${clazz.name}(){}
 
     public ${clazz.name}(Parcel source){
-        final ${clazz.name} created = new ${clazz.name}();
+        [#if clazz.superClass??]
+            super(source);
 
+        [/#if]
         [#list clazz.fields as field]
             [#if field.fixedValue]
             [#-- Fixed value does not need to be parcelled --]
             [#elseif field.type.enum]
-            created.${field.name} = (${field.type.name}) source.readSerializable();
+            this.${field.name} = (${field.type.name}) source.readSerializable();
             [#elseif field.type.name == "Date"]
-            created.${field.name} = (Date) source.readSerializable();
+            this.${field.name} = (Date) source.readSerializable();
             [#elseif field.type.name == "String"]
-            created.${field.name} = source.readString();
+            this.${field.name} = source.readString();
             [#elseif field.type.name?lower_case == "boolean"]
-            created.${field.name} = source.readInt() == 1;
+            this.${field.name} = source.readInt() == 1;
             [#elseif field.type.primitive]
-            created.${field.name} = source.read${field.type.name?cap_first}();
+            this.${field.name} = source.read${field.type.name?cap_first}();
             [#elseif field.type.array]
             /* FIXME implement array */
-            created.${field.name} = (${field.type.name}) source.readSerializable();
+            this.${field.name} = (${field.type.name}) source.readSerializable();
             [#elseif field.type.collection]
                 [#if field.type.typeParameters[0].enum]
             /* FIXME implement enum array parcel */
-            created.${field.name} = (${field.type.name}) source.readSerializable();
+            this.${field.name} = (${field.type.name}) source.readSerializable();
                 [#elseif field.type.typeParameters[0].name == "Date"]
             /* FIXME implement Date array parcel */
-            created.${field.name} = (${field.type.name}) source.readSerializable();
+            this.${field.name} = (${field.type.name}) source.readSerializable();
                 [#elseif field.type.typeParameters[0].primitive]
             /* FIXME implement primitive array parcel */
-            created.${field.name} = (${field.type.name}) source.readSerializable();
+            this.${field.name} = (${field.type.name}) source.readSerializable();
                 [#elseif field.type.typeParameters[0].name == "String"]
-            created.${field.name} = new java.util.ArrayList<>();
-            source.readStringList(created.${field.name});
+            this.${field.name} = new java.util.ArrayList<>();
+            source.readStringList(this.${field.name});
                 [#else]
-            created.${field.name} = new java.util.ArrayList<>();
-            source.readTypedList(created.${field.name}, ${field.type.typeParameters[0].name}.CREATOR);
+            this.${field.name} = new java.util.ArrayList<>();
+            source.readTypedList(this.${field.name}, ${field.type.typeParameters[0].name}.CREATOR);
                 [/#if]
             [/#if]
         [/#list]
@@ -100,6 +102,10 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        [#if clazz.superClass??]
+        super.writeToParcel(parcel, i);
+
+        [/#if]
         [#list clazz.fields as field]
             [#if field.fixedValue]
             [#-- Fixed value does not need to be parcelled --]
