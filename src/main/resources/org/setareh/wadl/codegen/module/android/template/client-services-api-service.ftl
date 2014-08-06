@@ -31,6 +31,7 @@ public ${className}Api(final ApiConfig config) {
         public final ${fault.name} nestedError;
 
         public ${className}${fault.name}Exception(${fault.name} nestedError) {
+            super("This stacktrace should not appear in logs : this exception is a generated wrapper that wraps a functional exception, and its nested ${fault.name} should be analyzed for more details.");
             this.nestedError = nestedError;
         }
     }
