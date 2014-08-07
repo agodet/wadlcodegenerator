@@ -56,7 +56,7 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
             this.${field.name} = (${field.type.name}) source.readSerializable();
             [#elseif field.type.name == "String"]
             this.${field.name} = source.readString();
-            [#elseif field.type.name?lower_case == "boolean"]
+            [#elseif field.type.name == "boolean"]
             this.${field.name} = source.readInt() == 1;
             [#elseif field.type.primitive]
             this.${field.name} = source.read${field.type.name?cap_first}();
@@ -65,6 +65,7 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
             || field.type.name == "Long"
             || field.type.name == "Integer"
             || field.type.name == "Float"
+            || field.type.name == "Boolean"
             || field.type.array]
             this.${field.name} = (${field.type.name}) source.readSerializable();
             [#elseif field.type.collection]
@@ -117,7 +118,7 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
         parcel.writeSerializable(${field.name});
             [#elseif field.type.name == "String"]
         parcel.writeString(${field.name});
-            [#elseif field.type.name?lower_case == "boolean"]
+            [#elseif field.type.name == "boolean"]
         parcel.writeInt(${field.name} ? 1 : 0);
             [#elseif field.type.primitive]
         parcel.write${field.type.name?cap_first}(${field.name});
@@ -126,6 +127,7 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
             || field.type.name == "Long"
             || field.type.name == "Integer"
             || field.type.name == "Float"
+            || field.type.name == "Boolean"
             || field.type.array]
         parcel.writeSerializable(${field.name});
             [#elseif field.type.array]
