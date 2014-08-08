@@ -133,7 +133,17 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
             [#elseif field.type.array]
         parcel.writeSerializable(${field.name});
             [#elseif field.type.collection]
-        parcel.writeList(${field.name});
+                [#if field.type.typeParameters[0].enum]
+                parcel.writeSerializable((java.io.Serializable)${field.name});
+                [#elseif field.type.typeParameters[0].name == "Date"]
+                parcel.writeSerializable((java.io.Serializable)${field.name});
+                [#elseif field.type.typeParameters[0].primitive]
+                parcel.writeSerializable((java.io.Serializable)${field.name});
+                [#elseif field.type.typeParameters[0].name == "String"]
+                parcel.writeStringList(${field.name});
+                [#else]
+                parcel.writeTypedList(${field.name});
+                [/#if]
             [#elseif field.type.name == "Object"]
         // ignored field "${field.name}"
             [#else]
