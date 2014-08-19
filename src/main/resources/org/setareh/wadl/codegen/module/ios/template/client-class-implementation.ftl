@@ -84,7 +84,10 @@
         [#else]
             [#assign values = "${values}${projectPrefix}${field.type.fullName}"]
         [/#if]
-        [#assign values = "${values}*) ${field.name}Param"]
+        [#if field.type.wrapper.pointer]
+            [#assign values = "${values}*"]
+        [/#if]
+        [#assign values = "${values}) ${field.name}Param"]
         [#assign fieldIndex = fieldIndex + 1]
     [/#if]
 [/#list]
@@ -134,8 +137,18 @@
                 self.${field.name} = ${field.name}Array;
                 }
             [#elseif field.type.primitive]
-                [#if field.type.name == "DATE"]
+                [#if field.type.wrapper == "NSDATE"]
                     self.${field.name} = [${generatedPrefix}DateFormatterUtils convertToDate:dict${"["}@"${field.initialName}"]];
+                [#elseif field.type.wrapper == "BOOL"]
+                    self.${field.name} = [((NSNumber *)dict${"["}@"${field.initialName}"]) boolValue];
+                [#elseif field.type.wrapper == "NSINTEGER"]
+                    self.${field.name} = [((NSNumber *)dict${"["}@"${field.initialName}"]) integerValue];
+                [#elseif field.type.wrapper == "FLOAT"]
+                    self.${field.name} = [((NSNumber *)dict${"["}@"${field.initialName}"]) floatValue];
+                [#elseif field.type.wrapper == "DOUBLE"]
+                    self.${field.name} = [((NSNumber *)dict${"["}@"${field.initialName}"]) doubleValue];
+                [#elseif field.type.wrapper == "LONG"]
+                    self.${field.name} = [((NSNumber *)dict${"["}@"${field.initialName}"]) longValue];
                 [#else]
                     self.${field.name} = dict${"["}@"${field.initialName}"];
                 [/#if]
@@ -161,13 +174,23 @@
         dict${"["}@"${field.initialName}"] = self.${field.name}.value;
     }
 [#elseif field.type.primitive || field.propertyKindAny]
-    if(self.${field.name} != nil) {
-        [#if field.type.name == "DATE"]
-            dict${"["}@"${field.initialName}"] = [${generatedPrefix}DateFormatterUtils formatWithDate:self.${field.name}] ;
+    [#if field.type.wrapper.pointer]if(self.${field.name} != nil) {[/#if]
+        [#if field.type.wrapper == "NSDATE"]
+            dict${"["}@"${field.initialName}"] = [${generatedPrefix}DateFormatterUtils formatWithDate:self.${field.name}];
+        [#elseif field.type.wrapper == "BOOL"]
+            dict${"["}@"${field.initialName}"] = [NSNumber numberWithBool:self.${field.name}];
+        [#elseif field.type.wrapper == "NSINTEGER"]
+            dict${"["}@"${field.initialName}"] = [NSNumber numberWithInteger:self.${field.name}];
+        [#elseif field.type.wrapper == "FLOAT"]
+            dict${"["}@"${field.initialName}"] = [NSNumber numberWithFloat:self.${field.name}];
+        [#elseif field.type.wrapper == "DOUBLE"]
+            dict${"["}@"${field.initialName}"] = [NSNumber numberWithDouble:self.${field.name}];
+        [#elseif field.type.wrapper == "LONG"]
+            dict${"["}@"${field.initialName}"] = [NSNumber numberWithLong:self.${field.name}];
         [#else]
             dict${"["}@"${field.initialName}"] = self.${field.name};
         [/#if]
-    }
+    [#if field.type.wrapper.pointer]}[/#if]
 [#elseif field.type.array || field.type.collection]
     [#assign typeParameter = field.type.typeParameters?first]
     if(self.${field.name} != nil){

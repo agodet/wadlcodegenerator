@@ -1,5 +1,7 @@
 package org.setareh.wadl.codegen.model;
 
+import org.setareh.wadl.codegen.module.Wrapper;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.ArrayList;
@@ -41,8 +43,9 @@ public class TypeInfo implements Serializable {
 
 	// type parameters of this type
 	private final List<TypeInfo> typeParameters = new ArrayList<TypeInfo>() ;
-	
-	/**
+    private Wrapper wrapper;
+
+    /**
 	 * whether this is an enum type
 	 * @return whether this is an enum type
 	 */
@@ -179,5 +182,12 @@ public class TypeInfo implements Serializable {
 	public void setNestClass(boolean nestClass) {
 		this.nestClass = nestClass;
 	}
-	
+
+    public void setWrapper(Wrapper wrapper) {
+        this.wrapper = wrapper;
+    }
+
+    public Wrapper getWrapper() {
+        return wrapper;
+    }
 }

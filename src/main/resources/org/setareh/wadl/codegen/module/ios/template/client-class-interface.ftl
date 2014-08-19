@@ -45,7 +45,7 @@
             [#assign fieldType = "${projectPrefix}${field.type.fullName}"]
         [/#if]
     [/#if]
-@property (nonatomic, [#if field.fixedValue]readonly[#elseif field.type.primitive]assign[#else]strong[/#if]) ${fieldType} [#if !field.type.primitive]*[/#if]${field.name};
+@property (nonatomic, [#if field.fixedValue]readonly[#else]${field.type.wrapper.qualifier.qualifierName}[/#if]) ${fieldType} [#if field.type.wrapper.pointer]*[/#if]${field.name};
 
 [/#list]
 [#assign fieldIndex = 0]
@@ -69,7 +69,10 @@
         [#else]
             [#assign values = "${values}${projectPrefix}${field.type.fullName}"]
         [/#if]
-        [#assign values = "${values}*) ${field.name}Param"]
+        [#if field.type.wrapper.pointer]
+            [#assign values = "${values}*"]
+        [/#if]
+        [#assign values = "${values}) ${field.name}Param"]
         [#assign fieldIndex = fieldIndex + 1]
     [/#if]
 [/#list]

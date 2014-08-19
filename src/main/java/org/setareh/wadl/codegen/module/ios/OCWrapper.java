@@ -1,6 +1,6 @@
 package org.setareh.wadl.codegen.module.ios;
 
-import org.setareh.wadl.codegen.utils.StringUtil;
+import org.setareh.wadl.codegen.module.Wrapper;
 
 /**
  * Objective-c primitive wrapper types
@@ -8,28 +8,47 @@ import org.setareh.wadl.codegen.utils.StringUtil;
  * @author bulldog
  *
  */
-public class OCWrapper {
+public enum OCWrapper implements Wrapper {
 
-    //Primitive types
-    public static final String BOOL = "BOOL";
+    BOOL("BOOL",OCQualifier.ASSIGN,false),
+    NSINTEGER("NSInteger", OCQualifier.ASSIGN, false),
+    FLOAT ("float", OCQualifier.ASSIGN, false),
+    DOUBLE("double", OCQualifier.ASSIGN, false),
+    LONG("long", OCQualifier.ASSIGN, false),
 
-    public static final String NSINTEGER = "NSInteger";
-
-    public static final String FLOAT = "float";
-
-    public static final String DOUBLE = "double";
-
-	// wrapper types
-	public static final String NSNUMBER = "NSNumber";
+    NSNUMBER("NSNumber", OCQualifier.STRONG, true),
+    NSSTRING("NSString", OCQualifier.STRONG, true),
+    NSDATE("NSDate", OCQualifier.STRONG, true),
+    NSDATA("NSData", OCQualifier.STRONG, true),
+    NSINPUTSTREAM("NSInputStream", OCQualifier.STRONG, true),
 	
-	public static final String NSSTRING = "NSString";
-	
-	public static final String NSDATE = "NSDate";
-	
-	public static final String NSDATA = "NSData";
-	
-	public static final String NSINPUTSTREAM = "NSInputStream";
-	
-	public static final String ANYELEMENT = "AnyElement";
+    ID("id", OCQualifier.ASSIGN, false),
 
+    ENUM("enum", OCQualifier.STRONG, true),
+
+    OBJECT("object", OCQualifier.STRONG, true);
+
+    private final String type;
+    private final OCQualifier qualifier;
+    private final boolean pointer;
+
+    OCWrapper(String type, OCQualifier qualifier, boolean pointer)
+    {
+
+        this.type = type;
+        this.qualifier = qualifier;
+        this.pointer = pointer;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public OCQualifier getQualifier() {
+        return qualifier;
+    }
+
+    public boolean isPointer() {
+        return pointer;
+    }
 }

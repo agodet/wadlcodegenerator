@@ -5,6 +5,7 @@ import org.setareh.wadl.codegen.model.*;
 import org.setareh.wadl.codegen.module.AbstractClientModule;
 import org.setareh.wadl.codegen.module.ModuleException;
 import org.setareh.wadl.codegen.module.ModuleName;
+import org.setareh.wadl.codegen.module.Wrapper;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -343,15 +344,19 @@ public class IOSClientModule extends AbstractClientModule {
         if (type == null) return; // be cautious
         String primitiveType = Java2TypeMapper.lookupType(type.getFullName());
         if (primitiveType != null) {// ios primitive type
-            type.setFullName(TypeMapper.lookupWrapper(primitiveType));
+            final Wrapper wrapper = TypeMapper.lookupWrapper(primitiveType);
+            type.setFullName(wrapper.getType());
             type.setName(primitiveType); // ios primitive
             type.setPrimitive(true);
+            type.setWrapper(wrapper);
         } else if (type.isEnum()) {
             type.setName(Type.ENUM); // ios enum type
             type.setPrimitive(true); // treat enum as primitive type
+            type.setWrapper(OCWrapper.ENUM);
         } else {
             type.setName(Type.OBJECT);
             type.setPrimitive(false);
+            type.setWrapper(OCWrapper.OBJECT);
         }
     }
 
