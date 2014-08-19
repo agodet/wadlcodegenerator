@@ -21,7 +21,7 @@ public class TypeMapper {
 		mapping = new HashMap<String, String>();
 		
 		mapping.put(Type.INTEGER, OCWrapper.NSNUMBER);
-		mapping.put(Type.BOOL, OCWrapper.NSNUMBER);
+		mapping.put(Type.BOOL, OCWrapper.BOOL);
 		mapping.put(Type.BYTE, OCWrapper.NSNUMBER);
 		mapping.put(Type.CHAR, OCWrapper.NSSTRING);
 		mapping.put(Type.SHORT, OCWrapper.NSNUMBER);
