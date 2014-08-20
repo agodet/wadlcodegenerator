@@ -1,7 +1,7 @@
 [#ftl]
 #import <Foundation/Foundation.h>
 
-@interface ${generatedPrefix}File : NSObject
+@interface ${projectPrefix}File : NSObject
 
 @property(nonatomic, readonly) NSString* name;
 @property(nonatomic, readonly) NSString* mimeType;

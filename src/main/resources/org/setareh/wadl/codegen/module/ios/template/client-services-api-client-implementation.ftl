@@ -1,11 +1,11 @@
 [#ftl]
-#import "${generatedPrefix}ApiClient.h"
-#import "${generatedPrefix}File.h"
+#import "${projectPrefix}ApiClient.h"
+#import "${projectPrefix}File.h"
 
 #import "AFJSONRequestOperation.h"
 
 
-@implementation ${generatedPrefix}ApiClient
+@implementation ${projectPrefix}ApiClient
 
 static long requestId = 0;
 static bool offlineState = true;
@@ -46,11 +46,11 @@ diskSize:(unsigned long) diskSize {
     return sharedQueue;
 }
 
-+(${generatedPrefix}ApiClient *)sharedClientFromPool:(NSString *)baseUrl {
-    return [${generatedPrefix}ApiClient sharedClientFromPool:baseUrl withGroup:nil];
++(${projectPrefix}ApiClient *)sharedClientFromPool:(NSString *)baseUrl {
+    return [${projectPrefix}ApiClient sharedClientFromPool:baseUrl withGroup:nil];
 }
 
-+(${generatedPrefix}ApiClient *)sharedClientFromPool:(NSString *)baseUrl withGroup:(NSString *)group {
++(${projectPrefix}ApiClient *)sharedClientFromPool:(NSString *)baseUrl withGroup:(NSString *)group {
 
     static NSMutableDictionary *_pool = nil;
     if (queuedRequests == nil) {
@@ -65,17 +65,17 @@ diskSize:(unsigned long) diskSize {
         _pool = [[NSMutableDictionary alloc] init];
 
         // initialize URL cache
-        [${generatedPrefix}ApiClient configureCacheWithMemoryAndDiskCapacity:4*1024*1024 diskSize:32*1024*1024];
+        [${projectPrefix}ApiClient configureCacheWithMemoryAndDiskCapacity:4*1024*1024 diskSize:32*1024*1024];
 
         // configure reachability
-        [${generatedPrefix}ApiClient configureCacheReachibilityForHost:baseUrl withGroup: group];
+        [${projectPrefix}ApiClient configureCacheReachibilityForHost:baseUrl withGroup: group];
     }
 
     @synchronized(self) {
         NSString *shareKey = group ? [NSString stringWithFormat: @"%@_%@", group, baseUrl] : baseUrl;
-        ${generatedPrefix}ApiClient * client = [_pool objectForKey:shareKey];
+        ${projectPrefix}ApiClient * client = [_pool objectForKey:shareKey];
         if (client == nil) {
-            client = [[${generatedPrefix}ApiClient alloc] initWithBaseURL:[NSURL URLWithString:baseUrl]];
+            client = [[${projectPrefix}ApiClient alloc] initWithBaseURL:[NSURL URLWithString:baseUrl]];
             [client registerHTTPOperationClass:[AFJSONRequestOperation class]];
             client.parameterEncoding = AFJSONParameterEncoding;
             [_pool setValue:client forKey:shareKey ];
@@ -108,7 +108,7 @@ forKey:(NSString*) forKey {
 }
 
 +(NSNumber*) queueRequest {
-    NSNumber* requestId = [${generatedPrefix}ApiClient nextRequestId];
+    NSNumber* requestId = [${projectPrefix}ApiClient nextRequestId];
     if(loggingEnabled) {
         NSLog(@"added %@ to request queue", requestId);
     }
@@ -182,32 +182,32 @@ forKey:(NSString*) forKey {
 }
 
 +(void) configureCacheReachibilityForHost:(NSString*)host withGroup:(NSString *)group {
-    [[${generatedPrefix}ApiClient sharedClientFromPool:host withGroup: group] setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
+    [[${projectPrefix}ApiClient sharedClientFromPool:host withGroup: group] setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
         reachabilityStatus = status;
         switch (status) {
             case AFNetworkReachabilityStatusUnknown:
                 if(loggingEnabled) {
                     NSLog(@"reachability changed to AFNetworkReachabilityStatusUnknown");
                 }
-                [${generatedPrefix}ApiClient setOfflineState:true];
+                [${projectPrefix}ApiClient setOfflineState:true];
                 break;
 
             case AFNetworkReachabilityStatusNotReachable:
                 if(loggingEnabled)
                 NSLog(@"reachability changed to AFNetworkReachabilityStatusNotReachable");
-                [${generatedPrefix}ApiClient setOfflineState:true];
+                [${projectPrefix}ApiClient setOfflineState:true];
                 break;
 
             case AFNetworkReachabilityStatusReachableViaWWAN:
                 if(loggingEnabled)
                 NSLog(@"reachability changed to AFNetworkReachabilityStatusReachableViaWWAN");
-                [${generatedPrefix}ApiClient setOfflineState:false];
+                [${projectPrefix}ApiClient setOfflineState:false];
                 break;
 
             case AFNetworkReachabilityStatusReachableViaWiFi:
                 if(loggingEnabled)
                 NSLog(@"reachability changed to AFNetworkReachabilityStatusReachableViaWiFi");
-                [${generatedPrefix}ApiClient setOfflineState:false];
+                [${projectPrefix}ApiClient setOfflineState:false];
                 break;
             default:
                 break;
@@ -231,14 +231,14 @@ forKey:(NSString*) forKey {
             else separator = @"&";
             NSString * value;
             if([[queryParams valueForKey:key] isKindOfClass:[NSString class]]){
-                value = [${generatedPrefix}ApiClient escape:[queryParams valueForKey:key]];
+                value = [${projectPrefix}ApiClient escape:[queryParams valueForKey:key]];
             }
             else {
                 value = [NSString stringWithFormat:@"%@", [queryParams valueForKey:key]];
             }
 
             [requestUrl appendString:[NSString stringWithFormat:@"%@%@=%@", separator,
-            [${generatedPrefix}ApiClient escape:key], value]];
+            [${projectPrefix}ApiClient escape:key], value]];
             counter += 1;
         }
     }
@@ -269,8 +269,8 @@ completionBlock:(void (^)(NSDictionary*, NSError *))completionBlock {
 
     NSMutableURLRequest * request = nil;
 
-    if ([body isKindOfClass:[${generatedPrefix}File class]]){
-        GeneratedFile * file = (${generatedPrefix}File*) body;
+    if ([body isKindOfClass:[${projectPrefix}File class]]){
+        GeneratedFile * file = (${projectPrefix}File*) body;
 
         request = [self multipartFormRequestWithMethod:@"POST"
         path:path
@@ -309,7 +309,7 @@ completionBlock:(void (^)(NSDictionary*, NSError *))completionBlock {
         if([body isKindOfClass:[NSDictionary class]]){
             [request setValue:requestContentType forHTTPHeaderField:@"Content-Type"];
         }
-        else if ([body isKindOfClass:[${generatedPrefix}File class]]) {}
+        else if ([body isKindOfClass:[${projectPrefix}File class]]) {}
         else {
             NSAssert(false, @"unsupported post type!");
         }
@@ -329,7 +329,7 @@ completionBlock:(void (^)(NSDictionary*, NSError *))completionBlock {
         [self logRequest:request];
     }
 
-    NSNumber* requestId = [${generatedPrefix}ApiClient queueRequest];
+    NSNumber* requestId = [${projectPrefix}ApiClient queueRequest];
     AFJSONRequestOperation *op =
     [self
     JSONRequestOperationWithRequest:request
@@ -366,8 +366,8 @@ completionBlock:(void (^)(NSString*, NSError *))completionBlock {
 
     NSMutableURLRequest * request = nil;
 
-    if ([body isKindOfClass:[${generatedPrefix}File class]]){
-        GeneratedFile * file = (${generatedPrefix}File*) body;
+    if ([body isKindOfClass:[${projectPrefix}File class]]){
+        GeneratedFile * file = (${projectPrefix}File*) body;
 
         request = [self multipartFormRequestWithMethod:@"POST"
         path:path
@@ -407,7 +407,7 @@ completionBlock:(void (^)(NSString*, NSError *))completionBlock {
                 [request setValue:requestContentType forHTTPHeaderField:@"Content-Type"];
             }
         }
-        else if ([body isKindOfClass:[${generatedPrefix}File class]]){}
+        else if ([body isKindOfClass:[${projectPrefix}File class]]){}
         else {
             NSAssert(false, @"unsupported post type!");
         }
@@ -423,7 +423,7 @@ completionBlock:(void (^)(NSString*, NSError *))completionBlock {
     // Always disable cookies!
     [request setHTTPShouldHandleCookies:NO];
 
-    NSNumber* requestId = [${generatedPrefix}ApiClient queueRequest];
+    NSNumber* requestId = [${projectPrefix}ApiClient queueRequest];
     AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:request];
     [op setCompletionBlockWithSuccess:
     ^(AFHTTPRequestOperation *resp,

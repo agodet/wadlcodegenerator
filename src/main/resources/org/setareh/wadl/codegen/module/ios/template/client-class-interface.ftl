@@ -4,7 +4,7 @@
 // DO NOT CHANGE!
 
 #import <Foundation/Foundation.h>
-#import "${generatedPrefix}Object.h"
+#import "${projectPrefix}Object.h"
 [#list superClassImports as import]
 #import "${import}.h"
 [/#list]
@@ -21,7 +21,7 @@
  ${clazz.docComment?default("(public class)")?replace("\n", "\n ")?replace("\t", "")}
 
 */
-@interface ${generatedPrefix}${clazz.name} : [#if clazz.superClass??]${projectPrefix}${clazz.superClass.name}[#else]${generatedPrefix}Object[/#if]
+@interface ${projectPrefix}${clazz.name} : [#if clazz.superClass??]${projectPrefix}${clazz.superClass.name}[#else]${projectPrefix}Object[/#if]
 
 [#list clazz.fields as field]
 /**
@@ -35,7 +35,7 @@
         [/#if]
         [#assign fieldType = "${fieldType}${type.fullName}*/"]
     [#elseif field.type.enum]
-            [#assign fieldType = "${generatedPrefix}${field.type.fullName}"]
+            [#assign fieldType = "${projectPrefix}${field.type.fullName}"]
     [#elseif field.propertyKindAny]
             [#assign fieldType = "NSMutableArray"]
     [#else]
@@ -61,7 +61,7 @@
         [#if field.type.collection]
             [#assign values = "${values}NSMutableArray/*${projectPrefix}${field.type.typeParameters[0].fullName}*/"]
         [#elseif field.type.enum]
-            [#assign values = "${values}${generatedPrefix}${field.type.fullName}"]
+            [#assign values = "${values}${projectPrefix}${field.type.fullName}"]
         [#elseif field.propertyKindAny]
             [#assign values = "${values}NSMutableArray"]
         [#elseif field.type.primitive]

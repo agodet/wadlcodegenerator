@@ -4,9 +4,9 @@
 // DO NOT CHANGE!
 
 #import <Foundation/Foundation.h>
-#import "${generatedPrefix}Enum.h"
+#import "${projectPrefix}Enum.h"
 
-@class ${generatedPrefix}${enum.name};
+@class ${projectPrefix}${enum.name};
 
 [#if enum.docComment??]
 /**
@@ -22,7 +22,7 @@
  ${constant.docComment?replace("\n", "\n ")?replace("\t", "")}
 */
   [/#if]
-extern ${generatedPrefix}${enum.name} * ${enum.name?upper_case}_${constant.name?upper_case};
+extern ${projectPrefix}${enum.name} * ${enum.name?upper_case}_${constant.name?upper_case};
   [/#list]
 
 typedef enum {
@@ -31,6 +31,6 @@ ${enum.name}_${constant.name?capitalize},
 [/#list]
 } ${enum.name}Type;
 
-@interface ${generatedPrefix}${enum.name} : ${generatedPrefix}Enum
+@interface ${projectPrefix}${enum.name} : ${projectPrefix}Enum
 
 @end

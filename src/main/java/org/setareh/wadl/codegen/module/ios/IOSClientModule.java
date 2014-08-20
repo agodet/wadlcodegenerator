@@ -16,7 +16,6 @@ import java.util.Set;
 public class IOSClientModule extends AbstractClientModule {
 
     private static final String SOURCE_FOLDER = "";
-    private final static String GENERATED_PREFIX = "Generated";
 
     // references to templates
     private URL clientClassIntTemplate;
@@ -33,8 +32,6 @@ public class IOSClientModule extends AbstractClientModule {
     private URL clientServicesApiClientIntTemplate;
     private URL clientServicesApiServiceImplTemplate;
     private URL clientServicesApiServiceIntTemplate;
-    private URL clientSubClassImplTemplate;
-    private URL clientSubClassIntTemplate;
     private URL parentEnumDeclarationTemplate;
     private URL parentEnumDefinitionTemplate;
 
@@ -53,8 +50,6 @@ public class IOSClientModule extends AbstractClientModule {
         //load template
         clientClassIntTemplate = this.getTemplateURL("client-class-interface.ftl");
         clientClassImplementationTemplate = this.getTemplateURL("client-class-implementation.ftl");
-        clientSubClassImplTemplate = this.getTemplateURL("client-subclass-implementation.ftl");
-        clientSubClassIntTemplate = this.getTemplateURL("client-subclass-interface.ftl");
         enumDeclarationTemplate = this.getTemplateURL("client-enum-declaration.ftl");
         enumDefinitionTemplate = this.getTemplateURL("client-enum-definition.ftl");
         parentEnumDeclarationTemplate = this.getTemplateURL("client-enum-parent-implementation.ftl");
@@ -88,9 +83,8 @@ public class IOSClientModule extends AbstractClientModule {
 
         final String projectPrefix = config.prefix;
         addPrefixTypeForClassInfo(cgModel, projectPrefix);
-        addPrefixTypeForEnumInfo(cgModel, GENERATED_PREFIX);
+        addPrefixTypeForEnumInfo(cgModel, projectPrefix);
 
-        fmModel.put("generatedPrefix", GENERATED_PREFIX);
         fmModel.put("projectPrefix", projectPrefix);
 
         // generate classes
@@ -98,17 +92,13 @@ public class IOSClientModule extends AbstractClientModule {
         for (ClassInfo classInfo : cgModel.getClasses()) {
             this.convertFieldsType(classInfo);
             fmModel.put("superClassImports", this.getSuperClassImports(classInfo, projectPrefix));
-            fmModel.put("fieldClassImports", this.getFieldImports(classInfo, projectPrefix, GENERATED_PREFIX));
+            fmModel.put("fieldClassImports", this.getFieldImports(classInfo, projectPrefix));
             fmModel.put("clazz", classInfo);
 
-            FileInfo classIntf = this.generateFile(clientClassIntTemplate, fmModel, GENERATED_PREFIX + classInfo.getName(), "h", "Generated", SOURCE_FOLDER);
+            FileInfo classIntf = this.generateFile(clientClassIntTemplate, fmModel, projectPrefix + classInfo.getName(), "h", "Classes", SOURCE_FOLDER);
             targetFileSet.add(classIntf);
-            FileInfo classImpl = this.generateFile(clientClassImplementationTemplate, fmModel, GENERATED_PREFIX + classInfo.getName(), "m", "Generated", SOURCE_FOLDER);
+            FileInfo classImpl = this.generateFile(clientClassImplementationTemplate, fmModel, projectPrefix + classInfo.getName(), "m", "Classes", SOURCE_FOLDER);
             targetFileSet.add(classImpl);
-            FileInfo clientSubClassInt = this.generateFile(clientSubClassIntTemplate, fmModel, projectPrefix + classInfo.getName(), "h", "Classes", SOURCE_FOLDER);
-            targetFileSet.add(clientSubClassInt);
-            FileInfo clientSubClassImpl = this.generateFile(clientSubClassImplTemplate, fmModel, projectPrefix + classInfo.getName(), "m", "Classes", SOURCE_FOLDER);
-            targetFileSet.add(clientSubClassImpl);
         }
 
         // generate enums
@@ -116,30 +106,30 @@ public class IOSClientModule extends AbstractClientModule {
         for (EnumInfo enumInfo : cgModel.getEnums()) {
             fmModel.put("enum", enumInfo);
 
-            FileInfo enumDec = this.generateFile(enumDeclarationTemplate, fmModel, GENERATED_PREFIX + enumInfo.getName(), "h", "Generated", SOURCE_FOLDER);
+            FileInfo enumDec = this.generateFile(enumDeclarationTemplate, fmModel, projectPrefix + enumInfo.getName(), "h", "Classes", SOURCE_FOLDER);
             targetFileSet.add(enumDec);
-            FileInfo enumDef = this.generateFile(enumDefinitionTemplate, fmModel, GENERATED_PREFIX + enumInfo.getName(), "m", "Generated", SOURCE_FOLDER);
+            FileInfo enumDef = this.generateFile(enumDefinitionTemplate, fmModel, projectPrefix + enumInfo.getName(), "m", "Classes", SOURCE_FOLDER);
             targetFileSet.add(enumDef);
         }
 
-        FileInfo clientDateImpl = this.generateFile(clientDateImplTemplate, fmModel, GENERATED_PREFIX + "DateFormatterUtils", "m", "Generated", SOURCE_FOLDER);
+        FileInfo clientDateImpl = this.generateFile(clientDateImplTemplate, fmModel, projectPrefix + "DateFormatterUtils", "m", "Classes", SOURCE_FOLDER);
         targetFileSet.add(clientDateImpl);
-        FileInfo clientDateInt = this.generateFile(clientDateIntTemplate, fmModel, GENERATED_PREFIX + "DateFormatterUtils", "h", "Generated", SOURCE_FOLDER);
+        FileInfo clientDateInt = this.generateFile(clientDateIntTemplate, fmModel, projectPrefix + "DateFormatterUtils", "h", "Classes", SOURCE_FOLDER);
         targetFileSet.add(clientDateInt);
 
-        FileInfo clientFileImpl = this.generateFile(clientFileImplTemplate, fmModel, GENERATED_PREFIX + "File", "m", "Generated", SOURCE_FOLDER);
+        FileInfo clientFileImpl = this.generateFile(clientFileImplTemplate, fmModel, projectPrefix + "File", "m", "Classes", SOURCE_FOLDER);
         targetFileSet.add(clientFileImpl);
-        FileInfo clientFileInt = this.generateFile(clientFileIntTemplate, fmModel, GENERATED_PREFIX + "File", "h", "Generated", SOURCE_FOLDER);
+        FileInfo clientFileInt = this.generateFile(clientFileIntTemplate, fmModel, projectPrefix + "File", "h", "Classes", SOURCE_FOLDER);
         targetFileSet.add(clientFileInt);
 
-        FileInfo clientObjectImpl = this.generateFile(clientObjectImplTemplate, fmModel, GENERATED_PREFIX + "Object", "m", "Generated", SOURCE_FOLDER);
+        FileInfo clientObjectImpl = this.generateFile(clientObjectImplTemplate, fmModel, projectPrefix + "Object", "m", "Classes", SOURCE_FOLDER);
         targetFileSet.add(clientObjectImpl);
-        FileInfo clientObjectInt = this.generateFile(clientObjectIntTemplate, fmModel, GENERATED_PREFIX + "Object", "h", "Generated", SOURCE_FOLDER);
+        FileInfo clientObjectInt = this.generateFile(clientObjectIntTemplate, fmModel, projectPrefix + "Object", "h", "Classes", SOURCE_FOLDER);
         targetFileSet.add(clientObjectInt);
 
-        FileInfo parentEnumImpl = this.generateFile(parentEnumDeclarationTemplate, fmModel, GENERATED_PREFIX + "Enum", "m", "Generated", SOURCE_FOLDER);
+        FileInfo parentEnumImpl = this.generateFile(parentEnumDeclarationTemplate, fmModel, projectPrefix + "Enum", "m", "Classes", SOURCE_FOLDER);
         targetFileSet.add(parentEnumImpl);
-        FileInfo parentEnumInt = this.generateFile(parentEnumDefinitionTemplate, fmModel, GENERATED_PREFIX + "Enum", "h", "Generated", SOURCE_FOLDER);
+        FileInfo parentEnumInt = this.generateFile(parentEnumDefinitionTemplate, fmModel, projectPrefix + "Enum", "h", "Classes", SOURCE_FOLDER);
         targetFileSet.add(parentEnumInt);
 
         return targetFileSet;
@@ -151,25 +141,24 @@ public class IOSClientModule extends AbstractClientModule {
         SimpleHash fmModel = this.getFreemarkerModel();
         final String projectPrefix = cgConfig.prefix;
 
-        fmModel.put("generatedPrefix", GENERATED_PREFIX);
         fmModel.put("projectPrefix", projectPrefix);
 
         // container for target codes
         Set<FileInfo> targetFileSet = new HashSet<>();
 
-        FileInfo clientObjectImpl = this.generateFile(clientServicesApiClientImplTemplate, fmModel, GENERATED_PREFIX + "ApiClient", "m", "Services", SOURCE_FOLDER);
+        FileInfo clientObjectImpl = this.generateFile(clientServicesApiClientImplTemplate, fmModel, projectPrefix + "ApiClient", "m", "Services", SOURCE_FOLDER);
         targetFileSet.add(clientObjectImpl);
-        FileInfo clientObjectInt = this.generateFile(clientServicesApiClientIntTemplate, fmModel, GENERATED_PREFIX + "ApiClient", "h", "Services", SOURCE_FOLDER);
+        FileInfo clientObjectInt = this.generateFile(clientServicesApiClientIntTemplate, fmModel, projectPrefix + "ApiClient", "h", "Services", SOURCE_FOLDER);
         targetFileSet.add(clientObjectInt);
 
         for (CGService cgService : cgServices.getServices()) {
             final List<CGMethod> methods = dissociateMethodsWithSameName(cgService.getMethods());
             fmModel.put("imports", getImports(methods, projectPrefix));
-            fmModel.put("className", GENERATED_PREFIX + cgService.getName());
+            fmModel.put("className", projectPrefix + cgService.getName());
             fmModel.put("methods", methods);
-            FileInfo clientServicesApiServiceImpl = this.generateFile(clientServicesApiServiceImplTemplate, fmModel, GENERATED_PREFIX + cgService.getName() + "Api", "m", "Services", SOURCE_FOLDER);
+            FileInfo clientServicesApiServiceImpl = this.generateFile(clientServicesApiServiceImplTemplate, fmModel, projectPrefix + cgService.getName() + "Api", "m", "Services", SOURCE_FOLDER);
             targetFileSet.add(clientServicesApiServiceImpl);
-            FileInfo clientServicesApiServiceInt = this.generateFile(clientServicesApiServiceIntTemplate, fmModel, GENERATED_PREFIX + cgService.getName() + "Api", "h", "Services", SOURCE_FOLDER);
+            FileInfo clientServicesApiServiceInt = this.generateFile(clientServicesApiServiceIntTemplate, fmModel, projectPrefix + cgService.getName() + "Api", "h", "Services", SOURCE_FOLDER);
             targetFileSet.add(clientServicesApiServiceInt);
         }
 
@@ -276,42 +265,36 @@ public class IOSClientModule extends AbstractClientModule {
         type.setFullName(name); // remove package for ios
     }
 
-    private Set<String> getSuperClassImports(ClassInfo clazz, String generatedPrefix) {
+    private Set<String> getSuperClassImports(ClassInfo clazz, String prefix) {
         Set<String> imports = new HashSet<String>();
 
         // extends super class?
         if (clazz.getSuperClass() != null) {
             TypeInfo superClassType = clazz.getSuperClass();
-            imports.add(generatedPrefix + superClassType.getFullName());
+            imports.add(prefix + superClassType.getFullName());
         }
 
         return imports;
     }
 
-    private Set<String> getFieldImports(ClassInfo clazz, String projectPrefix, String generatedPrefix) {
+    private Set<String> getFieldImports(ClassInfo clazz, String projectPrefix) {
         Set<String> imports = new HashSet<String>();
 
         for (FieldInfo field : clazz.getFields()) {
             TypeInfo fieldType = field.getType();
             if (fieldType.isArray()) {
                 TypeInfo elementType = fieldType.getElementType();
-                if (elementType != null && elementType.isEnum()) {
-                    imports.add(generatedPrefix + elementType.getFullName());
-                } else if (elementType != null && !elementType.isPrimitive()) {
+                if (elementType != null && (!elementType.isPrimitive() || elementType.isEnum())) {
                     imports.add(projectPrefix + elementType.getFullName());
                 }
             } else {
-                if (fieldType.isEnum()) {
-                    imports.add(generatedPrefix + fieldType.getFullName());
-                } else if (!fieldType.isPrimitive() && !fieldType.isCollection()) {
+                if ((!fieldType.isPrimitive() && !fieldType.isCollection()) || fieldType.isEnum()) {
                     imports.add(projectPrefix + fieldType.getFullName());
                 }
             }
             // import type parameters
             for (TypeInfo paraType : fieldType.getTypeParameters()) { // object type
-                if (paraType.isEnum()) {
-                    imports.add(generatedPrefix + paraType.getFullName());
-                } else if (!paraType.isPrimitive() && !field.isPropertyKindAny()) {
+                if ((!paraType.isPrimitive() && !field.isPropertyKindAny()) || paraType.isEnum()) {
                     imports.add(projectPrefix + paraType.getFullName());
                 }
             }

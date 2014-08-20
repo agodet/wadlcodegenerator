@@ -1,7 +1,7 @@
 [#ftl]
-#import "${generatedPrefix}DateFormatterUtils.h"
+#import "${projectPrefix}DateFormatterUtils.h"
 
-@implementation ${generatedPrefix}DateFormatterUtils
+@implementation ${projectPrefix}DateFormatterUtils
 
 +(NSString*) formatWithDate:(NSDate*) date {
     NSDateFormatter* df = [NSDateFormatter new];

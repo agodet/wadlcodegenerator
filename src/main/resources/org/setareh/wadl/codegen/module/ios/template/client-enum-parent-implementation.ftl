@@ -1,7 +1,7 @@
 [#ftl]
-#import "${generatedPrefix}Enum.h"
+#import "${projectPrefix}Enum.h"
 
-@implementation ${generatedPrefix}Enum
+@implementation ${projectPrefix}Enum
     -(id)initWithString:(NSString *)stringValue withType:(NSInteger) type {
         self = [super init];
         if(self){

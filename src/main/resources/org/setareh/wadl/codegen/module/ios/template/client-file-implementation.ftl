@@ -1,7 +1,7 @@
 [#ftl]
-#import "${generatedPrefix}File.h"
+#import "${projectPrefix}File.h"
 
-@implementation ${generatedPrefix}File
+@implementation ${projectPrefix}File
 
 @synthesize name = _name;
 @synthesize mimeType = _mimeType;

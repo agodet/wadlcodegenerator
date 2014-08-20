@@ -1,7 +1,7 @@
 [#ftl]
 #import <Foundation/Foundation.h>
 
-@interface ${generatedPrefix}Enum : NSObject
+@interface ${projectPrefix}Enum : NSObject
     @property (nonatomic, assign) NSInteger type;
 
     @property(nonatomic, copy) NSString *value;

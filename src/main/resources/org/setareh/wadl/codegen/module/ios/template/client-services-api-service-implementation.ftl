@@ -1,7 +1,7 @@
 [#ftl]
 #import "${className}Api.h"
-#import "${generatedPrefix}File.h"
-#import "${generatedPrefix}ApiClient.h"
+#import "${projectPrefix}File.h"
+#import "${projectPrefix}ApiClient.h"
 [#list imports as import]
 #import "${import}"
 [/#list]
@@ -28,8 +28,8 @@
     return singletonAPI;
 }
 
--(${generatedPrefix}ApiClient*) apiClient {
-    return [${generatedPrefix}ApiClient sharedClientFromPool:self.basePath withGroup:self.group];
+-(${projectPrefix}ApiClient*) apiClient {
+    return [${projectPrefix}ApiClient sharedClientFromPool:self.basePath withGroup:self.group];
 }
 
 -(void) addHeader:(NSString*)value forKey:(NSString*)key {
@@ -52,7 +52,7 @@
 }
 
 -(unsigned long) requestQueueSize {
-    return [${generatedPrefix}ApiClient requestQueueSize];
+    return [${projectPrefix}ApiClient requestQueueSize];
 }
 
 -(void) setAuthenticationLogin:(NSString*) login andPassword:(NSString*)password {
@@ -99,7 +99,7 @@
         NSMutableArray * objs = [[NSMutableArray alloc] init];
         for (id dict in (NSArray*)body) {
             if([dict respondsToSelector:@selector(asDictionary)]) {
-                [objs addObject:[(${generatedPrefix}Object*)dict asDictionary]];
+                [objs addObject:[(${projectPrefix}Object*)dict asDictionary]];
             }
             else{
                 [objs addObject:dict];
@@ -108,7 +108,7 @@
         bodyDictionary = objs;
     }
     else if([body respondsToSelector:@selector(asDictionary)]) {
-        bodyDictionary = [(${generatedPrefix}Object*)body asDictionary];
+        bodyDictionary = [(${projectPrefix}Object*)body asDictionary];
     }
     else if([body isKindOfClass:[NSString class]]) {
         // convert it to a dictionary
@@ -120,7 +120,7 @@
         error:&error];
         bodyDictionary = JSON;
     }
-    else if([body isKindOfClass: [${generatedPrefix}File class]]) {
+    else if([body isKindOfClass: [${projectPrefix}File class]]) {
         requestContentType = @"form-data";
         bodyDictionary = body;
     }
@@ -132,7 +132,7 @@
         // error
     }
     [/#if]
-    ${generatedPrefix}ApiClient* client = [${generatedPrefix}ApiClient sharedClientFromPool:self.basePath withGroup: self.group];
+    ${projectPrefix}ApiClient* client = [${projectPrefix}ApiClient sharedClientFromPool:self.basePath withGroup: self.group];
 
     return [client dictionary:requestUrl
     method:@"${method.type}"

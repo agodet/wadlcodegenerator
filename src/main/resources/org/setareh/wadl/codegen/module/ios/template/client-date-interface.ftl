@@ -1,8 +1,8 @@
 [#ftl]
 #import <Foundation/Foundation.h>
-#import "${generatedPrefix}Object.h"
+#import "${projectPrefix}Object.h"
 
-@interface ${generatedPrefix}DateFormatterUtils : NSObject {
+@interface ${projectPrefix}DateFormatterUtils : NSObject {
 @private
 }
 

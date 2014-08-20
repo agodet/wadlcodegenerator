@@ -1,7 +1,7 @@
 [#ftl]
-#import "${generatedPrefix}Object.h"
+#import "${projectPrefix}Object.h"
 
-@implementation ${generatedPrefix}Object
+@implementation ${projectPrefix}Object
 
 - (id) initWithDictionnary:(NSDictionary*)dict {
     return self;

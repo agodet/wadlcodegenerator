@@ -4,14 +4,14 @@
 // DO NOT CHANGE!
 
 #import <Foundation/Foundation.h>
-#import "${generatedPrefix}${clazz.name}.h"
-#import "${generatedPrefix}Object.h"
-#import "${generatedPrefix}DateFormatterUtils.h"
+#import "${projectPrefix}${clazz.name}.h"
+#import "${projectPrefix}Object.h"
+#import "${projectPrefix}DateFormatterUtils.h"
 [#list fieldClassImports as import]
 #import "${import}.h"
 [/#list]
 
-@interface ${generatedPrefix}${clazz.name} ()
+@interface ${projectPrefix}${clazz.name} ()
 [#list clazz.fields as field]
 [#if field.fixedValue]
     [#if field.type.collection]
@@ -22,7 +22,7 @@
         [/#if]
         [#assign fieldType = "${fieldType}${type.fullName}*/"]
     [#elseif field.type.enum]
-            [#assign fieldType = "${generatedPrefix}${field.type.fullName}"]
+            [#assign fieldType = "${projectPrefix}${field.type.fullName}"]
     [#elseif field.propertyKindAny]
             [#assign fieldType = "NSMutableArray"]
     [#else]
@@ -37,7 +37,7 @@
 [/#list]
 @end
 
-@implementation ${generatedPrefix}${clazz.name}
+@implementation ${projectPrefix}${clazz.name}
 
 - (id)init {
     self = [super init];
@@ -48,7 +48,7 @@
         self.${field.name} = ${field.type.fullName?upper_case}_${field.value};
     [#elseif field.type.primitive]
         [#if field.type.name == "DATE"]
-            self.${field.name} = [${generatedPrefix}DateFormatterUtils convertToDate:dict${"["}@"${field.initialName}"]];
+            self.${field.name} = [${projectPrefix}DateFormatterUtils convertToDate:dict${"["}@"${field.initialName}"]];
         [#elseif field.type.name == "STRING"]
             self.${field.name} = @"${field.value}";
         [#else]
@@ -76,7 +76,7 @@
         [#if field.type.collection]
             [#assign values = "${values}NSMutableArray/*${projectPrefix}${field.type.typeParameters[0].fullName}*/"]
         [#elseif field.type.enum]
-            [#assign values = "${values}${generatedPrefix}${field.type.fullName}"]
+            [#assign values = "${values}${projectPrefix}${field.type.fullName}"]
         [#elseif field.propertyKindAny]
             [#assign values = "${values}NSMutableArray"]
         [#elseif field.type.primitive]
@@ -112,7 +112,7 @@
         if (dict${"[@"}"${field.name}"] != [NSNull null])
         {
             [#if field.type.enum]
-            self.${field.name} = [${generatedPrefix}${field.type.fullName} fromString:dict${"["}@"${field.initialName}"]];
+            self.${field.name} = [${projectPrefix}${field.type.fullName} fromString:dict${"["}@"${field.initialName}"]];
             [#elseif field.type.collection || field.type.array]
             id ${field.name}_dict = dict${"["}@"${field.initialName}"];
 
@@ -123,7 +123,7 @@
 
                 [#if typeParameter.enum]
                 for (NSString * dictValue in (NSArray*)${field.name}_dict) {
-                ${generatedPrefix}${typeParameter.fullName} * d = [${generatedPrefix}${typeParameter.fullName} fromString:dictValue];
+                ${projectPrefix}${typeParameter.fullName} * d = [${projectPrefix}${typeParameter.fullName} fromString:dictValue];
                 [#elseif typeParameter.primitive]
                 for (${typeParameter.fullName}* dictValue in (NSArray*)${field.name}_dict) {
                 ${typeParameter.fullName} * d = dictValue;
@@ -138,7 +138,7 @@
                 }
             [#elseif field.type.primitive]
                 [#if field.type.wrapper == "NSDATE"]
-                    self.${field.name} = [${generatedPrefix}DateFormatterUtils convertToDate:dict${"["}@"${field.initialName}"]];
+                    self.${field.name} = [${projectPrefix}DateFormatterUtils convertToDate:dict${"["}@"${field.initialName}"]];
                 [#elseif field.type.wrapper == "BOOL"]
                     self.${field.name} = [((NSNumber *)dict${"["}@"${field.initialName}"]) boolValue];
                 [#elseif field.type.wrapper == "NSINTEGER"]
@@ -176,7 +176,7 @@
 [#elseif field.type.primitive || field.propertyKindAny]
     [#if field.type.wrapper.pointer]if(self.${field.name} != nil) {[/#if]
         [#if field.type.wrapper == "NSDATE"]
-            dict${"["}@"${field.initialName}"] = [${generatedPrefix}DateFormatterUtils formatWithDate:self.${field.name}];
+            dict${"["}@"${field.initialName}"] = [${projectPrefix}DateFormatterUtils formatWithDate:self.${field.name}];
         [#elseif field.type.wrapper == "BOOL"]
             dict${"["}@"${field.initialName}"] = [NSNumber numberWithBool:self.${field.name}];
         [#elseif field.type.wrapper == "NSINTEGER"]
@@ -196,7 +196,7 @@
     if(self.${field.name} != nil){
         NSMutableArray * array = [[NSMutableArray alloc] init];
         [#if typeParameter.enum]
-            for( ${generatedPrefix}${typeParameter.fullName} *${field.name}Element in self.${field.name}) {
+            for( ${projectPrefix}${typeParameter.fullName} *${field.name}Element in self.${field.name}) {
             [array addObject:${field.name}Element.value];
         [#elseif typeParameter.primitive]
             for( ${typeParameter.fullName} *${field.name}Element in self.${field.name}) {

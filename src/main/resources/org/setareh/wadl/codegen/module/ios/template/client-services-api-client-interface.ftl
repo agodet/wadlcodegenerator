@@ -4,7 +4,7 @@
 
 
 
-@interface ${generatedPrefix}ApiClient : AFHTTPClient
+@interface ${projectPrefix}ApiClient : AFHTTPClient
 
 @property(nonatomic, assign) NSURLRequestCachePolicy cachePolicy;
 @property(nonatomic, assign) NSTimeInterval timeoutInterval;
@@ -18,9 +18,9 @@
 @property(nonatomic, copy) NSString * authenticationPassword;
 @property (nonatomic, copy) NSString * (^authorizationBlock)(NSURL *url, NSString * method, NSData *body);
 
-+(${generatedPrefix}ApiClient *)sharedClientFromPool:(NSString *)baseUrl;
++(${projectPrefix}ApiClient *)sharedClientFromPool:(NSString *)baseUrl;
 
-+ (${generatedPrefix}ApiClient *)sharedClientFromPool:(NSString *)baseUrl withGroup:(NSString *)group;
++ (${projectPrefix}ApiClient *)sharedClientFromPool:(NSString *)baseUrl withGroup:(NSString *)group;
 
 +(NSOperationQueue*) sharedQueue;
 

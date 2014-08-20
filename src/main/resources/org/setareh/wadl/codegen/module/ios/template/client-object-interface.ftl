@@ -1,7 +1,7 @@
 [#ftl]
 #import <Foundation/Foundation.h>
 
-@interface ${generatedPrefix}Object : NSObject
+@interface ${projectPrefix}Object : NSObject
 - (id) initWithDictionnary:(NSDictionary*)dict;
 - (NSDictionary*) asDictionary;
 @end
