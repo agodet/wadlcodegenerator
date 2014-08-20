@@ -270,7 +270,7 @@ completionBlock:(void (^)(NSDictionary*, NSError *))completionBlock {
     NSMutableURLRequest * request = nil;
 
     if ([body isKindOfClass:[${projectPrefix}File class]]){
-        GeneratedFile * file = (${projectPrefix}File*) body;
+        ${projectPrefix}File * file = (${projectPrefix}File*) body;
 
         request = [self multipartFormRequestWithMethod:@"POST"
         path:path
@@ -367,7 +367,7 @@ completionBlock:(void (^)(NSString*, NSError *))completionBlock {
     NSMutableURLRequest * request = nil;
 
     if ([body isKindOfClass:[${projectPrefix}File class]]){
-        GeneratedFile * file = (${projectPrefix}File*) body;
+        ${projectPrefix}File * file = (${projectPrefix}File*) body;
 
         request = [self multipartFormRequestWithMethod:@"POST"
         path:path

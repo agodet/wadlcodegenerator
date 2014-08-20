@@ -91,6 +91,7 @@ public class IOSClientModule extends AbstractClientModule {
         info("Generating classes ...");
         for (ClassInfo classInfo : cgModel.getClasses()) {
             this.convertFieldsType(classInfo);
+            this.convertFieldsValue(classInfo);
             fmModel.put("superClassImports", this.getSuperClassImports(classInfo, projectPrefix));
             fmModel.put("fieldClassImports", this.getFieldImports(classInfo, projectPrefix));
             fmModel.put("clazz", classInfo);
@@ -303,10 +304,28 @@ public class IOSClientModule extends AbstractClientModule {
         return imports;
     }
 
+    private void convertFieldsValue(ClassInfo clazz)
+    {
+        for (FieldInfo field : clazz.getFields()) {
+            if(field.getValue() != null) {
+                if (OCWrapper.BOOL.equals(field.getType().getWrapper())) {
+                    if (Boolean.parseBoolean(field.getValue())) {
+                        field.setValue("YES");
+                    } else {
+                        field.setValue("NO");
+                    }
+                } else if (OCWrapper.NSSTRING.equals(field.getType().getWrapper())) {
+                    field.setValue("@\"" + field.getValue() + "\"");
+                }
+            }
+        }
+    }
+
     private void convertFieldsType(ClassInfo clazz) {
         for (FieldInfo field : clazz.getFields()) {
             TypeInfo fieldType = field.getType();
             convertType(fieldType);
+
             // TODO should element type of array be converted?
 //			if (fieldType.isArray()) { 
 //				convertType(fieldType.getElementType());

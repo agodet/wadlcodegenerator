@@ -49,8 +49,6 @@
     [#elseif field.type.primitive]
         [#if field.type.name == "DATE"]
             self.${field.name} = [${projectPrefix}DateFormatterUtils convertToDate:dict${"["}@"${field.initialName}"]];
-        [#elseif field.type.name == "STRING"]
-            self.${field.name} = @"${field.value}";
         [#else]
             self.${field.name} = ${field.value};
         [/#if]
