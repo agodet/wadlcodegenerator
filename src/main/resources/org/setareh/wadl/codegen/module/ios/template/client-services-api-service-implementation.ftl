@@ -152,6 +152,7 @@
 
     if (data) {
         [#if method.response.name == "InputStream"]
+        // FIXME Caution : won't work. Waiting for fix.
         result = (${projectPrefix}InputStream*) data;
         [#else]
         result = [[${projectPrefix}${method.response.name} alloc]initWithDictionnary: data];
