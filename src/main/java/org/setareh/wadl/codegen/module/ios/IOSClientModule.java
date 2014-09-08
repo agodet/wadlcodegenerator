@@ -34,6 +34,8 @@ public class IOSClientModule extends AbstractClientModule {
     private URL clientServicesApiServiceIntTemplate;
     private URL parentEnumDeclarationTemplate;
     private URL parentEnumDefinitionTemplate;
+    private URL inputstreamInterfaceTemplate;
+    private URL inputstreamImplementationTemplate;
 
     @Override
     public ModuleName getName() {
@@ -64,6 +66,8 @@ public class IOSClientModule extends AbstractClientModule {
         clientServicesApiClientIntTemplate = this.getTemplateURL("client-services-api-client-interface.ftl");
         clientServicesApiServiceImplTemplate = this.getTemplateURL("client-services-api-service-implementation.ftl");
         clientServicesApiServiceIntTemplate = this.getTemplateURL("client-services-api-service-interface.ftl");
+        inputstreamInterfaceTemplate = this.getTemplateURL("inputstream-interface.ftl");
+        inputstreamImplementationTemplate = this.getTemplateURL("inputstream-implementation.ftl");
     }
 
     @Override
@@ -132,6 +136,12 @@ public class IOSClientModule extends AbstractClientModule {
         targetFileSet.add(parentEnumImpl);
         FileInfo parentEnumInt = this.generateFile(parentEnumDefinitionTemplate, fmModel, projectPrefix + "Enum", "h", "Classes", SOURCE_FOLDER);
         targetFileSet.add(parentEnumInt);
+
+        final FileInfo inputStreamImplem = this.generateFile(inputstreamImplementationTemplate, fmModel, projectPrefix + "InputStream", "m", "Classes", SOURCE_FOLDER);
+        targetFileSet.add(inputStreamImplem);
+
+        final FileInfo inputStreamInterface = this.generateFile(inputstreamInterfaceTemplate, fmModel, projectPrefix + "InputStream", "h", "Classes", SOURCE_FOLDER);
+        targetFileSet.add(inputStreamInterface);
 
         return targetFileSet;
     }

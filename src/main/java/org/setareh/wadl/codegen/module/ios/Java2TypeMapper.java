@@ -1,5 +1,6 @@
 package org.setareh.wadl.codegen.module.ios;
 
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URL;
@@ -101,6 +102,7 @@ public class Java2TypeMapper {
 		utilityMap.put(Currency.class.getName(), Type.STRING);
 		utilityMap.put(GregorianCalendar.class.getName(), Type.DATE);
 		utilityMap.put(TimeZone.class.getName(), Type.STRING);
+        utilityMap.put(InputStream.class.getName(), Type.DATA);
 	}
 	
 	

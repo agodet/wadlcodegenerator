@@ -151,7 +151,11 @@
     ${projectPrefix}${method.response.name} *result = nil;
 
     if (data) {
+        [#if method.response.name == "InputStream"]
+        result = (${projectPrefix}InputStream*) data;
+        [#else]
         result = [[${projectPrefix}${method.response.name} alloc]initWithDictionnary: data];
+        [/#if]
     }
 
     completionBlock(result , nil);

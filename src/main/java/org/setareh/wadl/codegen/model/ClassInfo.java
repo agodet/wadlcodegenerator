@@ -206,4 +206,9 @@ public class ClassInfo {
     public int hashCode() {
         return fullName != null ? fullName.hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return fullName == null ? super.toString() : fullName;
+    }
 }
