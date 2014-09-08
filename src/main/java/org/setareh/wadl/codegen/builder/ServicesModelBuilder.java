@@ -79,7 +79,7 @@ public class ServicesModelBuilder {
         if (method.getRequest() != null && method.getRequest().getRepresentation() != null && !method.getRequest().getRepresentation().isEmpty()) {
             cgMethod.setRequest(createClassInfo(method.getRequest().getRepresentation().get(0).getElement()));
         }
-        if(method.getRequest() != null) {
+        if (method.getRequest() != null) {
             cgMethod.setRequestParams(createParams(method.getRequest().getParam()));
         }
         for (Response response : method.getResponse()) {
@@ -96,7 +96,7 @@ public class ServicesModelBuilder {
 
     private static List<CGParam> createParams(List<Param> params) {
         List<CGParam> cgParams = new ArrayList<CGParam>();
-        if(params != null) {
+        if (params != null) {
             for (Param param : params) {
                 CGParam cgParam = new CGParam();
                 cgParam.setName(param.getName());
@@ -131,6 +131,13 @@ public class ServicesModelBuilder {
     }
 
     private static ClassInfo createClassInfo(QName qname) {
+        if (qname == null) {
+            final ClassInfo classInfo = new ClassInfo();
+            classInfo.setAbstract(false);
+            classInfo.setName("InputStream");
+            classInfo.setPackageName("java.io");
+            return classInfo;
+        }
         final ClassInfo classInfo = new ClassInfo();
         classInfo.setAbstract(false);
         classInfo.setPackageName(makePackage(qname));

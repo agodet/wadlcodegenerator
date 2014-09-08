@@ -139,8 +139,24 @@ public class ApiInvoker {
             final HttpResponse httpResponse = client.execute(host, httpRequest, credContext);
 
             final int responseCode = httpResponse.getStatusLine().getStatusCode();
-
             android.util.Log.d(REST_API_LOGGER, "Server answered with response " + responseCode);
+
+            // Manage simple InputStream fetches.
+            if (responseClass.equals(InputStream.class) && responseCode / 100 == 2) {
+                InputStream content = null;
+                try {
+                    content = httpResponse.getEntity().getContent();
+                    return (T) content;
+                } finally {
+                    if (content != null) {
+                        try {
+                            content.close();
+                        } catch (Exception e) {
+                            android.util.Log.w(REST_API_LOGGER, "Error while closing stream", e);
+                        }
+                    }
+                }
+            }
 
             Reader reader = null;
             try {
