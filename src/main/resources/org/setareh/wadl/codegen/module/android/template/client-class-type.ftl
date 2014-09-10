@@ -81,6 +81,12 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
                 [#elseif field.type.typeParameters[0].name == "String"]
             this.${field.name} = new java.util.ArrayList<>();
             source.readStringList(this.${field.name});
+                [#elseif field.type.typeParameters[0].name == "Double"
+                || field.type.typeParameters[0].name == "Long"
+                || field.type.typeParameters[0].name == "Integer"
+                || field.type.typeParameters[0].name == "Float"
+                || field.type.typeParameters[0].name == "Boolean"]
+                this.${field.name} = (${field.type.name}) source.readSerializable();
                 [#else]
             this.${field.name} = new java.util.ArrayList<>();
             source.readTypedList(this.${field.name}, ${field.type.typeParameters[0].name}.CREATOR);
@@ -141,6 +147,12 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
                 parcel.writeSerializable((java.io.Serializable)${field.name});
                 [#elseif field.type.typeParameters[0].name == "String"]
                 parcel.writeStringList(${field.name});
+                [#elseif field.type.typeParameters[0].name == "Double"
+                || field.type.typeParameters[0].name == "Long"
+                || field.type.typeParameters[0].name == "Integer"
+                || field.type.typeParameters[0].name == "Float"
+                || field.type.typeParameters[0].name == "Boolean"]
+                parcel.writeSerializable(${field.name});
                 [#else]
                 parcel.writeTypedList(${field.name});
                 [/#if]
