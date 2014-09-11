@@ -72,7 +72,13 @@
         [/#if]
         [#assign values = "${values}: ("]
         [#if field.type.collection]
-            [#assign values = "${values}NSMutableArray/*${projectPrefix}${field.type.typeParameters[0].fullName}*/"]
+            [#assign typeParameter = field.type.typeParameters?first]
+            [#if typeParameter.primitive]
+                [#assign typeParameterName = "${field.type.typeParameters[0].fullName}"]
+            [#else]
+                [#assign typeParameterName = "${projectPrefix}${field.type.typeParameters[0].fullName}"]
+            [/#if]
+            [#assign values = "${values}NSMutableArray/*${typeParameterName}*/"]
         [#elseif field.type.enum]
             [#assign values = "${values}${projectPrefix}${field.type.fullName}"]
         [#elseif field.propertyKindAny]
@@ -123,8 +129,28 @@
                 for (NSString * dictValue in (NSArray*)${field.name}_dict) {
                 ${projectPrefix}${typeParameter.fullName} * d = [${projectPrefix}${typeParameter.fullName} fromString:dictValue];
                 [#elseif typeParameter.primitive]
-                for (${typeParameter.fullName}* dictValue in (NSArray*)${field.name}_dict) {
-                ${typeParameter.fullName} * d = dictValue;
+                    [#if field.type.wrapper == "NSDATE"]
+                    for (NSString* dictValue in (NSArray*)${field.name}_dict) {
+                    ${typeParameter.fullName} * d = [${projectPrefix}DateFormatterUtils convertToDate:dictValue];
+                    [#elseif typeParameter.wrapper == "BOOL"]
+                    for (NSNumber* dictValue in (NSArray*)${field.name}_dict) {
+                    ${typeParameter.fullName} * d = [((NSNumber *)dictValue) boolValue];
+                    [#elseif typeParameter.wrapper == "NSINTEGER"]
+                    for (NSNumber* dictValue in (NSArray*)${field.name}_dict) {
+                    ${typeParameter.fullName} * d = [((NSNumber *)dictValue) integerValue];
+                    [#elseif typeParameter.wrapper == "FLOAT"]
+                    for (NSNumber* dictValue in (NSArray*)${field.name}_dict) {
+                    ${typeParameter.fullName} * d = [((NSNumber *)dictValue) floatValue];
+                    [#elseif typeParameter.wrapper == "DOUBLE"]
+                    for (NSNumber* dictValue in (NSArray*)${field.name}_dict) {
+                    ${typeParameter.fullName} * d = [((NSNumber *)dictValue) doubleValue];
+                    [#elseif typeParameter.wrapper == "LONG"]
+                    for (NSNumber* dictValue in (NSArray*)${field.name}_dict) {
+                    ${typeParameter.fullName} * d = [((NSNumber *)dictValue) longValue];
+                    [#else]
+                    for (${typeParameter.fullName}* dictValue in (NSArray*)${field.name}_dict) {
+                    ${typeParameter.fullName} * d = dictValue;
+                    [/#if]
                 [#else]
                 for (NSDictionary* dict in (NSArray*)${field.name}_dict) {
                 ${projectPrefix}${typeParameter.fullName} * d = [[${projectPrefix}${typeParameter.fullName} alloc]initWithDictionnary:dict];
@@ -197,8 +223,22 @@
             for( ${projectPrefix}${typeParameter.fullName} *${field.name}Element in self.${field.name}) {
             [array addObject:${field.name}Element.value];
         [#elseif typeParameter.primitive]
-            for( ${typeParameter.fullName} *${field.name}Element in self.${field.name}) {
+        for( ${typeParameter.fullName} *${field.name}Element in self.${field.name}) {
+            [#if typeParameter.wrapper == "NSDATE"]
+            [array addObject:[${projectPrefix}DateFormatterUtils formatWithDate:${field.name}Element]];
+            [#elseif typeParameter.wrapper == "BOOL"]
+            [array addObject:[NSNumber numberWithBool:self.${field.name}]];
+            [#elseif typeParameter.wrapper == "NSINTEGER"]
+            [array addObject:[NSNumber numberWithInteger:self.${field.name}]];
+            [#elseif typeParameter.wrapper == "FLOAT"]
+            [array addObject:[NSNumber numberWithFloat:self.${field.name}]];
+            [#elseif typeParameter.wrapper == "DOUBLE"]
+            [array addObject:[NSNumber numberWithDouble:self.${field.name}]];
+            [#elseif typeParameter.wrapper == "LONG"]
+            [array addObject:[NSNumber numberWithLong:self.${field.name}]];
+            [#else]
             [array addObject:${field.name}Element];
+            [/#if]
         [#else]
             for( ${projectPrefix}${typeParameter.fullName} *${field.name}Element in self.${field.name}) {
             [array addObject:[${field.name}Element asDictionary]];
