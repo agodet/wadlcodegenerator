@@ -135,9 +135,9 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
             || field.type.name == "Float"
             || field.type.name == "Boolean"
             || field.type.array]
-        parcel.writeSerializable(${field.name});
+        parcel.writeSerializable((java.io.Serializable) ${field.name});
             [#elseif field.type.array]
-        parcel.writeSerializable(${field.name});
+        parcel.writeSerializable((java.io.Serializable) ${field.name});
             [#elseif field.type.collection]
                 [#if field.type.typeParameters[0].enum]
                 parcel.writeSerializable((java.io.Serializable)${field.name});
@@ -152,7 +152,7 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
                 || field.type.typeParameters[0].name == "Integer"
                 || field.type.typeParameters[0].name == "Float"
                 || field.type.typeParameters[0].name == "Boolean"]
-                parcel.writeSerializable(${field.name});
+                parcel.writeSerializable((java.io.Serializable) ${field.name});
                 [#else]
                 parcel.writeTypedList(${field.name});
                 [/#if]
