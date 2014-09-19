@@ -49,8 +49,18 @@
     [#elseif field.type.primitive]
         [#if field.type.name == "DATE"]
             self.${field.name} = [${projectPrefix}DateFormatterUtils convertToDate:dict${"["}@"${field.initialName}"]];
+        [#elseif field.type.name == "BOOL"]
+            self.${field.name} = [NSNumber numberWithBool:${field.value}];
+        [#elseif field.type.name == "INTEGER"]
+            self.${field.name} = [NSNumber numberWithInteger:${field.value}];
+        [#elseif field.type.name == "FLOAT"]
+            self.${field.name} = [NSNumber numberWithFloat:${field.value}];
+        [#elseif field.type.name == "DOUBLE"]
+            self.${field.name} = [NSNumber numberWithDouble:${field.value}];
+        [#elseif field.type.name == "LONG"]
+            self.${field.name} = [NSNumber numberWithLong:${field.value}];
         [#else]
-            self.${field.name} = ${field.value};
+            self.${field.name} = ${field.value};/*${field.type.name}*/
         [/#if]
     [#else]
         //self.${field.name} = ${field.value};

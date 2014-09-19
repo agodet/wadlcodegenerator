@@ -20,14 +20,14 @@ public class TypeMapper {
 	private static void initMapping() {
 		mapping = new HashMap<String, OCWrapper>();
 		
-		mapping.put(Type.INTEGER, OCWrapper.NSINTEGER);
-		mapping.put(Type.BOOL, OCWrapper.BOOL);
+		mapping.put(Type.INTEGER, OCWrapper.NSNUMBER);
+		mapping.put(Type.BOOL, OCWrapper.NSNUMBER);
 		mapping.put(Type.BYTE, OCWrapper.NSNUMBER);
 		mapping.put(Type.CHAR, OCWrapper.NSSTRING);
 		mapping.put(Type.SHORT, OCWrapper.NSNUMBER);
-		mapping.put(Type.LONG, OCWrapper.LONG);
-		mapping.put(Type.FLOAT, OCWrapper.FLOAT);
-		mapping.put(Type.DOUBLE, OCWrapper.DOUBLE);
+		mapping.put(Type.LONG, OCWrapper.NSNUMBER);
+		mapping.put(Type.FLOAT, OCWrapper.NSNUMBER);
+		mapping.put(Type.DOUBLE, OCWrapper.NSNUMBER);
 		mapping.put(Type.ENUM, OCWrapper.NSSTRING);
 		mapping.put(Type.DATE, OCWrapper.NSDATE);
 		mapping.put(Type.DURATION, OCWrapper.NSSTRING);
