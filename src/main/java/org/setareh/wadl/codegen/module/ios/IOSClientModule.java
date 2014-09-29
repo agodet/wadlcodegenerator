@@ -396,6 +396,7 @@ public class IOSClientModule extends AbstractClientModule {
         reservedWord.add("signed");
         reservedWord.add("unsigned");
         reservedWord.add("id");
+        reservedWord.add("description");
         reservedWord.add("const");
         reservedWord.add("volatile");
         reservedWord.add("in");
