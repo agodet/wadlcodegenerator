@@ -65,9 +65,9 @@
 
 [#list methods as method]
 -(NSNumber*) ${method.name}With[#if method.request??]CompletionBlock:(${projectPrefix}${method.request.name}*) body
-[/#if][#if method.requestParams??][#list method.requestParams as param]param${param.name}: (NSString *) ${param.name} [/#list][/#if]completionHandler: (void (^)(${projectPrefix}${method.response.name}* output, NSError* error))completionBlock{
+[/#if][#if method.requestParams??][#list method.requestParams as param]param${param.name}: (NSString *) ${param.name} [/#list][/#if]completionHandler: (void (^)(${projectPrefix}${method.response.name} *output, [#if method.faultsMap?has_content]id specificErrorObject, [/#if]NSError *error))completionBlock{
 
-    NSMutableString* requestUrl = [NSMutableString stringWithFormat:@"%@${method.path}", self.basePath];
+    NSMutableString *requestUrl = [NSMutableString stringWithFormat:@"%@${method.path}", self.basePath];
 
     // remove format in URL if needed
     if ([requestUrl rangeOfString:@".{format}"].location != NSNotFound) {
@@ -141,27 +141,38 @@
     headerParams:headerParams
     requestContentType:requestContentType
     responseContentType:responseContentType
-    completionBlock:^(NSDictionary *data, NSError *error) {
+    completionBlock:^(NSInteger responseStatusCode, NSDictionary *data, NSError *error) {
 
-    if (error) {
-        completionBlock(nil, error);
-        return;
-    }
-
-    ${projectPrefix}${method.response.name} *result = nil;
-
-    if (data) {
-        [#if method.response.name == "InputStream"]
-        // FIXME Caution : won't work. Waiting for fix.
-        result = (${projectPrefix}InputStream*) data;
-        [#else]
-        result = [[${projectPrefix}${method.response.name} alloc]initWithDictionnary: data];
+        ${projectPrefix}${method.response.name} *result = nil;
+        [#if method.faultsMap?has_content]
+        id specificErrorObject = nil;
         [/#if]
-    }
-
-    completionBlock(result , nil);
-    }
-    ];
+        if (data) {
+            [#if method.faultsMap?has_content]
+            switch (responseStatusCode) {
+                [#list method.faultsMap?keys as key]
+                case ${key}:
+                    specificErrorObject = [[${projectPrefix}${method.faultsMap[key].name} alloc] initWithDictionnary:data];
+                    break;
+                [/#list]
+                default:{
+            [/#if]
+                    if(!error){
+                        [#if method.response.name == "InputStream"]
+                        // FIXME Caution : won't work. Waiting for fix.
+                        result = (${projectPrefix}InputStream*) data;
+                        [#else]
+                        result = [[${projectPrefix}${method.response.name} alloc] initWithDictionnary:data];
+                        [/#if]
+                    }
+            [#if method.faultsMap?has_content]
+                }
+                break;
+            }
+            [/#if]
+        }
+        completionBlock(result, [#if method.faultsMap?has_content]specificErrorObject, [/#if]error);
+    }];
 }
 [/#list]
 

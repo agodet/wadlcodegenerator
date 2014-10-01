@@ -217,6 +217,11 @@ public class IOSClientModule extends AbstractClientModule {
             if (method.getResponse() != null) {
                 importList.add(prefix + method.getResponse().getName() + ".h");
             }
+            if (method.getFaults() != null){
+                for(ClassInfo classInfo : method.getFaults()){
+                    importList.add(prefix + classInfo.getName() + ".h");
+                }
+            }
         }
 
         return importList;

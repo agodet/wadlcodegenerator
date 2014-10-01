@@ -258,14 +258,14 @@ forKey:(NSString*) forKey {
 }
 
 
--(NSNumber*)  dictionary:(NSString*) path
-method:(NSString*) method
-queryParams:(NSDictionary*) queryParams
-body:(id) body
-headerParams:(NSDictionary*) headerParams
-requestContentType:(NSString*) requestContentType
-responseContentType:(NSString*) responseContentType
-completionBlock:(void (^)(NSDictionary*, NSError *))completionBlock {
+- (NSNumber *)dictionary:(NSString*)path
+                  method:(NSString*) method
+             queryParams:(NSDictionary*) queryParams
+                    body:(id) body
+            headerParams:(NSDictionary*) headerParams
+      requestContentType:(NSString*) requestContentType
+     responseContentType:(NSString*) responseContentType
+         completionBlock:(void (^)(NSInteger, NSDictionary *, NSError *))completionBlock {
 
     NSMutableURLRequest * request = nil;
 
@@ -331,36 +331,35 @@ completionBlock:(void (^)(NSDictionary*, NSError *))completionBlock {
 
     NSNumber* requestId = [${projectPrefix}ApiClient queueRequest];
     AFJSONRequestOperation *op =
-    [self
-    JSONRequestOperationWithRequest:request
-    success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
+    [self JSONRequestOperationWithRequest:request
+                                  success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
         if([self executeRequestWithId:requestId]) {
             if(self.logServerResponses)
                 [self logResponse:JSON forRequest:request error:nil];
-            completionBlock(JSON, nil);
+            completionBlock(response.statusCode, JSON, nil);
         }
-    } failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id data) {
+    }
+    failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id data) {
         if([self executeRequestWithId:requestId]) {
             if(self.logServerResponses)
                 [self logResponse:nil forRequest:request error:error];
-            completionBlock(nil, error);
+            completionBlock(response.statusCode, data, error);
         }
-    }
-    ];
+    }];
 
     [self enqueueHTTPRequestOperation:op];
     return requestId;
 }
 
--(NSNumber*)  stringWithCompletionBlock:(NSString*) path
-method:(NSString*) method
-queryParams:(NSDictionary*) queryParams
-body:(id) body
-headerParams:(NSDictionary*) headerParams
-requestContentType:(NSString*) requestContentType
-responseContentType:(NSString*) responseContentType
-completionBlock:(void (^)(NSString*, NSError *))completionBlock {
-
+- (NSNumber *)stringWithCompletionBlock:(NSString *)path
+                                 method:(NSString *)method
+                            queryParams:(NSDictionary *)queryParams
+                                   body:(id)body
+                           headerParams:(NSDictionary *)headerParams
+                     requestContentType:(NSString *)requestContentType
+                    responseContentType:(NSString *)responseContentType
+                        completionBlock:(void (^)(NSInteger, NSString *, NSError *))completionBlock
+{
     AFHTTPClient *client = self;
     client.parameterEncoding = AFJSONParameterEncoding;
 
@@ -426,19 +425,19 @@ completionBlock:(void (^)(NSString*, NSError *))completionBlock {
     NSNumber* requestId = [${projectPrefix}ApiClient queueRequest];
     AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:request];
     [op setCompletionBlockWithSuccess:
-    ^(AFHTTPRequestOperation *resp,
-    id responseObject) {
-        NSString *response = [resp responseString];
+    ^(AFHTTPRequestOperation *operation, id responseObject) {
+        NSString *response = [operation responseString];
         if([self executeRequestWithId:requestId]) {
             if(self.logServerResponses)
                 [self logResponse:responseObject forRequest:request error:nil];
-        completionBlock(response, nil);
+        completionBlock(operation.response.statusCode, response, nil);
         }
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSString *response = [operation responseString];
         if([self executeRequestWithId:requestId]) {
             if(self.logServerResponses)
                 [self logResponse:nil forRequest:request error:error];
-            completionBlock(nil, error);
+            completionBlock(operation.response.statusCode, response, error);
         }
     }];
 

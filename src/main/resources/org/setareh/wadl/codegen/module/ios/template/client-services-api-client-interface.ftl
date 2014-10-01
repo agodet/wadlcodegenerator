@@ -46,30 +46,29 @@
 
 +(void) setReachabilityChangeBlock:(void(^)(int))changeBlock;
 
-+(void) configureCacheReachibilityForHost:(NSString*)host withGroup:(NSString *)group;
++(void) configureCacheReachibilityForHost:(NSString *)host withGroup:(NSString *)group;
 
--(void)setHeaderValue:(NSString*) value
-forKey:(NSString*) forKey;
+-(void)setHeaderValue:(NSString *)value forKey:(NSString*)forKey;
 
--(NSNumber*)  dictionary:(NSString*) path
-method:(NSString*) method
-queryParams:(NSDictionary*) queryParams
-body:(id) body
-headerParams:(NSDictionary*) headerParams
-requestContentType:(NSString*) requestContentType
-responseContentType:(NSString*) responseContentType
-completionBlock:(void (^)(NSDictionary*, NSError *))completionBlock;
+-(NSNumber *)dictionary:(NSString *) path
+                 method:(NSString *) method
+            queryParams:(NSDictionary *) queryParams
+                   body:(id)body
+           headerParams:(NSDictionary *)headerParams
+     requestContentType:(NSString *)requestContentType
+    responseContentType:(NSString *)responseContentType
+        completionBlock:(void (^)(NSInteger, NSDictionary *, NSError *))completionBlock;
 
--(NSNumber*)  stringWithCompletionBlock:(NSString*) path
-method:(NSString*) method
-queryParams:(NSDictionary*) queryParams
-body:(id) body
-headerParams:(NSDictionary*) headerParams
-requestContentType:(NSString*) requestContentType
-responseContentType:(NSString*) responseContentType
-completionBlock:(void (^)(NSString*, NSError *))completionBlock;
+-(NSNumber *)stringWithCompletionBlock:(NSString *)path
+                                method:(NSString *)method
+                           queryParams:(NSDictionary *)queryParams
+                                  body:(id)body
+                          headerParams:(NSDictionary *)headerParams
+                    requestContentType:(NSString *)requestContentType
+                   responseContentType:(NSString *)responseContentType
+                       completionBlock:(void (^)(NSInteger, NSString *, NSError *))completionBlock;
 
 - (void)setAuthenticationLogin:(NSString *)login andPassword:(NSString *)password;
-- (void)setAuthorizationWithBlock:(NSString *(^)(NSURL *, NSString * method, NSData *body))authorizationBlock;
+- (void)setAuthorizationWithBlock:(NSString *(^)(NSURL *, NSString *method, NSData *body))authorizationBlock;
 @end
 
