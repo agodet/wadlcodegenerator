@@ -180,8 +180,11 @@ public class ApiInvoker {
                     }
                 }
             }
-        } catch (JsonUtil.JsonException | URISyntaxException | IOException e) {
+        } catch (JsonUtil.JsonException | URISyntaxException e) {
             throw new ApiException(e);
+        } catch (IOException e) {
+            android.util.Log.e(REST_API_LOGGER, "Network error", e);
+            throw new ApiException(ApiException.NETWORK_ERROR, e.getMessage());
         } finally {
             try {
                 if (client != null) {

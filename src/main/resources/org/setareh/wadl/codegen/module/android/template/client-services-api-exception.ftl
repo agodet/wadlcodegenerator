@@ -1,6 +1,8 @@
 package ${packageName};
 
 public class ApiException extends Exception {
+  public static final int NETWORK_ERROR = 1;
+
   int code = 0;
   String message = null;
 
