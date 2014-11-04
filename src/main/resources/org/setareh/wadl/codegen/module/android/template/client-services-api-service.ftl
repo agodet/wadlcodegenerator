@@ -75,7 +75,7 @@ public ${method.response.name} ${method.name} (
         [#else]extraParamsFormat[/#if]
         [/#compress];
 
-    } catch (UnsupportedEncodingException | JsonUtil.JsonException e) {
+    } catch (Exception e) {
         throw new RuntimeException(e);
     }
     [/#if]
