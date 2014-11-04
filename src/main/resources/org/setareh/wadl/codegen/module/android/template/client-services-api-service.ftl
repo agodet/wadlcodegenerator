@@ -4,6 +4,7 @@ package ${packageName};
 import ${utilityPackageName}.ApiException;
 import ${utilityPackageName}.ApiInvoker;
 import ${utilityPackageName}.ApiConfig;
+import ${utilityPackageName}.JsonUtil;
 
 [#list imports as import]
 import ${import};
@@ -43,7 +44,7 @@ public ${className}Api(final ApiConfig config) {
 public ${method.response.name} ${method.name} (
     [#if method.requestParams??]
         [#list method.requestParams as param]
-        final String ${param.name?uncap_first}[#if param_has_next || method.request??],[/#if]
+        final ${param.classInfo.name} ${param.name?uncap_first}[#if param_has_next || method.request??],[/#if]
         [/#list]
     [/#if]
     [#if method.request??]${method.request.name} body[/#if]
@@ -68,10 +69,14 @@ public ${method.response.name} ${method.name} (
 
     final String extraParams;
     try{
-        extraParams = [#if hasParams]String.format(extraParamsFormat, [#list method.requestParams as param]URLEncoder.encode(${param.name?uncap_first}, "UTF-8")[#if param_has_next],[/#if][/#list])[#else]extraParamsFormat[/#if];
+        extraParams = [#compress]
+        [#if hasParams]
+        String.format(extraParamsFormat,[#list method.requestParams as param]URLEncoder.encode([#if param.classInfo.name?lower_case != 'string']JsonUtil.toJson(${param.name?uncap_first})[#else]${param.name?uncap_first}[/#if], "UTF-8")[#if param_has_next],[/#if][/#list])
+        [#else]extraParamsFormat[/#if]
+        [/#compress];
 
-    } catch (UnsupportedEncodingException e) {
-        throw new RuntimeException(e);// Will never happen. For compilation.
+    } catch (UnsupportedEncodingException | JsonUtil.JsonException e) {
+        throw new RuntimeException(e);
     }
     [/#if]
     [#-- Fin des requestParams --]
