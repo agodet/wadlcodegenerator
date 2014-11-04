@@ -71,7 +71,7 @@ public ${method.response.name} ${method.name} (
     try{
         extraParams = [#compress]
         [#if hasParams]
-        String.format(extraParamsFormat,[#list method.requestParams as param]URLEncoder.encode([#if param.classInfo.name?lower_case != 'string']JsonUtil.toJson(${param.name?uncap_first})[#else]${param.name?uncap_first}[/#if], "UTF-8")[#if param_has_next],[/#if][/#list])
+        String.format(extraParamsFormat,[#list method.requestParams as param]${param.name?uncap_first} == null ? "" : URLEncoder.encode([#if param.classInfo.name?lower_case != 'string']JsonUtil.toJson(${param.name?uncap_first})[#else]${param.name?uncap_first}[/#if], "UTF-8")[#if param_has_next],[/#if][/#list])
         [#else]extraParamsFormat[/#if]
         [/#compress];
 
