@@ -198,13 +198,19 @@ public class ClassInfo {
         ClassInfo classInfo = (ClassInfo) o;
 
         if (fullName != null ? !fullName.equals(classInfo.fullName) : classInfo.fullName != null) return false;
+        if (name != null ? !name.equals(classInfo.name) : classInfo.name != null) return false;
+        if (packageName != null ? !packageName.equals(classInfo.packageName) : classInfo.packageName != null)
+            return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return fullName != null ? fullName.hashCode() : 0;
+        int result = packageName != null ? packageName.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (fullName != null ? fullName.hashCode() : 0);
+        return result;
     }
 
     @Override

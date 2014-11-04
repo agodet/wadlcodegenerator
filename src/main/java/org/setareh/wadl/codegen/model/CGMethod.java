@@ -1,9 +1,6 @@
 package org.setareh.wadl.codegen.model;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author: alexandre_godet
@@ -65,8 +62,8 @@ public class CGMethod implements Cloneable {
     public Map<String, ClassInfo> getFaultsMap() {
         return faults;
     }
-    public HashSet<ClassInfo> getFaults() {
-        return new HashSet<>(faults.values());
+    public Collection<ClassInfo> getFaults() {
+        return faults.values();
     }
 
     @Override
