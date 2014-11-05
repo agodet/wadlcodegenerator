@@ -165,20 +165,27 @@ public class AndroidClientModule extends AbstractClientModule {
     }
 
     private Set<String> getImports(List<CGMethod> methods) {
-        Set<String> importList = new HashSet<>();
+        Set<String> imports = new HashSet<>();
         for (CGMethod method : methods) {
             if (method.getRequest() != null) {
-                importList.add(method.getRequest().getPackageName() + "." + method.getRequest().getName());
+                imports.add(method.getRequest().getPackageName() + "." + method.getRequest().getName());
             }
             if (method.getResponse() != null) {
-                importList.add(method.getResponse().getPackageName() + "." + method.getResponse().getName());
+                imports.add(method.getResponse().getPackageName() + "." + method.getResponse().getName());
             }
             for (ClassInfo classInfo : method.getFaults()) {
-                importList.add(classInfo.getPackageName() + "." + classInfo.getName());
+                imports.add(classInfo.getPackageName() + "." + classInfo.getName());
+            }
+            for (CGParam cgParam : method.getRequestParams()) {
+                final ClassInfo classInfo = cgParam.getClassInfo();
+                final String packageName = classInfo.getPackageName();
+                if(!packageName.startsWith("org.w3")) {
+                    imports.add(packageName + "." + classInfo.getName());
+                }
             }
         }
 
-        return importList;
+        return imports;
     }
 
     /**

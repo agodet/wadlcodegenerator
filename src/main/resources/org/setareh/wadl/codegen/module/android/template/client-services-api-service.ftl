@@ -4,6 +4,7 @@ package ${packageName};
 import ${utilityPackageName}.ApiException;
 import ${utilityPackageName}.ApiInvoker;
 import ${utilityPackageName}.ApiConfig;
+import ${utilityPackageName}.JsonUtil;
 
 [#list imports as import]
 import ${import};
@@ -43,7 +44,7 @@ public ${className}Api(final ApiConfig config) {
 public ${method.response.name} ${method.name} (
     [#if method.requestParams??]
         [#list method.requestParams as param]
-        final String ${param.name?uncap_first}[#if param_has_next || method.request??],[/#if]
+        final ${param.classInfo.name} ${param.name?uncap_first}[#if param_has_next || method.request??],[/#if]
         [/#list]
     [/#if]
     [#if method.request??]${method.request.name} body[/#if]
@@ -66,12 +67,33 @@ public ${method.response.name} ${method.name} (
     /* Add extra parameters */
     final String extraParamsFormat = "?[#list method.requestParams as param]${param.name}=%${param_index + 1}$s[#if param_has_next]&[/#if][/#list]";
 
+    [#list method.requestParams as param]
+    final String ${param.name?uncap_first}AsStr = ${param.name?uncap_first} == null ? "" :
+        [#switch param.classInfo.name?lower_case]
+            [#case 'string'] ${param.name?uncap_first}[#break]
+            [#case 'int']
+            [#case 'integer'] Integer.toString(${param.name?uncap_first})[#break]
+            [#case 'long'] Long.toString(${param.name?uncap_first})[#break]
+            [#case 'date'] JsonUtil.formatDate(${param.name?uncap_first})[#break]
+            [#case 'float']
+            [#case 'double']String.format(java.util.Locale.ENGLISH, "%0.0f", ${param.name?uncap_first})[#break]
+            [#default]${param.name?uncap_first}.toString()
+        [/#switch];
+    [/#list]
+
+
     final String extraParams;
     try{
-        extraParams = [#if hasParams]String.format(extraParamsFormat, [#list method.requestParams as param]URLEncoder.encode(${param.name?uncap_first}, "UTF-8")[#if param_has_next],[/#if][/#list])[#else]extraParamsFormat[/#if];
+        extraParams = [#compress]
+        [#if hasParams]
+        String.format(extraParamsFormat,[#list method.requestParams as param]
+        URLEncoder.encode(${param.name?uncap_first}AsStr, "UTF-8")[#if param_has_next],[/#if]
+        [/#list])
+        [#else]extraParamsFormat[/#if]
+        [/#compress];
 
-    } catch (UnsupportedEncodingException e) {
-        throw new RuntimeException(e);// Will never happen. For compilation.
+    } catch (Exception e) {
+        throw new RuntimeException(e);
     }
     [/#if]
     [#-- Fin des requestParams --]
