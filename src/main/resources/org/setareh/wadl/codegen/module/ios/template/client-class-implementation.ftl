@@ -123,7 +123,7 @@
     self = [#if clazz.superClass??][super initWithDictionnary:dict][#else][super init][/#if];
     if(self) {
     [#list clazz.fields as field]
-        if (dict${"[@"}"${field.name}"] != [NSNull null])
+        if (dict${"[@"}"${field.initialName}"] != [NSNull null])
         {
             [#if field.type.enum]
             self.${field.name} = [${projectPrefix}${field.type.fullName} fromString:dict${"["}@"${field.initialName}"]];
