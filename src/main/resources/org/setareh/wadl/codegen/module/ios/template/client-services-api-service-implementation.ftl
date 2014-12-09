@@ -32,10 +32,6 @@
     return [${projectPrefix}ApiClient sharedClientFromPool:self.basePath withGroup:self.group];
 }
 
--(void) addHeader:(NSString*)value forKey:(NSString*)key {
-    [[self apiClient] setHeaderValue:value forKey:key];
-}
-
 -(id) initWithBasePath:basePath group:group {
     self = [super init];
 
@@ -45,10 +41,6 @@
     [self apiClient];
 
     return self;
-}
-
--(void) setHeaderValue:(NSString*) value forKey:(NSString*)key {
-    [[self apiClient] setHeaderValue:value forKey:key];
 }
 
 -(unsigned long) requestQueueSize {
@@ -84,13 +76,13 @@
 
     NSMutableDictionary* queryParams = [[NSMutableDictionary alloc] init];
     NSMutableDictionary* headerParams = [[NSMutableDictionary alloc] init];
-
     id bodyDictionary = nil;
+
     [#if method.type = "GET"]
-    bodyDictionary = [[NSMutableDictionary alloc] init];
+    queryParams = [[NSMutableDictionary alloc] init];
     [#if method.requestParams??]
     [#list method.requestParams as param]
-    if(${param.name}) bodyDictionary${"[@"}"${param.name}"] = ${param.name};
+    if(${param.name}) queryParams${"[@"}"${param.name}"] = ${param.name};
     [/#list]
     [/#if]
     [/#if]
@@ -135,13 +127,13 @@
     ${projectPrefix}ApiClient* client = [${projectPrefix}ApiClient sharedClientFromPool:self.basePath withGroup: self.group];
 
     return [client dictionary:requestUrl
-    method:@"${method.type}"
-    queryParams:queryParams
-    body:bodyDictionary
-    headerParams:headerParams
-    requestContentType:requestContentType
-    responseContentType:responseContentType
-    completionBlock:^(NSInteger responseStatusCode, NSDictionary *data, NSError *error) {
+                       method:@"${method.type}"
+                  queryParams:queryParams
+                         body:bodyDictionary
+                 headerParams:headerParams
+           requestContentType:requestContentType
+          responseContentType:responseContentType
+              completionBlock:^(NSInteger responseStatusCode, NSDictionary *data, NSError *error) {
 
         ${projectPrefix}${method.response.name} *result = nil;
         [#if method.faultsMap?has_content]

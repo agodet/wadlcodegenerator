@@ -2,55 +2,153 @@
 #import "${projectPrefix}ApiClient.h"
 #import "${projectPrefix}File.h"
 
-#import "AFJSONRequestOperation.h"
+@interface ${projectPrefix}ApiClient ()
 
+- (NSString *)descriptionForRequest:(NSURLRequest *)request;
+- (void)logRequest:(NSURLRequest *)request;
+- (void)logResponse:(id)data forRequest:(NSURLRequest *)request error:(NSError *)error;
+
+@end
 
 @implementation ${projectPrefix}ApiClient
 
 static long requestId = 0;
-static bool offlineState = true;
-static NSMutableSet * queuedRequests = nil;
-static bool cacheEnabled = false;
+static BOOL offlineState = NO;
+static BOOL cacheEnabled = NO;
+static BOOL loggingEnabled = NO;
+static NSMutableSet *queuedRequests = nil;
 static AFNetworkReachabilityStatus reachabilityStatus = AFNetworkReachabilityStatusNotReachable;
-static NSOperationQueue* sharedQueue;
+static NSOperationQueue *sharedQueue;
 static void (^reachabilityChangeBlock)(int);
-static bool loggingEnabled = false;
 
-+(void)setLoggingEnabled:(bool) state {
-    loggingEnabled = state;
+
++ (void)setLoggingEnabled:(BOOL)loggingEnabled {
+    loggingEnabled = loggingEnabled;
 }
 
-+(void)clearCache {
++ (void)clearCache {
     [[NSURLCache sharedURLCache] removeAllCachedResponses];
 }
 
-+(void)setCacheEnabled:(BOOL)enabled {
-    cacheEnabled = enabled;
++ (void)setCacheEnabled:(BOOL)enabled {
+cacheEnabled = enabled;
 }
 
-+(void)configureCacheWithMemoryAndDiskCapacity:(unsigned long) memorySize
-diskSize:(unsigned long) diskSize {
++ (void)configureCacheWithMemoryAndDiskCapacity:(unsigned long) memorySize
+                                       diskSize:(unsigned long) diskSize {
     NSAssert(memorySize > 0, @"invalid in-memory cache size");
     NSAssert(diskSize >= 0, @"invalid disk cache size");
 
-    NSURLCache *cache =
-    [[NSURLCache alloc]
-    initWithMemoryCapacity:memorySize
-    diskCapacity:diskSize
-    diskPath:@"swagger_url_cache"];
-
+    NSURLCache *cache = [[NSURLCache alloc] initWithMemoryCapacity:memorySize diskCapacity:diskSize diskPath:@"codegen_url_cache"];
     [NSURLCache setSharedURLCache:cache];
 }
 
-+(NSOperationQueue*) sharedQueue {
++ (NSOperationQueue *)sharedQueue {
     return sharedQueue;
 }
 
-+(${projectPrefix}ApiClient *)sharedClientFromPool:(NSString *)baseUrl {
+
++ (unsigned long)requestQueueSize {
+    return [queuedRequests count];
+}
+
++ (NSNumber *)nextRequestId {
+    long nextId = ++requestId;
+    if(loggingEnabled) {
+        NSLog(@"got id %ld", nextId);
+    }
+    return [NSNumber numberWithLong:nextId];
+}
+
++ (NSNumber *)queueRequest {
+    NSNumber* requestId = [${projectPrefix}ApiClient nextRequestId];
+    if(loggingEnabled) {
+        NSLog(@"added %@ to request queue", requestId);
+    }
+    [queuedRequests addObject:requestId];
+    return requestId;
+}
+
++ (void)cancelRequest:(NSNumber*)requestId {
+    [queuedRequests removeObject:requestId];
+}
+
++ (NSString *)escape:(id)unescaped {
+    if([unescaped isKindOfClass:[NSString class]]){
+        return (NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(
+                NULL,
+                (__bridge CFStringRef) unescaped,
+                NULL,
+                (CFStringRef)@"!*'();:@&=+$,/?%#[]",
+                kCFStringEncodingUTF8));
+    }
+    else {
+        return [NSString stringWithFormat:@"%@", unescaped];
+    }
+}
+
+#pragma mark - Reachability / Offline mode
+
++(AFNetworkReachabilityStatus) getReachabilityStatus {
+    return reachabilityStatus;
+}
+
++ (void)setReachabilityChangeBlock:(void(^)(int))changeBlock {
+    reachabilityChangeBlock = changeBlock;
+}
+
++ (void)setOfflineState:(BOOL) state {
+    offlineState = state;
+}
+
++ (void)configureCacheReachibilityForHost:(NSString *)host withGroup:(NSString *)group {
+    [[AFNetworkReachabilityManager sharedManager] setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
+        reachabilityStatus = status;
+        switch (status) {
+            case AFNetworkReachabilityStatusUnknown:
+                if(loggingEnabled) {
+                    NSLog(@"reachability changed to AFNetworkReachabilityStatusUnknown");
+                }
+                [${projectPrefix}ApiClient setOfflineState:true];
+                break;
+
+            case AFNetworkReachabilityStatusNotReachable:
+                if(loggingEnabled){
+                    NSLog(@"reachability changed to AFNetworkReachabilityStatusNotReachable");
+                }
+                [${projectPrefix}ApiClient setOfflineState:true];
+                break;
+
+            case AFNetworkReachabilityStatusReachableViaWWAN:
+                if(loggingEnabled){
+                    NSLog(@"reachability changed to AFNetworkReachabilityStatusReachableViaWWAN");
+                }
+                [${projectPrefix}ApiClient setOfflineState:false];
+                break;
+
+            case AFNetworkReachabilityStatusReachableViaWiFi:
+                if(loggingEnabled){
+                    NSLog(@"reachability changed to AFNetworkReachabilityStatusReachableViaWiFi");
+                }
+                [${projectPrefix}ApiClient setOfflineState:false];
+                break;
+            default:
+                break;
+        }
+        // call the reachability block, if configured
+        if(reachabilityChangeBlock != nil) {
+            reachabilityChangeBlock(status);
+        }
+    }];
+}
+
+#pragma mark - Constructors
+
++ (${projectPrefix}ApiClient *)sharedClientFromPool:(NSString *)baseUrl {
     return [${projectPrefix}ApiClient sharedClientFromPool:baseUrl withGroup:nil];
 }
 
-+(${projectPrefix}ApiClient *)sharedClientFromPool:(NSString *)baseUrl withGroup:(NSString *)group {
++ (${projectPrefix}ApiClient *)sharedClientFromPool:(NSString *)baseUrl withGroup:(NSString *)group {
 
     static NSMutableDictionary *_pool = nil;
     if (queuedRequests == nil) {
@@ -73,69 +171,44 @@ diskSize:(unsigned long) diskSize {
 
     @synchronized(self) {
         NSString *shareKey = group ? [NSString stringWithFormat: @"%@_%@", group, baseUrl] : baseUrl;
-        ${projectPrefix}ApiClient * client = [_pool objectForKey:shareKey];
+        ${projectPrefix}ApiClient *client = [_pool objectForKey:shareKey];
         if (client == nil) {
             client = [[${projectPrefix}ApiClient alloc] initWithBaseURL:[NSURL URLWithString:baseUrl]];
-            [client registerHTTPOperationClass:[AFJSONRequestOperation class]];
-            client.parameterEncoding = AFJSONParameterEncoding;
             [_pool setValue:client forKey:shareKey ];
             if(loggingEnabled) {
-                NSLog(@"new client for path %@", baseUrl);
+                NSLog(@"[API POOL] New client for path %@", shareKey);
             }
         }
         if(loggingEnabled) {
-            NSLog(@"returning client for path %@", baseUrl);
+            NSLog(@"[API POOL] Returning client for path %@", shareKey);
         }
         return client;
     }
 }
 
--(void)setHeaderValue:(NSString*) value
-forKey:(NSString*) forKey {
-    [self setDefaultHeader:forKey value:value];
-}
-
-+(unsigned long)requestQueueSize {
-    return [queuedRequests count];
-}
-
-+(NSNumber*) nextRequestId {
-    long nextId = ++requestId;
-    if(loggingEnabled) {
-        NSLog(@"got id %ld", nextId);
+-(id)initWithBaseURL:(NSURL *)url {
+    self = [super initWithBaseURL:url];
+    if (!self) {
+        return nil;
     }
-    return [NSNumber numberWithLong:nextId];
+    return self;
 }
 
-+(NSNumber*) queueRequest {
-    NSNumber* requestId = [${projectPrefix}ApiClient nextRequestId];
-    if(loggingEnabled) {
-        NSLog(@"added %@ to request queue", requestId);
-    }
-    [queuedRequests addObject:requestId];
-    return requestId;
+
+#pragma mark - Authorization
+
+- (void)setAuthenticationLogin:(NSString *)login andPassword:(NSString *)password {
+    self.authenticationLogin = login;
+    self.authenticationPassword = password;
 }
 
-+(void) cancelRequest:(NSNumber*)requestId {
-    [queuedRequests removeObject:requestId];
+- (void)setAuthorizationWithBlock:(NSString *(^)(NSURL *, NSString * method, NSData *body))authorizationBlock {
+    self.authorizationBlock = authorizationBlock;
 }
 
-+(NSString*) escape:(id)unescaped {
-    if([unescaped isKindOfClass:[NSString class]]){
-        return (NSString *)CFBridgingRelease
-        (CFURLCreateStringByAddingPercentEscapes(
-        NULL,
-        (__bridge CFStringRef) unescaped,
-        NULL,
-        (CFStringRef)@"!*'();:@&=+$,/?%#[]",
-        kCFStringEncodingUTF8));
-    }
-    else {
-        return [NSString stringWithFormat:@"%@", unescaped];
-    }
-}
+#pragma mark - Utils
 
--(Boolean) executeRequestWithId:(NSNumber*) requestId {
+- (BOOL)executeRequestWithId:(NSNumber*) requestId {
     NSSet* matchingItems = [queuedRequests objectsPassingTest:^BOOL(id obj, BOOL *stop) {
         if([obj intValue]  == [requestId intValue]) {
             return TRUE;
@@ -157,70 +230,7 @@ forKey:(NSString*) forKey {
     }
 }
 
--(id)initWithBaseURL:(NSURL *)url {
-    self = [super initWithBaseURL:url];
-    if (!self) {
-        return nil;
-    }
-    return self;
-}
-
-+(AFNetworkReachabilityStatus) getReachabilityStatus {
-    return reachabilityStatus;
-}
-
-+(void) setReachabilityChangeBlock:(void(^)(int))changeBlock {
-    reachabilityChangeBlock = changeBlock;
-}
-
-+(void) setOfflineState:(BOOL) state {
-    offlineState = state;
-}
-
-- (void)setAuthorizationWithBlock:(NSString *(^)(NSURL *, NSString * method, NSData *body))authorizationBlock {
-    self.authorizationBlock = authorizationBlock;
-}
-
-+(void) configureCacheReachibilityForHost:(NSString*)host withGroup:(NSString *)group {
-    [[${projectPrefix}ApiClient sharedClientFromPool:host withGroup: group] setReachabilityStatusChangeBlock:^(AFNetworkReachabilityStatus status) {
-        reachabilityStatus = status;
-        switch (status) {
-            case AFNetworkReachabilityStatusUnknown:
-                if(loggingEnabled) {
-                    NSLog(@"reachability changed to AFNetworkReachabilityStatusUnknown");
-                }
-                [${projectPrefix}ApiClient setOfflineState:true];
-                break;
-
-            case AFNetworkReachabilityStatusNotReachable:
-                if(loggingEnabled)
-                NSLog(@"reachability changed to AFNetworkReachabilityStatusNotReachable");
-                [${projectPrefix}ApiClient setOfflineState:true];
-                break;
-
-            case AFNetworkReachabilityStatusReachableViaWWAN:
-                if(loggingEnabled)
-                NSLog(@"reachability changed to AFNetworkReachabilityStatusReachableViaWWAN");
-                [${projectPrefix}ApiClient setOfflineState:false];
-                break;
-
-            case AFNetworkReachabilityStatusReachableViaWiFi:
-                if(loggingEnabled)
-                NSLog(@"reachability changed to AFNetworkReachabilityStatusReachableViaWiFi");
-                [${projectPrefix}ApiClient setOfflineState:false];
-                break;
-            default:
-                break;
-        }
-
-        // call the reachability block, if configured
-        if(reachabilityChangeBlock != nil) {
-            reachabilityChangeBlock(status);
-        }
-    }];
-}
-
--(NSString*) pathWithQueryParamsToString:(NSString*) path queryParams:(NSDictionary*) queryParams {
+- (NSString *)pathWithQueryParamsToString:(NSString *)path queryParams:(NSDictionary *)queryParams {
     NSString * separator = nil;
     int counter = 0;
 
@@ -236,27 +246,14 @@ forKey:(NSString*) forKey {
             else {
                 value = [NSString stringWithFormat:@"%@", [queryParams valueForKey:key]];
             }
-
-            [requestUrl appendString:[NSString stringWithFormat:@"%@%@=%@", separator,
-            [${projectPrefix}ApiClient escape:key], value]];
+            [requestUrl appendString:[NSString stringWithFormat:@"%@%@=%@", separator, [${projectPrefix}ApiClient escape:key], value]];
             counter += 1;
         }
     }
     return requestUrl;
 }
 
-- (NSString*)descriptionForRequest:(NSURLRequest*)request {
-    return [[request URL] absoluteString];
-}
-
-- (void)logRequest:(NSURLRequest*)request {
-    NSLog(@"request: %@", [self descriptionForRequest:request]);
-}
-
-- (void)logResponse:(id)data forRequest:(NSURLRequest*)request error:(NSError*)error {
-    NSLog(@"request: %@  response: %@ ",  [self descriptionForRequest:request], data );
-}
-
+#pragma mark - Call Service
 
 - (NSNumber *)dictionary:(NSString*)path
                   method:(NSString*) method
@@ -267,219 +264,244 @@ forKey:(NSString*) forKey {
      responseContentType:(NSString*) responseContentType
          completionBlock:(void (^)(NSInteger, NSDictionary *, NSError *))completionBlock {
 
-    NSMutableURLRequest * request = nil;
+    NSString *completePath = [self pathWithQueryParamsToString:path queryParams:queryParams];
 
-    if ([body isKindOfClass:[${projectPrefix}File class]]){
-        ${projectPrefix}File * file = (${projectPrefix}File*) body;
-
-        request = [self multipartFormRequestWithMethod:@"POST"
-        path:path
-        parameters:nil
-        constructingBodyWithBlock: ^(id <AFMultipartFormData> formData) {
-            [formData appendPartWithFileData:[file data]
-            name:@"image"
-            fileName:[file name]
-            mimeType:[file mimeType]];
-        }];
+    //HEADERS
+    self.requestSerializer = [self requestSerializerForUrlPath:completePath
+                                                        method:method
+                                            requestContentType:requestContentType
+                                                   requestBody:body
+                                        additionalHeaderParams:headerParams
+                                           responseContentType:responseContentType];
+    //CACHE POLICY
+    BOOL hasHeaderParams = NO;
+    if(headerParams != nil && [headerParams count] > 0){
+        hasHeaderParams = YES;
     }
-    else {
-        request = [self requestWithMethod:method
-        path:[self pathWithQueryParamsToString:path queryParams:queryParams]
-        parameters:body];
-    }
-
-    BOOL hasHeaderParams = false;
-    if(headerParams != nil && [headerParams count] > 0)
-        hasHeaderParams = true;
 
     if(offlineState) {
-        NSLog(@"%@ cache forced", path);
-        [request setCachePolicy:NSURLCacheStorageAllowedInMemoryOnly];
+        NSLog(@"%@ cache forced", completePath);
+        [self.requestSerializer setCachePolicy:NSURLRequestReturnCacheDataDontLoad];
     }
     else if(!hasHeaderParams && [method isEqualToString:@"GET"] && cacheEnabled) {
-        NSLog(@"%@ cache enabled", path);
-        [request setCachePolicy:NSURLRequestUseProtocolCachePolicy];
+        NSLog(@"%@ cache enabled", completePath);
+        [self.requestSerializer setCachePolicy:NSURLRequestUseProtocolCachePolicy];
     }
     else {
-        NSLog(@"%@ cache disabled", path);
-        [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
+        NSLog(@"%@ cache disabled", completePath);
+        [self.requestSerializer setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
     }
-
-    if(body != nil) {
-        if([body isKindOfClass:[NSDictionary class]]){
-            [request setValue:requestContentType forHTTPHeaderField:@"Content-Type"];
-        }
-        else if ([body isKindOfClass:[${projectPrefix}File class]]) {}
-        else {
-            NSAssert(false, @"unsupported post type!");
-        }
-    }
-    if(headerParams != nil){
-        for(NSString * key in [headerParams keyEnumerator]){
-            [request setValue:[headerParams valueForKey:key] forHTTPHeaderField:key];
-        }
-    }
-    [request setValue:[headerParams valueForKey:responseContentType] forHTTPHeaderField:@"Accept"];
 
     // Always disable cookies!
-    [request setHTTPShouldHandleCookies:NO];
-
-
-    if (self.logRequests) {
-        [self logRequest:request];
-    }
+    [self.requestSerializer setHTTPShouldHandleCookies:NO];
 
     NSNumber* requestId = [${projectPrefix}ApiClient queueRequest];
-    AFJSONRequestOperation *op =
-    [self JSONRequestOperationWithRequest:request
-                                  success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
-        if([self executeRequestWithId:requestId]) {
-            if(self.logServerResponses)
-                [self logResponse:JSON forRequest:request error:nil];
-            completionBlock(response.statusCode, JSON, nil);
-        }
-    }
-    failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id data) {
-        if([self executeRequestWithId:requestId]) {
-            if(self.logServerResponses)
-                [self logResponse:nil forRequest:request error:error];
-            completionBlock(response.statusCode, data, error);
-        }
-    }];
-
-    [self enqueueHTTPRequestOperation:op];
-    return requestId;
-}
-
-- (NSNumber *)stringWithCompletionBlock:(NSString *)path
-                                 method:(NSString *)method
-                            queryParams:(NSDictionary *)queryParams
-                                   body:(id)body
-                           headerParams:(NSDictionary *)headerParams
-                     requestContentType:(NSString *)requestContentType
-                    responseContentType:(NSString *)responseContentType
-                        completionBlock:(void (^)(NSInteger, NSString *, NSError *))completionBlock
-{
-    AFHTTPClient *client = self;
-    client.parameterEncoding = AFJSONParameterEncoding;
-
-    NSMutableURLRequest * request = nil;
 
     if ([body isKindOfClass:[${projectPrefix}File class]]){
-        ${projectPrefix}File * file = (${projectPrefix}File*) body;
+        ${projectPrefix}File *file = (${projectPrefix}File *)body;
 
-        request = [self multipartFormRequestWithMethod:@"POST"
-        path:path
+        [self POST:completePath
         parameters:nil
-        constructingBodyWithBlock: ^(id <AFMultipartFormData> formData) {
+        constructingBodyWithBlock:^(id<AFMultipartFormData> formData) {
             [formData appendPartWithFileData:[file data]
             name:@"image"
             fileName:[file name]
             mimeType:[file mimeType]];
-        }];
-    }
-    else {
-        request = [self requestWithMethod:method
-        path:[self pathWithQueryParamsToString:path queryParams:queryParams]
-        parameters:body];
-    }
+        }
+        success:^(AFHTTPRequestOperation *operation, id responseObject) {
+            if (self.logRequests) {
+                [self logRequest:operation.request];
+            }
 
-    BOOL hasHeaderParams = false;
-    if(headerParams != nil && [headerParams count] > 0)
-        hasHeaderParams = true;
-    if(offlineState) {
-        NSLog(@"%@ cache forced", path);
-        [request setCachePolicy:NSURLRequestReturnCacheDataDontLoad];
-    }
-    else if(!hasHeaderParams && [method isEqualToString:@"GET"] && cacheEnabled) {
-        NSLog(@"%@ cache enabled", path);
-        [request setCachePolicy:NSURLRequestUseProtocolCachePolicy];
-    }
-    else {
-        NSLog(@"%@ cache disabled", path);
-        [request setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
-    }
-
-    if(body != nil) {
-        if([body isKindOfClass:[NSDictionary class]]){
-            if(requestContentType){
-                [request setValue:requestContentType forHTTPHeaderField:@"Content-Type"];
+            if([self executeRequestWithId:requestId]) {
+                if(self.logServerResponses){
+                    [self logResponse:responseObject forRequest:operation.request error:nil];
+                }
+                completionBlock(operation.response.statusCode, responseObject, nil);
             }
         }
-        else if ([body isKindOfClass:[${projectPrefix}File class]]){}
-        else {
-            NSAssert(false, @"unsupported post type!");
-        }
+        failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+
+            if (self.logRequests) {
+                [self logRequest:operation.request];
+            }
+
+            if([self executeRequestWithId:requestId]) {
+                if(self.logServerResponses){
+                    [self logResponse:nil forRequest:operation.request error:error];
+                }
+                completionBlock(operation.response.statusCode, operation.responseObject, error);
+            }
+        }];
     }
-    if(headerParams != nil){
-        for(NSString * key in [headerParams keyEnumerator]){
-            [request setValue:[headerParams valueForKey:key] forHTTPHeaderField:key];
-        }
+    else {
+        [self simpleRequestWithPath:completePath
+                             method:method
+                               body:body
+             successCompletionBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
+                if (self.logRequests) {
+                    [self logRequest:request];
+                }
+                if([self executeRequestWithId:requestId]) {
+                    if(self.logServerResponses){
+                    [self logResponse:JSON forRequest:request error:nil];
+                    }
+                    completionBlock(response.statusCode, JSON, nil);
+                }
+             }
+             failureCompletionBlock:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id errorObject) {
+                if (self.logRequests) {
+                    [self logRequest:request];
+                }
+                if([self executeRequestWithId:requestId]) {
+                    if(self.logServerResponses){
+                        [self logResponse:nil forRequest:request error:error];
+                    }
+                    completionBlock(response.statusCode, errorObject, error);
+                }
+             }];
     }
-
-    [request setValue:[headerParams valueForKey:responseContentType] forHTTPHeaderField:@"Accept"];
-
-    // Always disable cookies!
-    [request setHTTPShouldHandleCookies:NO];
-
-    NSNumber* requestId = [${projectPrefix}ApiClient queueRequest];
-    AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:request];
-    [op setCompletionBlockWithSuccess:
-    ^(AFHTTPRequestOperation *operation, id responseObject) {
-        NSString *response = [operation responseString];
-        if([self executeRequestWithId:requestId]) {
-            if(self.logServerResponses)
-                [self logResponse:responseObject forRequest:request error:nil];
-        completionBlock(operation.response.statusCode, response, nil);
-        }
-    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSString *response = [operation responseString];
-        if([self executeRequestWithId:requestId]) {
-            if(self.logServerResponses)
-                [self logResponse:nil forRequest:request error:error];
-            completionBlock(operation.response.statusCode, response, error);
-        }
-    }];
-
-    [self enqueueHTTPRequestOperation:op];
     return requestId;
 }
 
-#pragma mark - AFRequestOperation
 
-- (AFJSONRequestOperation *)JSONRequestOperationWithRequest:(NSURLRequest *)urlRequest
-success:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, id JSON))success
-failure:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON))failure
+-(void)simpleRequestWithPath:(NSString *)path
+                      method:(NSString *)method
+                        body:(id)body
+      successCompletionBlock:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, id responseObject))successCompletionBlock
+      failureCompletionBlock:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id errorObject))failureCompletionBlock
 {
-    AFJSONRequestOperation *requestOperation = [[AFJSONRequestOperation alloc] initWithRequest:urlRequest];
-    NSURLCredential *credential = [NSURLCredential credentialWithUser:self.authenticationLogin password:self.authenticationPassword persistence:NSURLCredentialPersistenceForSession];
-    [requestOperation setCredential:credential];
-
-    [requestOperation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-        if (success) {
-            success(operation.request, operation.response, responseObject);
+    if([@"GET" isEqualToString:method]){
+        [self GET:path
+       parameters:body
+          success:^(AFHTTPRequestOperation *operation, id responseObject) {
+            successCompletionBlock(operation.request, operation.response, responseObject);
+          }
+          failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            failureCompletionBlock(operation.request, operation.response, error, operation.responseObject);
+          }];
+    }
+    else if([@"HEAD" isEqualToString:method]){
+        [self HEAD:path
+        parameters:body
+           success:^(AFHTTPRequestOperation *operation) {
+            successCompletionBlock(operation.request, operation.response, nil);
+           }
+           failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            failureCompletionBlock(operation.request, operation.response, error, operation.responseObject);
+           }];
+    }
+    else if([@"POST" isEqualToString:method]){
+        [self POST:path
+        parameters:body
+           success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                successCompletionBlock(operation.request, operation.response, responseObject);
+           }
+           failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                failureCompletionBlock(operation.request, operation.response, error, operation.responseObject);
+        }];
+    }
+    else if([@"PUT" isEqualToString:method]){
+        [self PUT:path
+       parameters:body
+          success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                successCompletionBlock(operation.request, operation.response, responseObject);
+          }
+          failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                failureCompletionBlock(operation.request, operation.response, error, operation.responseObject);
+          }];
+    }
+    else if([@"PATCH" isEqualToString:method]){
+        [self PATCH:path
+        parameters:body
+        success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        successCompletionBlock(operation.request, operation.response, responseObject);
         }
-        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        if (failure) {
-            failure(operation.request, operation.response, error, [(AFJSONRequestOperation *)operation responseJSON]);
+        failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        failureCompletionBlock(operation.request, operation.response, error, operation.responseObject);
+        }];
+    }
+    else if([@"DELETE" isEqualToString:method]){
+        [self DELETE:path
+        parameters:body
+        success:^(AFHTTPRequestOperation *operation, id responseObject) {
+        successCompletionBlock(operation.request, operation.response, responseObject);
         }
-    }];
-    return requestOperation;
+        failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        failureCompletionBlock(operation.request, operation.response, error, operation.responseObject);
+        }];
+    }
+    else {
+        NSLog(@"HTTP Method not recognized : %@", method);
+        failureCompletionBlock(nil, nil, nil, nil);
+    }
 }
 
-- (void)setAuthenticationLogin:(NSString *)login andPassword:(NSString *)password {
-    self.authenticationLogin = login;
-    self.authenticationPassword = password;
-}
+#pragma mark - Headers
 
-- (NSMutableURLRequest *)requestWithMethod:(NSString *)method path:(NSString *)path parameters:(NSDictionary *)parameters {
-    NSMutableURLRequest * request = [super requestWithMethod:method path:path parameters:parameters];
+- (AFJSONRequestSerializer *)requestSerializerForUrlPath:(NSString *)urlPath
+                                                  method:(NSString *)method
+                                      requestContentType:(NSString *)requestContentType
+                                             requestBody:(id)body
+                                  additionalHeaderParams:(NSDictionary *)additionalHeaderParams
+                                     responseContentType:(NSString *)responseContentType
+{
 
-    if (self.authorizationBlock) {
-    [request setValue: self.authorizationBlock(request.URL, request.HTTPMethod, request.HTTPBody) forHTTPHeaderField:@"Authorization"];
+    AFJSONRequestSerializer *reqSerializer = [AFJSONRequestSerializer serializer];
+
+    //REQUEST BODY CONTENT-TYPE
+    if(body != nil) {
+        if([body isKindOfClass:[NSDictionary class]]){
+            [reqSerializer setValue:requestContentType forHTTPHeaderField:@"Content-Type"];
+        }
+        else if ([body isKindOfClass:[${projectPrefix}File class]]) {
+            [reqSerializer setValue:((${projectPrefix}File *)body).mimeType forHTTPHeaderField:@"Content-Type"];
+        }
+        else {
+            NSAssert(false, @"unsupported post type!");
+            return nil;
+        }
     }
 
-    return request;
+    //ADDITIONAL PARAMS
+    if(additionalHeaderParams != nil){
+        for(NSString * key in [additionalHeaderParams keyEnumerator]){
+            [reqSerializer setValue:[additionalHeaderParams valueForKey:key] forHTTPHeaderField:key];
+        }
+    }
+
+    //RESPONSE CONTENT TYPE
+    [reqSerializer setValue:[additionalHeaderParams valueForKey:responseContentType] forHTTPHeaderField:@"Accept"];
+
+    /*************************** AUTHORIZATION **************************/
+
+    //Basic Authorization :  UserName/Password
+    if(self.authenticationLogin && self.authenticationPassword){
+        [reqSerializer setAuthorizationHeaderFieldWithUsername:self.authenticationLogin password:self.authenticationPassword];
+    }
+    //Authorization Block : priority > Basic Authorization
+    if (self.authorizationBlock) {
+        NSURLRequest *request = [reqSerializer requestWithMethod:method URLString:urlPath parameters:body error:nil];
+        [reqSerializer setValue:self.authorizationBlock(request.URL, request.HTTPMethod, request.HTTPBody) forHTTPHeaderField:@"Authorization"];
+    }
+
+    /*************************** AUTHORIZATION **************************/
+
+    return reqSerializer;
+}
+
+#pragma mark - Logs
+
+- (NSString *)descriptionForRequest:(NSURLRequest *)request {
+    return [[request URL] absoluteString];
+}
+
+- (void)logRequest:(NSURLRequest *)request {
+    NSLog(@"Request: %@", [self descriptionForRequest:request]);
+}
+
+- (void)logResponse:(id)data forRequest:(NSURLRequest *)request error:(NSError *)error {
+    NSLog(@"Request: %@  Response: %@ ",  [self descriptionForRequest:request], data );
 }
 
 @end

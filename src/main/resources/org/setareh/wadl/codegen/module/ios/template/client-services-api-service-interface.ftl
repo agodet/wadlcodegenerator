@@ -7,20 +7,19 @@
 
 @interface ${className}Api: NSObject
 
-@property(nonatomic, copy, readonly) NSString * basePath;
-@property(nonatomic, copy, readonly) NSString * group;
+@property(nonatomic, copy, readonly) NSString *basePath;
+@property(nonatomic, copy, readonly) NSString *group;
 
-+ (${className}Api*) sharedApiWithBasePath:(NSString *) basePath;
-+ (${className}Api*) sharedApiWithBasePath:(NSString *) basePath  withGroup:(NSString *)group;
++ (${className}Api*) sharedApiWithBasePath:(NSString *)basePath;
++ (${className}Api*) sharedApiWithBasePath:(NSString *)basePath  withGroup:(NSString *)group;
 
--(void) addHeader:(NSString*)value forKey:(NSString*)key;
--(unsigned long) requestQueueSize;
+- (unsigned long)requestQueueSize;
 - (void)setAuthenticationLogin:(NSString *)login andPassword:(NSString *)password;
 - (void)setAuthorizationWithBlock:(NSString *(^)(NSURL *, NSString * method, NSData *body))authorizationBlock;
--(void) setBasePath:(NSString*)basePath;
+- (void)setBasePath:(NSString *)basePath;
 
 [#list methods as method]
--(NSNumber*) ${method.name}With[#if method.request??]CompletionBlock:(${projectPrefix}${method.request.name}*) body
+- (NSNumber *)${method.name}With[#if method.request??]CompletionBlock:(${projectPrefix}${method.request.name}*) body
 [/#if][#if method.requestParams??][#list method.requestParams as param]param${param.name}: (NSString *) ${param.name} [/#list][/#if]completionHandler: (void (^)(${projectPrefix}${method.response.name} *output, [#if method.faultsMap?has_content]id specificErrorObject, [/#if]NSError *error))completionBlock;
 [/#list]
 
