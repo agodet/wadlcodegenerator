@@ -124,6 +124,7 @@
         // error
     }
     [/#if]
+
     ${projectPrefix}ApiClient* client = [${projectPrefix}ApiClient sharedClientFromPool:self.basePath withGroup: self.group];
 
     return [client dictionary:requestUrl

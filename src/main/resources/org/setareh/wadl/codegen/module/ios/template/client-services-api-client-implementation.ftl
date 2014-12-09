@@ -371,7 +371,7 @@ cacheEnabled = enabled;
       successCompletionBlock:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, id responseObject))successCompletionBlock
       failureCompletionBlock:(void (^)(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id errorObject))failureCompletionBlock
 {
-    if([@"GET" isEqualToString:method]){
+    if([ @"GET" isEqualToString:method]){
         [self GET:path
        parameters:body
           success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -381,7 +381,7 @@ cacheEnabled = enabled;
             failureCompletionBlock(operation.request, operation.response, error, operation.responseObject);
           }];
     }
-    else if([@"HEAD" isEqualToString:method]){
+    else if([ @"HEAD" isEqualToString:method]){
         [self HEAD:path
         parameters:body
            success:^(AFHTTPRequestOperation *operation) {
@@ -391,7 +391,7 @@ cacheEnabled = enabled;
             failureCompletionBlock(operation.request, operation.response, error, operation.responseObject);
            }];
     }
-    else if([@"POST" isEqualToString:method]){
+    else if([ @"POST" isEqualToString:method]){
         [self POST:path
         parameters:body
            success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -401,7 +401,7 @@ cacheEnabled = enabled;
                 failureCompletionBlock(operation.request, operation.response, error, operation.responseObject);
         }];
     }
-    else if([@"PUT" isEqualToString:method]){
+    else if([ @"PUT" isEqualToString:method]){
         [self PUT:path
        parameters:body
           success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -411,7 +411,7 @@ cacheEnabled = enabled;
                 failureCompletionBlock(operation.request, operation.response, error, operation.responseObject);
           }];
     }
-    else if([@"PATCH" isEqualToString:method]){
+    else if([ @"PATCH" isEqualToString:method]){
         [self PATCH:path
         parameters:body
         success:^(AFHTTPRequestOperation *operation, id responseObject) {
@@ -421,7 +421,7 @@ cacheEnabled = enabled;
         failureCompletionBlock(operation.request, operation.response, error, operation.responseObject);
         }];
     }
-    else if([@"DELETE" isEqualToString:method]){
+    else if([ @"DELETE" isEqualToString:method]){
         [self DELETE:path
         parameters:body
         success:^(AFHTTPRequestOperation *operation, id responseObject) {
