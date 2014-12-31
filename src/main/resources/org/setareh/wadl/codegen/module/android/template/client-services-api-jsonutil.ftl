@@ -4,6 +4,9 @@ package ${packageName};
 import com.google.gson.*;
 import org.joda.time.DateTime;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import java.io.Reader;
 import java.lang.reflect.Type;
 
