@@ -20,7 +20,7 @@ public final class JsonUtil {
      */
     private static final Gson sGson;
 
-    public static final String DATE_FORMAT = "yyyy-MM-ddTHH:mm:ssZ";
+    public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
 
     static {
         final GsonBuilder builder = new GsonBuilder()
