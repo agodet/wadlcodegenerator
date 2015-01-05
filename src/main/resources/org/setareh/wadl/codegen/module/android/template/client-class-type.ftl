@@ -60,7 +60,7 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
             this.${field.name} = source.readInt() == 1;
             [#elseif field.type.primitive]
             this.${field.name} = source.read${field.type.name?cap_first}();
-            [#elseif field.type.name == "Date"
+            [#elseif field.type.name == "DateTime"
             || field.type.name == "Double"
             || field.type.name == "Long"
             || field.type.name == "Integer"
@@ -72,7 +72,7 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
                 [#if field.type.typeParameters[0].enum]
             /* FIXME implement enum array parcel */
             this.${field.name} = (${field.type.name}) source.readSerializable();
-                [#elseif field.type.typeParameters[0].name == "Date"]
+                [#elseif field.type.typeParameters[0].name == "DateTime"]
             /* FIXME implement Date array parcel */
             this.${field.name} = (${field.type.name}) source.readSerializable();
                 [#elseif field.type.typeParameters[0].primitive]
@@ -128,7 +128,7 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
         parcel.writeInt(${field.name} ? 1 : 0);
             [#elseif field.type.primitive]
         parcel.write${field.type.name?cap_first}(${field.name});
-            [#elseif field.type.name == "Date"
+            [#elseif field.type.name == "DateTime"
             || field.type.name == "Double"
             || field.type.name == "Long"
             || field.type.name == "Integer"
@@ -141,7 +141,7 @@ public [#if clazz.abstract]abstract [/#if]class ${clazz.name} [#if clazz.superCl
             [#elseif field.type.collection]
                 [#if field.type.typeParameters[0].enum]
                 parcel.writeSerializable((java.io.Serializable)${field.name});
-                [#elseif field.type.typeParameters[0].name == "Date"]
+                [#elseif field.type.typeParameters[0].name == "DateTime"]
                 parcel.writeSerializable((java.io.Serializable)${field.name});
                 [#elseif field.type.typeParameters[0].primitive]
                 parcel.writeSerializable((java.io.Serializable)${field.name});

@@ -46,7 +46,7 @@ public class AndroidClientModule extends AbstractClientModule {
         // some custom type mappings
         // android does not fully support these data types yet
         typeMapping.put(XMLGregorianCalendar.class.getName(),
-                "java.util.Date");
+                "org.joda.time.DateTime");
     }
 
     private void loadTemplates() throws ModuleException {

@@ -2,15 +2,13 @@
 package ${packageName};
 
 import com.google.gson.*;
+import org.joda.time.DateTime;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import java.io.Reader;
 import java.lang.reflect.Type;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 public final class JsonUtil {
 
@@ -22,19 +20,28 @@ public final class JsonUtil {
      */
     private static final Gson sGson;
 
-    private static final String DATE_FORMAT = "yyyy-MM-dd'T'kk:mm:ssZ";
-
-    private static final ThreadLocal<SimpleDateFormat> sDateFormatsTl = new ThreadLocal<SimpleDateFormat>() {
-        @Override
-        protected SimpleDateFormat initialValue() {
-            return new SimpleDateFormat(DATE_FORMAT);
-        }
-    };
+    public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
 
     static {
-        final GsonBuilder builder = new GsonBuilder();
-        builder.setDateFormat(DATE_FORMAT);
+        final GsonBuilder builder = new GsonBuilder()
+                .setDateFormat(DATE_FORMAT)
+                .registerTypeAdapter(DateTime.class, new DateTimeAdapter());
         sGson = builder.create();
+    }
+
+
+    public static class DateTimeAdapter implements JsonDeserializer<DateTime>, JsonSerializer<DateTime> {
+
+        @Override
+        public DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                throws JsonParseException {
+            return new DateTime(json.getAsJsonPrimitive().getAsString());
+        }
+
+        @Override
+        public JsonElement serialize(DateTime dateTime, Type type, JsonSerializationContext jsonSerializationContext) {
+            return new JsonPrimitive(dateTime.toString());
+        }
     }
 
     /**
@@ -68,12 +75,14 @@ public final class JsonUtil {
         return output;
     }
 
-    public static String formatDate(final Date date) {
-        return sDateFormatsTl.get().format(date);
+    /**
+     * Helper method to format a date with the appropriate format.
+     */
+    public static String formatDate(Date departureDate) {
+        return new SimpleDateFormat(DATE_FORMAT).format(departureDate);
     }
 
-
-    /**
+            /**
      * Serialization/Deserialization exception
      */
     public static class JsonException extends Exception {
@@ -81,6 +90,5 @@ public final class JsonUtil {
             super(throwable);
         }
     }
-
 
 }

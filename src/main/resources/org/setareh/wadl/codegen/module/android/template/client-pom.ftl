@@ -27,6 +27,12 @@
             <version>${"${"}com.google.android}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.6</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
