@@ -36,6 +36,8 @@ public class IOSClientModule extends AbstractClientModule {
     private URL parentEnumDefinitionTemplate;
     private URL inputstreamInterfaceTemplate;
     private URL inputstreamImplementationTemplate;
+    private URL clientDateTimezoneCategoryIntTemplate;
+    private URL clientDateTimezoneCategoryImplTemplate;
 
     @Override
     public ModuleName getName() {
@@ -56,6 +58,8 @@ public class IOSClientModule extends AbstractClientModule {
         enumDefinitionTemplate = this.getTemplateURL("client-enum-definition.ftl");
         parentEnumDeclarationTemplate = this.getTemplateURL("client-enum-parent-implementation.ftl");
         parentEnumDefinitionTemplate = this.getTemplateURL("client-enum-parent-interface.ftl");
+        clientDateTimezoneCategoryIntTemplate = this.getTemplateURL("client-date-timezone-category-interface.ftl");
+        clientDateTimezoneCategoryImplTemplate = this.getTemplateURL("client-date-timezone-category-implementation.ftl");
         clientDateImplTemplate = this.getTemplateURL("client-date-implementation.ftl");
         clientDateIntTemplate = this.getTemplateURL("client-date-interface.ftl");
         clientFileImplTemplate = this.getTemplateURL("client-file-implementation.ftl");
@@ -116,6 +120,11 @@ public class IOSClientModule extends AbstractClientModule {
             FileInfo enumDef = this.generateFile(enumDefinitionTemplate, fmModel, projectPrefix + enumInfo.getName(), "m", "Classes", SOURCE_FOLDER);
             targetFileSet.add(enumDef);
         }
+
+        FileInfo clientDateTZCategoryImpl = this.generateFile(clientDateTimezoneCategoryImplTemplate, fmModel, "NSDate+" + projectPrefix, "m", "Classes", SOURCE_FOLDER);
+        targetFileSet.add(clientDateTZCategoryImpl);
+        FileInfo clientDateTZCategoryInt = this.generateFile(clientDateTimezoneCategoryIntTemplate, fmModel, "NSDate+" + projectPrefix, "h", "Classes", SOURCE_FOLDER);
+        targetFileSet.add(clientDateTZCategoryInt);
 
         FileInfo clientDateImpl = this.generateFile(clientDateImplTemplate, fmModel, projectPrefix + "DateFormatterUtils", "m", "Classes", SOURCE_FOLDER);
         targetFileSet.add(clientDateImpl);
