@@ -1,7 +1,9 @@
 #import <Foundation/Foundation.h>
 
-@interface NSDate (${projectPrefix})
+@interface NSDate (TimeZone)
 
-@property (nonatomic, assign) NSInteger secondsFromGMT;
+@property (nonatomic, strong) NSTimeZone *originalTimeZone;
+
+- (BOOL)originalTimeZoneEqualToTimeZone:(NSTimeZone *)timeZone;
 
 @end

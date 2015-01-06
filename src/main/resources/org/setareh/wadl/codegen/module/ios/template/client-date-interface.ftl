@@ -1,6 +1,6 @@
 [#ftl]
 #import <Foundation/Foundation.h>
-#import "NSDate+${projectPrefix}.h"
+#import "NSDate+TimeZone.h"
 
 @interface ${projectPrefix}DateFormatterUtils : NSObject
 

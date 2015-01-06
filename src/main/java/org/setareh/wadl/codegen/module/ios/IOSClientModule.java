@@ -121,9 +121,9 @@ public class IOSClientModule extends AbstractClientModule {
             targetFileSet.add(enumDef);
         }
 
-        FileInfo clientDateTZCategoryImpl = this.generateFile(clientDateTimezoneCategoryImplTemplate, fmModel, "NSDate+" + projectPrefix, "m", "Classes", SOURCE_FOLDER);
+        FileInfo clientDateTZCategoryImpl = this.generateFile(clientDateTimezoneCategoryImplTemplate, fmModel, "NSDate+TimeZone", "m", "Classes", SOURCE_FOLDER);
         targetFileSet.add(clientDateTZCategoryImpl);
-        FileInfo clientDateTZCategoryInt = this.generateFile(clientDateTimezoneCategoryIntTemplate, fmModel, "NSDate+" + projectPrefix, "h", "Classes", SOURCE_FOLDER);
+        FileInfo clientDateTZCategoryInt = this.generateFile(clientDateTimezoneCategoryIntTemplate, fmModel, "NSDate+TimeZone", "h", "Classes", SOURCE_FOLDER);
         targetFileSet.add(clientDateTZCategoryInt);
 
         FileInfo clientDateImpl = this.generateFile(clientDateImplTemplate, fmModel, projectPrefix + "DateFormatterUtils", "m", "Classes", SOURCE_FOLDER);

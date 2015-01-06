@@ -1,7 +1,14 @@
-#import "NSDate+${projectPrefix}.h"
+#import "NSDate+TimeZone.h"
 
-@implementation NSDate (${projectPrefix})
+@implementation NSDate (TimeZone)
 
-@dynamic secondsFromGMT;
+@dynamic originalTimeZone;
+
+- (BOOL)originalTimeZoneEqualToTimeZone:(NSTimeZone *)timeZone {
+    if(self.originalTimeZone){
+        return self.originalTimeZone.secondsFromGMT == timeZone.secondsFromGMT;
+    }
+    return NO;
+}
 
 @end

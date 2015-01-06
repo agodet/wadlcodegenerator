@@ -3,27 +3,23 @@
 
 @implementation ${projectPrefix}DateFormatterUtils
 
-+(NSString*) formatWithDate:(NSDate*) date {
++(NSString *) formatWithDate:(NSDate *)date {
     NSDateFormatter* df = [NSDateFormatter new];
-    NSLocale *locale = [[NSLocale new]
-    initWithLocaleIdentifier:@"en_US_POSIX"];
-    [df setLocale:locale];
     [df setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZ"];
-
+    if(date.originalTimeZone){
+        [df setTimeZone:date.originalTimeZone];
+    }
     return [df stringFromDate:date];
 }
 
-+(NSDate*) convertToDate:(NSObject*)input {
++(NSDate *) convertToDate:(NSObject*)input {
     NSDate* date;
     if([input isKindOfClass:[NSString class]]){
         NSString* inputString = (NSString*) input;
         NSDateFormatter* df = [NSDateFormatter new];
-        NSLocale *locale = [[NSLocale new]
-        initWithLocaleIdentifier:@"en_US_POSIX"];
-        [df setLocale:locale];
         [df setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZ"];
         date = [df dateFromString:inputString];
-        date.secondsFromGMT = [${projectPrefix}DateFormatterUtils timeZoneSecondsFromGMT:inputString];
+        date.originalTimeZone = [${projectPrefix}DateFormatterUtils timeZoneFromDateFormat:inputString];
     }
     else if([input isKindOfClass:[NSNumber class]]) {
         NSNumber* inputNumber = (NSNumber*) input;
@@ -33,23 +29,46 @@
     return date;
 }
 
-+(NSInteger)timeZoneSecondsFromGMT:(NSString *)inputString {
-    //Timezone
-    NSString *tzSubstring = [inputString substringWithRange:NSMakeRange([inputString length] - 6, 6)];
-    NSInteger parity = 1;
-    if([tzSubstring rangeOfString:@"-"].location != NSNotFound){
-        parity = -1;
-    }
-    tzSubstring = [tzSubstring stringByReplacingOccurrencesOfString:@"+" withString:@""];
-    tzSubstring = [tzSubstring stringByReplacingOccurrencesOfString:@"-" withString:@""];
-    NSArray *components = [tzSubstring componentsSeparatedByString:@":"];
-    NSInteger secondsFromGMT = 0; //By Default
-    if([components count] > 1){
-        NSInteger hours = [[components firstObject] integerValue];
-        NSInteger minutes = [[components objectAtIndex:1] integerValue];
++ (NSTimeZone *)timeZoneFromDateFormat:(NSString *)inputString {
+    NSTimeZone *result = nil;
+    NSString *pattern = @"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*([+-]{1})(.*)";
+    NSError *error;
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern
+                                                                    options:0
+                                                                    error:&error];
+
+    NSTextCheckingResult *match = [regex firstMatchInString:inputString options:0 range:NSMakeRange(0, [inputString length])];
+    if (match != nil) {
+        NSInteger secondsFromGMT = 0;
+        //Parity
+        NSString *parityString = [inputString substringWithRange:[match rangeAtIndex:1]];
+        NSInteger parity;
+        if([ @"+" isEqualToString:parityString]){
+            parity = 1;
+        }
+        else {
+            parity = -1;
+        }
+        //Seconds from GMT
+        NSString *timezoneString = [inputString substringWithRange:[match rangeAtIndex:2]];
+        NSArray *components = [timezoneString componentsSeparatedByString:@":"];
+        NSInteger hours = 0;
+        NSInteger minutes = 0;
+        if([components count] > 1){
+            hours = [[components objectAtIndex:0] integerValue];
+            minutes = [[components objectAtIndex:1] integerValue];
+        }
+        else if([timezoneString length] == 4){
+            hours = [[[components firstObject] substringToIndex:2] integerValue];
+            minutes = [[[components firstObject] substringFromIndex:2] integerValue];
+        }
+        else {
+            NSLog(@"Timezone String format problem");
+        }
         secondsFromGMT = (hours * 3600 + minutes * 60) * parity;
+        result = [NSTimeZone timeZoneForSecondsFromGMT:secondsFromGMT];
     }
-    return secondsFromGMT;
+    return result;
 }
 
 @end
