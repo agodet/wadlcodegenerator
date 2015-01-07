@@ -3,6 +3,8 @@ package ${packageName};
 
 import com.google.gson.*;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -22,6 +24,8 @@ public final class JsonUtil {
 
     public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
 
+    public static final DateTimeFormatter dtf = DateTimeFormat.forPattern(DATE_FORMAT).withOffsetParsed();
+
     static {
         final GsonBuilder builder = new GsonBuilder()
                 .setDateFormat(DATE_FORMAT)
@@ -35,7 +39,7 @@ public final class JsonUtil {
         @Override
         public DateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
                 throws JsonParseException {
-            return new DateTime(json.getAsJsonPrimitive().getAsString());
+            return dtf.parseDateTime(json.getAsJsonPrimitive().getAsString());
         }
 
         @Override
