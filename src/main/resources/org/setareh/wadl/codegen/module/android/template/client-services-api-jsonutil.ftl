@@ -74,7 +74,7 @@ public final class JsonUtil {
     */
     public static <T> T fromJson(final String json, final Class<T> classOfT) throws JsonException {
         try {
-            return sGson.fromJson(json, aClass);
+            return sGson.fromJson(json, classOfT);
         } catch (Exception e) {
             throw new JsonException(e);
         }
