@@ -65,6 +65,22 @@ public final class JsonUtil {
     }
 
     /**
+    * Read json string into object
+    *
+    * @param json   the json string to be interpreted
+    * @param aClass the expected serial object output class
+    * @param <T>    the expected serial object's class (generic)
+    * @return the instance of object that was read from json
+    */
+    public static <T> T fromJson(final String json, final Class<T> classOfT) throws JsonException {
+        try {
+            return sGson.fromJson(json, aClass);
+        } catch (Exception e) {
+            throw new JsonException(e);
+        }
+    }
+
+    /**
      * Print object as JSON string. Log data to INFO stream when enabled.
      *
      * @param object the object to be serialized
@@ -78,6 +94,8 @@ public final class JsonUtil {
         }
         return output;
     }
+
+
 
     /**
      * Helper method to format a date with the appropriate format.
