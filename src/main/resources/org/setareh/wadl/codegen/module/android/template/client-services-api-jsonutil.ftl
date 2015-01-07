@@ -72,12 +72,9 @@ public final class JsonUtil {
     * @param <T>    the expected serial object's class (generic)
     * @return the instance of object that was read from json
     */
-    public static <T> T fromJson(final String json, final Class<T> classOfT) throws JsonException {
-        try {
-            return sGson.fromJson(json, classOfT);
-        } catch (Exception e) {
-            throw new JsonException(e);
-        }
+    public static <T> T fromJson(final String json, final Class<T> classOfT) {
+        return sGson.fromJson(json, classOfT);
+
     }
 
     /**
