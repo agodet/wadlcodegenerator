@@ -5,7 +5,7 @@
 
 +(NSString *) formatWithDate:(NSDate *)date {
     NSDateFormatter* df = [NSDateFormatter new];
-    [df setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZ"];
+    [df setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
     if(date.originalTimeZone){
         [df setTimeZone:date.originalTimeZone];
     }
@@ -17,7 +17,7 @@
     if([input isKindOfClass:[NSString class]]){
         NSString* inputString = (NSString*) input;
         NSDateFormatter* df = [NSDateFormatter new];
-        [df setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZ"];
+        [df setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
         date = [df dateFromString:inputString];
         date.originalTimeZone = [${projectPrefix}DateFormatterUtils timeZoneFromDateFormat:inputString];
     }
