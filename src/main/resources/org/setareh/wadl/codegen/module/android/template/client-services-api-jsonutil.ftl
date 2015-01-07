@@ -5,6 +5,7 @@ import com.google.gson.*;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -22,9 +23,9 @@ public final class JsonUtil {
      */
     private static final Gson sGson;
 
-    public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
+    public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZZ";
 
-    public static final DateTimeFormatter dtf = DateTimeFormat.forPattern(DATE_FORMAT).withOffsetParsed();
+    public static final DateTimeFormatter dtf = ISODateTimeFormat.dateTimeParser().withOffsetParsed();
 
     static {
         final GsonBuilder builder = new GsonBuilder()
@@ -44,7 +45,7 @@ public final class JsonUtil {
 
         @Override
         public JsonElement serialize(DateTime dateTime, Type type, JsonSerializationContext jsonSerializationContext) {
-            return new JsonPrimitive(dateTime.toString());
+            return new JsonPrimitive(dateTime.toString(DATE_FORMAT));
         }
     }
 
