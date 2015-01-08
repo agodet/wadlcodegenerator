@@ -31,17 +31,21 @@
 
 + (NSTimeZone *)timeZoneFromDateFormat:(NSString *)inputString {
     NSTimeZone *result = nil;
-    NSString *pattern = @"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*([+-]{1})(.*)";
+    NSString *pattern = @"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}([Z+-]{1})(.*)";
     NSError *error;
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern
-                                                                    options:0
-                                                                    error:&error];
+                                                        options:0
+                                                        error:&error];
 
     NSTextCheckingResult *match = [regex firstMatchInString:inputString options:0 range:NSMakeRange(0, [inputString length])];
     if (match != nil) {
         NSInteger secondsFromGMT = 0;
-        //Parity
+        //Handling Z for GMT
         NSString *parityString = [inputString substringWithRange:[match rangeAtIndex:1]];
+        if([ @"Z" isEqualToString:parityString]){
+            return [NSTimeZone timeZoneForSecondsFromGMT:secondsFromGMT];
+        }
+        //Parity
         NSInteger parity;
         if([ @"+" isEqualToString:parityString]){
             parity = 1;
