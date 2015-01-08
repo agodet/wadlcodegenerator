@@ -5,7 +5,7 @@
 
 +(NSString *) formatWithDate:(NSDate *)date {
     NSDateFormatter* df = [NSDateFormatter new];
-    [df setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
+    [df setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssXXXXX"];
     if(date.originalTimeZone){
         [df setTimeZone:date.originalTimeZone];
     }
@@ -17,7 +17,7 @@
     if([input isKindOfClass:[NSString class]]){
         NSString* inputString = (NSString*) input;
         NSDateFormatter* df = [NSDateFormatter new];
-        [df setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
+        [df setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssXXXXX"];
         date = [df dateFromString:inputString];
         date.originalTimeZone = [${projectPrefix}DateFormatterUtils timeZoneFromDateFormat:inputString];
     }
@@ -30,7 +30,6 @@
 }
 
 + (NSTimeZone *)timeZoneFromDateFormat:(NSString *)inputString {
-    NSTimeZone *result = nil;
     NSString *pattern = @"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}([Z+-]{1})(.*)";
     NSError *error;
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern
@@ -39,11 +38,10 @@
 
     NSTextCheckingResult *match = [regex firstMatchInString:inputString options:0 range:NSMakeRange(0, [inputString length])];
     if (match != nil) {
-        NSInteger secondsFromGMT = 0;
         //Handling Z for GMT
         NSString *parityString = [inputString substringWithRange:[match rangeAtIndex:1]];
         if([ @"Z" isEqualToString:parityString]){
-            return [NSTimeZone timeZoneForSecondsFromGMT:secondsFromGMT];
+            return [NSTimeZone timeZoneWithName:@"GMT"];
         }
         //Parity
         NSInteger parity;
@@ -54,6 +52,7 @@
             parity = -1;
         }
         //Seconds from GMT
+        NSInteger secondsFromGMT = 0;
         NSString *timezoneString = [inputString substringWithRange:[match rangeAtIndex:2]];
         NSArray *components = [timezoneString componentsSeparatedByString:@":"];
         NSInteger hours = 0;
@@ -70,9 +69,9 @@
             NSLog(@"Timezone String format problem");
         }
         secondsFromGMT = (hours * 3600 + minutes * 60) * parity;
-        result = [NSTimeZone timeZoneForSecondsFromGMT:secondsFromGMT];
+        return [NSTimeZone timeZoneForSecondsFromGMT:secondsFromGMT];
     }
-    return result;
+    return nil;
 }
 
 @end
