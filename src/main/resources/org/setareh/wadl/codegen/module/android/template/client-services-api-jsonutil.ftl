@@ -3,7 +3,6 @@ package ${packageName};
 
 import com.google.gson.*;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
@@ -23,13 +22,14 @@ public final class JsonUtil {
      */
     private static final Gson sGson;
 
-    public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZZ";
+    public static final String DATE_FORMAT_JODA = "yyyy-MM-dd'T'HH:mm:ssZZ";
+    public static final String DATE_FORMAT_CLASSIC = "yyyy-MM-dd'T'HH:mm:ssX";
 
     public static final DateTimeFormatter dtf = ISODateTimeFormat.dateTimeParser().withOffsetParsed();
 
     static {
         final GsonBuilder builder = new GsonBuilder()
-                .setDateFormat(DATE_FORMAT)
+                .setDateFormat(DATE_FORMAT_CLASSIC)
                 .registerTypeAdapter(DateTime.class, new DateTimeAdapter());
         sGson = builder.create();
     }
@@ -45,7 +45,7 @@ public final class JsonUtil {
 
         @Override
         public JsonElement serialize(DateTime dateTime, Type type, JsonSerializationContext jsonSerializationContext) {
-            return new JsonPrimitive(dateTime.toString(DATE_FORMAT));
+            return new JsonPrimitive(dateTime.toString(DATE_FORMAT_JODA));
         }
     }
 
@@ -69,7 +69,7 @@ public final class JsonUtil {
     * Read json string into object
     *
     * @param json   the json string to be interpreted
-    * @param aClass the expected serial object output class
+    * @param classOfT the expected serial object output class
     * @param <T>    the expected serial object's class (generic)
     * @return the instance of object that was read from json
     */
@@ -98,8 +98,8 @@ public final class JsonUtil {
     /**
      * Helper method to format a date with the appropriate format.
      */
-    public static String formatDate(Date departureDate) {
-        return new SimpleDateFormat(DATE_FORMAT).format(departureDate);
+    public static String formatDate(final Date departureDate) {
+        return new SimpleDateFormat(DATE_FORMAT_CLASSIC).format(departureDate);
     }
 
             /**
