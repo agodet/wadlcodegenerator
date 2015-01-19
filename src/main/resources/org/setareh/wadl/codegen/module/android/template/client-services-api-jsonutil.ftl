@@ -6,7 +6,6 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import java.io.Reader;
@@ -22,14 +21,13 @@ public final class JsonUtil {
      */
     private static final Gson sGson;
 
-    public static final String DATE_FORMAT_JODA = "yyyy-MM-dd'T'HH:mm:ssZZ";
-    public static final String DATE_FORMAT_CLASSIC = "yyyy-MM-dd'T'HH:mm:ssX";
+    public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZZ";
 
     public static final DateTimeFormatter dtf = ISODateTimeFormat.dateTimeParser().withOffsetParsed();
 
     static {
         final GsonBuilder builder = new GsonBuilder()
-                .setDateFormat(DATE_FORMAT_CLASSIC)
+                .setDateFormat(DATE_FORMAT)
                 .registerTypeAdapter(DateTime.class, new DateTimeAdapter());
         sGson = builder.create();
     }
@@ -45,7 +43,7 @@ public final class JsonUtil {
 
         @Override
         public JsonElement serialize(DateTime dateTime, Type type, JsonSerializationContext jsonSerializationContext) {
-            return new JsonPrimitive(dateTime.toString(DATE_FORMAT_JODA));
+            return new JsonPrimitive(dateTime.toString(DATE_FORMAT));
         }
     }
 
@@ -99,7 +97,9 @@ public final class JsonUtil {
      * Helper method to format a date with the appropriate format.
      */
     public static String formatDate(final Date departureDate) {
-        return new SimpleDateFormat(DATE_FORMAT_CLASSIC).format(departureDate);
+        if (departureDate == null) { return null; }
+
+        return new DateTime(departureDate.getTime()).toString(DATE_FORMAT);
     }
 
             /**
