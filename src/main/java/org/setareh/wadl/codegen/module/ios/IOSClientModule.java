@@ -36,8 +36,8 @@ public class IOSClientModule extends AbstractClientModule {
     private URL parentEnumDefinitionTemplate;
     private URL inputstreamInterfaceTemplate;
     private URL inputstreamImplementationTemplate;
-    private URL clientDateTimezoneCategoryIntTemplate;
-    private URL clientDateTimezoneCategoryImplTemplate;
+    private URL clientServicesRegistryManagerIntTemplate;
+    private URL clientServicesRegistryManagerImplTemplate;
 
     @Override
     public ModuleName getName() {
@@ -58,8 +58,6 @@ public class IOSClientModule extends AbstractClientModule {
         enumDefinitionTemplate = this.getTemplateURL("client-enum-definition.ftl");
         parentEnumDeclarationTemplate = this.getTemplateURL("client-enum-parent-implementation.ftl");
         parentEnumDefinitionTemplate = this.getTemplateURL("client-enum-parent-interface.ftl");
-        clientDateTimezoneCategoryIntTemplate = this.getTemplateURL("client-date-timezone-category-interface.ftl");
-        clientDateTimezoneCategoryImplTemplate = this.getTemplateURL("client-date-timezone-category-implementation.ftl");
         clientDateImplTemplate = this.getTemplateURL("client-date-implementation.ftl");
         clientDateIntTemplate = this.getTemplateURL("client-date-interface.ftl");
         clientFileImplTemplate = this.getTemplateURL("client-file-implementation.ftl");
@@ -70,6 +68,8 @@ public class IOSClientModule extends AbstractClientModule {
         clientServicesApiClientIntTemplate = this.getTemplateURL("client-services-api-client-interface.ftl");
         clientServicesApiServiceImplTemplate = this.getTemplateURL("client-services-api-service-implementation.ftl");
         clientServicesApiServiceIntTemplate = this.getTemplateURL("client-services-api-service-interface.ftl");
+        clientServicesRegistryManagerIntTemplate = this.getTemplateURL("client-services-registry-manager-interface.ftl");
+        clientServicesRegistryManagerImplTemplate = this.getTemplateURL("client-services-registry-manager-implementation.ftl");
         inputstreamInterfaceTemplate = this.getTemplateURL("inputstream-interface.ftl");
         inputstreamImplementationTemplate = this.getTemplateURL("inputstream-implementation.ftl");
     }
@@ -121,10 +121,10 @@ public class IOSClientModule extends AbstractClientModule {
             targetFileSet.add(enumDef);
         }
 
-        FileInfo clientDateTZCategoryImpl = this.generateFile(clientDateTimezoneCategoryImplTemplate, fmModel, "NSDate+TimeZone", "m", "Classes", SOURCE_FOLDER);
-        targetFileSet.add(clientDateTZCategoryImpl);
-        FileInfo clientDateTZCategoryInt = this.generateFile(clientDateTimezoneCategoryIntTemplate, fmModel, "NSDate+TimeZone", "h", "Classes", SOURCE_FOLDER);
-        targetFileSet.add(clientDateTZCategoryInt);
+        FileInfo clientServiceRegistryManagerImpl = this.generateFile(clientServicesRegistryManagerImplTemplate, fmModel, projectPrefix + "RegistryManager", "m", "Classes", SOURCE_FOLDER);
+        targetFileSet.add(clientServiceRegistryManagerImpl);
+        FileInfo clientServiceRegistryManagerInt = this.generateFile(clientServicesRegistryManagerIntTemplate, fmModel, projectPrefix + "RegistryManager", "h", "Classes", SOURCE_FOLDER);
+        targetFileSet.add(clientServiceRegistryManagerInt);
 
         FileInfo clientDateImpl = this.generateFile(clientDateImplTemplate, fmModel, projectPrefix + "DateFormatterUtils", "m", "Classes", SOURCE_FOLDER);
         targetFileSet.add(clientDateImpl);
