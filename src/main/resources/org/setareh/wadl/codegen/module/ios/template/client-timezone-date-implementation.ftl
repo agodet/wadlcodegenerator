@@ -29,4 +29,10 @@
     return [self.date isEqualToDate:tz.date];
 }
 
+#pragma mark - Static
+
++(${projectPrefix}TimeZoneDate *)timeZoneDateFromDate:(NSDate *)date {
+    return [[${projectPrefix}TimeZoneDate alloc] initWithDate:date timeZone:nil];
+}
+
 @end

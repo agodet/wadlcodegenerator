@@ -14,6 +14,7 @@
 }
 
 +(NSTimeZone *)timeZoneFromString:(NSString *)inputString {
+    if(!inputString) return nil;
     NSString *pattern = @"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}([Z+-]{1})(.*)";
     NSError *error;
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern

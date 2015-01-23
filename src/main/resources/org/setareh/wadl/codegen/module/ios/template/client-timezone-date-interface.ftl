@@ -14,4 +14,6 @@
 
 -(BOOL)isEqualToTimeZoneDate:(${projectPrefix}TimeZoneDate *)tz;
 
++(${projectPrefix}TimeZoneDate *)timeZoneDateFromDate:(NSDate *)date;
+
 @end
