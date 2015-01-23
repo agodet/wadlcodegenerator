@@ -12,4 +12,6 @@
 
 -(NSString *)asString;
 
+-(BOOL)isEqualToTimeZoneDate:(${projectPrefix}TimeZoneDate *)tz;
+
 @end

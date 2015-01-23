@@ -25,4 +25,8 @@
     return [SUDateFormatterUtils stringFromDate:self.date withTimeZone:self.timeZone];
 }
 
+-(BOOL)isEqualToTimeZoneDate:(${projectPrefix}TimeZoneDate *)tz {
+    return [self.date isEqualToDate:tz.date];
+}
+
 @end
