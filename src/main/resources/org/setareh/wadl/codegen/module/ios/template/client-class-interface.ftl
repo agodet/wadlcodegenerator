@@ -5,6 +5,7 @@
 
 #import <Foundation/Foundation.h>
 #import "${projectPrefix}Object.h"
+#import "${projectPrefix}TimeZoneDate.h"
 [#list superClassImports as import]
 #import "${import}.h"
 [/#list]
@@ -39,7 +40,7 @@
     [#elseif field.propertyKindAny]
             [#assign fieldType = "NSMutableArray"]
     [#else]
-        [#if field.type.primitive]
+        [#if field.type.primitive && field.type.name != "DATE"]
             [#if field.type.name == "BOOL"]
                 [#assign fieldType = "${field.type.fullName}/*bool*/"]
             [#elseif field.type.name == "INTEGER"]
@@ -82,7 +83,7 @@
             [#assign values = "${values}${projectPrefix}${field.type.fullName}"]
         [#elseif field.propertyKindAny]
             [#assign values = "${values}NSMutableArray"]
-        [#elseif field.type.primitive]
+        [#elseif field.type.primitive && field.type.name != "DATE"]
             [#assign values = "${values}${field.type.fullName}"]
         [#else]
             [#assign values = "${values}${projectPrefix}${field.type.fullName}"]

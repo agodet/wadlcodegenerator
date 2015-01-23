@@ -29,7 +29,7 @@ public class TypeMapper {
 		mapping.put(Type.FLOAT, OCWrapper.NSNUMBER);
 		mapping.put(Type.DOUBLE, OCWrapper.NSNUMBER);
 		mapping.put(Type.ENUM, OCWrapper.NSSTRING);
-		mapping.put(Type.DATE, OCWrapper.NSDATE);
+		mapping.put(Type.DATE, OCWrapper.TIMEZONEDATE);
 		mapping.put(Type.DURATION, OCWrapper.NSSTRING);
 		mapping.put(Type.STRING, OCWrapper.NSSTRING);
 		mapping.put(Type.DATA, OCWrapper.NSDATA);

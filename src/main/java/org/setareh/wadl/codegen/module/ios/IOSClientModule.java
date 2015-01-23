@@ -24,6 +24,8 @@ public class IOSClientModule extends AbstractClientModule {
     private URL enumDefinitionTemplate;
     private URL clientDateImplTemplate;
     private URL clientDateIntTemplate;
+    private URL clientTimeZoneDateIntTemplate;
+    private URL clientTimeZoneDateImplTemplate;
     private URL clientFileImplTemplate;
     private URL clientFileIntTemplate;
     private URL clientObjectImplTemplate;
@@ -60,6 +62,8 @@ public class IOSClientModule extends AbstractClientModule {
         parentEnumDefinitionTemplate = this.getTemplateURL("client-enum-parent-interface.ftl");
         clientDateImplTemplate = this.getTemplateURL("client-date-implementation.ftl");
         clientDateIntTemplate = this.getTemplateURL("client-date-interface.ftl");
+        clientTimeZoneDateIntTemplate = this.getTemplateURL("client-timezone-date-interface.ftl");
+        clientTimeZoneDateImplTemplate = this.getTemplateURL("client-timezone-date-implementation.ftl");
         clientFileImplTemplate = this.getTemplateURL("client-file-implementation.ftl");
         clientFileIntTemplate = this.getTemplateURL("client-file-interface.ftl");
         clientObjectImplTemplate = this.getTemplateURL("client-object-implementation.ftl");
@@ -130,6 +134,11 @@ public class IOSClientModule extends AbstractClientModule {
         targetFileSet.add(clientDateImpl);
         FileInfo clientDateInt = this.generateFile(clientDateIntTemplate, fmModel, projectPrefix + "DateFormatterUtils", "h", "Classes", SOURCE_FOLDER);
         targetFileSet.add(clientDateInt);
+
+        FileInfo clientTimeZoneDateImpl = this.generateFile(clientTimeZoneDateImplTemplate, fmModel, projectPrefix + "TimeZoneDate", "m", "Classes", SOURCE_FOLDER);
+        targetFileSet.add(clientTimeZoneDateImpl);
+        FileInfo clientTimeZoneDateInt = this.generateFile(clientTimeZoneDateIntTemplate, fmModel, projectPrefix + "TimeZoneDate", "h", "Classes", SOURCE_FOLDER);
+        targetFileSet.add(clientTimeZoneDateInt);
 
         FileInfo clientFileImpl = this.generateFile(clientFileImplTemplate, fmModel, projectPrefix + "File", "m", "Classes", SOURCE_FOLDER);
         targetFileSet.add(clientFileImpl);

@@ -5,7 +5,8 @@ static NSString *timeZoneRegistryIdentifier = @"DateTimeZone";
 
 @interface ${projectPrefix}DateFormatterUtils : NSObject
 
-+(NSString *) formatWithDate:(NSDate *)date;
-+(NSDate *) convertToDate:(NSObject *)input;
++(NSString *)stringFromDate:(NSDate *)date withTimeZone:(NSTimeZone *)timeZone;
++(NSDate *)dateFromString:(NSString *)inputString;
++(NSTimeZone *)timeZoneFromString:(NSString *)inputString;
 
 @end

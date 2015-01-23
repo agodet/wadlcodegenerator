@@ -19,6 +19,7 @@ public enum OCWrapper implements Wrapper {
     NSNUMBER("NSNumber", OCQualifier.STRONG, true),
     NSSTRING("NSString", OCQualifier.STRONG, true),
     NSDATE("NSDate", OCQualifier.STRONG, true),
+    TIMEZONEDATE("TimeZoneDate", OCQualifier.STRONG, true),
     NSDATA("NSData", OCQualifier.STRONG, true),
     NSINPUTSTREAM("NSInputStream", OCQualifier.STRONG, true),
 	

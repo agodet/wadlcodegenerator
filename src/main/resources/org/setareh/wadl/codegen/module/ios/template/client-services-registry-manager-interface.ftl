@@ -4,8 +4,7 @@
 @protocol ${projectPrefix}RegistryProtocol <NSObject>
 
 @required
--(NSString *)formatFromObject:(NSObject *)objectToFormat;
--(NSObject *)parseFromString:(NSString *)stringToParse;
+-(NSFormatter *)formatter;
 
 @end
 

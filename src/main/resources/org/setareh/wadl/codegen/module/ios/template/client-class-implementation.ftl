@@ -4,12 +4,7 @@
 // DO NOT CHANGE!
 
 #import <Foundation/Foundation.h>
-#import "${projectPrefix}${clazz.name}.h"
-#import "${projectPrefix}Object.h"
-#import "${projectPrefix}DateFormatterUtils.h"
-[#list fieldClassImports as import]
-#import "${import}.h"
-[/#list]
+#import "${projectPrefix}${clazz.name}.h"0
 
 @interface ${projectPrefix}${clazz.name} ()
 [#list clazz.fields as field]
@@ -48,7 +43,7 @@
         self.${field.name} = ${field.type.fullName?upper_case}_${field.value};
     [#elseif field.type.primitive]
         [#if field.type.name == "DATE"]
-            self.${field.name} = [${projectPrefix}DateFormatterUtils convertToDate:dict${"["}@"${field.initialName}"]];
+            self.${field.name} = [[${projectPrefix}${field.type.fullName} alloc] initWithString:dict${"["}@"${field.value}"]];
         [#elseif field.type.name == "BOOL"]
             self.${field.name} = [NSNumber numberWithBool:${field.value}];
         [#elseif field.type.name == "INTEGER"]
@@ -93,7 +88,7 @@
             [#assign values = "${values}${projectPrefix}${field.type.fullName}"]
         [#elseif field.propertyKindAny]
             [#assign values = "${values}NSMutableArray"]
-        [#elseif field.type.primitive]
+        [#elseif field.type.primitive && field.type.name != "DATE"]
             [#assign values = "${values}${field.type.fullName}"]
         [#else]
             [#assign values = "${values}${projectPrefix}${field.type.fullName}"]
@@ -139,9 +134,9 @@
                 for (NSString * dictValue in (NSArray*)${field.name}_dict) {
                 ${projectPrefix}${typeParameter.fullName} * d = [${projectPrefix}${typeParameter.fullName} fromString:dictValue];
                 [#elseif typeParameter.primitive]
-                    [#if field.type.wrapper == "NSDATE"]
-                    for (NSString* dictValue in (NSArray*)${field.name}_dict) {
-                    ${typeParameter.fullName} * d = [${projectPrefix}DateFormatterUtils convertToDate:dictValue];
+                    [#if field.type.wrapper == "TIMEZONEDATE"]
+                    for (NSString *dictValue in (NSArray*)${field.name}_dict) {
+                    ${typeParameter.fullName} * d = [[${projectPrefix}${typeParameter.fullName} alloc] initWithString:dictValue];
                     [#elseif typeParameter.wrapper == "BOOL"]
                     for (NSNumber* dictValue in (NSArray*)${field.name}_dict) {
                     ${typeParameter.fullName} * d = [((NSNumber *)dictValue) boolValue];
@@ -171,8 +166,8 @@
                 self.${field.name} = ${field.name}Array;
                 }
             [#elseif field.type.primitive]
-                [#if field.type.wrapper == "NSDATE"]
-                    self.${field.name} = [${projectPrefix}DateFormatterUtils convertToDate:dict${"["}@"${field.initialName}"]];
+                [#if field.type.wrapper == "TIMEZONEDATE"]
+                    self.${field.name} = [[${projectPrefix}${field.type.fullName} alloc] initWithString:dict${"["}@"${field.initialName}"]];
                 [#elseif field.type.wrapper == "BOOL"]
                     self.${field.name} = [((NSNumber *)dict${"["}@"${field.initialName}"]) boolValue];
                 [#elseif field.type.wrapper == "NSINTEGER"]
@@ -209,8 +204,8 @@
     }
 [#elseif field.type.primitive || field.propertyKindAny]
     [#if field.type.wrapper.pointer]if(self.${field.name} != nil) {[/#if]
-        [#if field.type.wrapper == "NSDATE"]
-            dict${"["}@"${field.initialName}"] = [${projectPrefix}DateFormatterUtils formatWithDate:self.${field.name}];
+        [#if field.type.wrapper == "TIMEZONEDATE"]
+            dict${"["}@"${field.initialName}"] = [self.${field.name} asString];
         [#elseif field.type.wrapper == "BOOL"]
             dict${"["}@"${field.initialName}"] = [NSNumber numberWithBool:self.${field.name}];
         [#elseif field.type.wrapper == "NSINTEGER"]
@@ -234,8 +229,8 @@
             [array addObject:${field.name}Element.value];
         [#elseif typeParameter.primitive]
         for( ${typeParameter.fullName} *${field.name}Element in self.${field.name}) {
-            [#if typeParameter.wrapper == "NSDATE"]
-            [array addObject:[${projectPrefix}DateFormatterUtils formatWithDate:${field.name}Element]];
+            [#if typeParameter.wrapper == "TIMEZONEDATE"]
+            [array addObject:[self.${field.name} asString]];
             [#elseif typeParameter.wrapper == "BOOL"]
             [array addObject:[NSNumber numberWithBool:self.${field.name}]];
             [#elseif typeParameter.wrapper == "NSINTEGER"]
