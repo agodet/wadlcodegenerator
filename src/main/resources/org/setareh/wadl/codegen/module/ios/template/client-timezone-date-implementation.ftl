@@ -35,4 +35,8 @@
     return [[${projectPrefix}TimeZoneDate alloc] initWithDate:date timeZone:nil];
 }
 
++(${projectPrefix}TimeZoneDate *)timeZoneDateFromDate:(NSDate *)date timeZone:(NSTimeZone *)timeZone {
+    return [[${projectPrefix}TimeZoneDate alloc] initWithDate:date timeZone:timeZone];
+}
+
 @end
