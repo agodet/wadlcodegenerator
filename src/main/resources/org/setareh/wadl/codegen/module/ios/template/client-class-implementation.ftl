@@ -43,7 +43,7 @@
         self.${field.name} = ${field.type.fullName?upper_case}_${field.value};
     [#elseif field.type.primitive]
         [#if field.type.name == "DATE"]
-            self.${field.name} = [[${projectPrefix}${field.type.fullName} alloc] initWithString:dict${"["}@"${field.value}"]];
+            self.${field.name} = [${projectPrefix}${field.type.fullName} timeZoneDateFromString:dict${"["}@"${field.value}"]];
         [#elseif field.type.name == "BOOL"]
             self.${field.name} = [NSNumber numberWithBool:${field.value}];
         [#elseif field.type.name == "INTEGER"]
@@ -136,7 +136,7 @@
                 [#elseif typeParameter.primitive]
                     [#if field.type.wrapper == "TIMEZONEDATE"]
                     for (NSString *dictValue in (NSArray*)${field.name}_dict) {
-                    ${typeParameter.fullName} * d = [[${projectPrefix}${typeParameter.fullName} alloc] initWithString:dictValue];
+                    ${typeParameter.fullName} * d = [${projectPrefix}${typeParameter.fullName} timeZoneDateFromString:dictValue];
                     [#elseif typeParameter.wrapper == "BOOL"]
                     for (NSNumber* dictValue in (NSArray*)${field.name}_dict) {
                     ${typeParameter.fullName} * d = [((NSNumber *)dictValue) boolValue];
@@ -167,7 +167,7 @@
                 }
             [#elseif field.type.primitive]
                 [#if field.type.wrapper == "TIMEZONEDATE"]
-                    self.${field.name} = [[${projectPrefix}${field.type.fullName} alloc] initWithString:dict${"["}@"${field.initialName}"]];
+                    self.${field.name} = [${projectPrefix}${field.type.fullName} timeZoneDateFromString:dict${"["}@"${field.initialName}"]];
                 [#elseif field.type.wrapper == "BOOL"]
                     self.${field.name} = [((NSNumber *)dict${"["}@"${field.initialName}"]) boolValue];
                 [#elseif field.type.wrapper == "NSINTEGER"]

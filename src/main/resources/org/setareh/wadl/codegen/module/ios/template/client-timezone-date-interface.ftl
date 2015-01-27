@@ -6,14 +6,14 @@
 
 @property (nonatomic, strong) NSTimeZone *timeZone;
 
--(id)initWithDate:(NSDate *)date timeZone:(NSTimeZone *)timeZone;
-
--(id)initWithString:(NSString *)dateString;
-
 -(NSString *)asString;
 
 -(BOOL)isEqualToTimeZoneDate:(${projectPrefix}TimeZoneDate *)tz;
 
 +(${projectPrefix}TimeZoneDate *)timeZoneDateFromDate:(NSDate *)date;
+
++(${projectPrefix}TimeZoneDate *)timeZoneDateFromDate:(NSDate *)date timeZone:(NSTimeZone *)timeZone;
+
++(${projectPrefix}TimeZoneDate *)timeZoneDateFromString:(NSString *)inputString;
 
 @end

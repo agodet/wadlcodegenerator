@@ -12,17 +12,8 @@
     return self;
 }
 
--(id)initWithString:(NSString *)dateString {
-    self = [super init];
-    if (self) {
-        self.date = [SUDateFormatterUtils dateFromString:dateString];
-        self.timeZone = [SUDateFormatterUtils timeZoneFromString:dateString];
-    }
-    return self;
-}
-
 -(NSString *)asString {
-    return [SUDateFormatterUtils stringFromDate:self.date withTimeZone:self.timeZone];
+    return [${projectPrefix}DateFormatterUtils stringFromDate:self.date withTimeZone:self.timeZone];
 }
 
 -(BOOL)isEqualToTimeZoneDate:(${projectPrefix}TimeZoneDate *)tz {
@@ -32,10 +23,19 @@
 #pragma mark - Static
 
 +(${projectPrefix}TimeZoneDate *)timeZoneDateFromDate:(NSDate *)date {
+    if(!date) return nil;
     return [[${projectPrefix}TimeZoneDate alloc] initWithDate:date timeZone:nil];
 }
 
 +(${projectPrefix}TimeZoneDate *)timeZoneDateFromDate:(NSDate *)date timeZone:(NSTimeZone *)timeZone {
+    if(!date) return nil;
+    return [[${projectPrefix}TimeZoneDate alloc] initWithDate:date timeZone:timeZone];
+}
+
++(${projectPrefix}TimeZoneDate *)timeZoneDateFromString:(NSString *)inputString {
+    NSDate *date = [${projectPrefix}DateFormatterUtils dateFromString:inputString];
+    if(!date) return nil;
+    NSTimeZone *timeZone = [${projectPrefix}DateFormatterUtils timeZoneFromString:inputString];
     return [[${projectPrefix}TimeZoneDate alloc] initWithDate:date timeZone:timeZone];
 }
 
