@@ -25,11 +25,11 @@
 extern ${projectPrefix}${enum.name} * ${enum.name?upper_case}_${constant.name?upper_case};
   [/#list]
 
-typedef enum {
+typedef NS_ENUM (NSInteger, ${enum.name}Type) {
 [#list enum.enumConstants as constant]
 ${enum.name}_${constant.name?capitalize},
 [/#list]
-} ${enum.name}Type;
+};
 
 @interface ${projectPrefix}${enum.name} : ${projectPrefix}Enum
 
