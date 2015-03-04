@@ -12,7 +12,7 @@ import com.sun.tools.xjc.outline.Outline;
 
 public class EnumModelBuilder {
     
-    public static void buildEnumModel(Outline outline, CGModel cgModel, CGConfig cgConfig, ErrorReceiver errorReceiver) {
+    public static void buildEnumModel(Outline outline, CGModel cgModel) {
 		for (EnumOutline eo : outline.getEnums()) {
 			EnumInfo enumInfo = new EnumInfo();
 			enumInfo.setPackageName(eo._package()._package().name());

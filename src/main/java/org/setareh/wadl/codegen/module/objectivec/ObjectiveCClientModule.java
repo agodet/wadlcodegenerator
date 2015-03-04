@@ -1,19 +1,13 @@
-package org.setareh.wadl.codegen.module.ios;
+package org.setareh.wadl.codegen.module.objectivec;
 
 import freemarker.template.SimpleHash;
 import org.setareh.wadl.codegen.model.*;
-import org.setareh.wadl.codegen.module.AbstractClientModule;
-import org.setareh.wadl.codegen.module.ModuleException;
-import org.setareh.wadl.codegen.module.ModuleName;
-import org.setareh.wadl.codegen.module.Wrapper;
+import org.setareh.wadl.codegen.module.*;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-public class IOSClientModule extends AbstractClientModule {
+public class ObjectiveCClientModule extends AbstractClientModule {
 
     private static final String SOURCE_FOLDER = "";
 
@@ -37,12 +31,12 @@ public class IOSClientModule extends AbstractClientModule {
 
     @Override
     public ModuleName getName() {
-        return ModuleName.IOS;
+        return ModuleName.OBJECTIVEC;
     }
 
     @Override
     public void init() throws ModuleException {
-        info("IOSClientModule loading templates ...");
+        //info("ObjectiveCClientModule loading templates ...");
         loadTemplates();
     }
 
@@ -75,10 +69,10 @@ public class IOSClientModule extends AbstractClientModule {
         // container for target codes
         Set<FileInfo> targetFileSet = new HashSet<FileInfo>();
 
-        info("Generating the client classes...");
+        //info("Generating the client classes...");
 
         if (config.prefix == null) {
-            warn("No prefix is provided, it's recommended to add prefix to avoid possible conflict");
+            //warn("No prefix is provided, it's recommended to add prefix to avoid possible conflict");
         }
 
         final String projectPrefix = config.prefix;
@@ -88,9 +82,9 @@ public class IOSClientModule extends AbstractClientModule {
         fmModel.put("projectPrefix", projectPrefix);
 
         // generate classes
-        info("Generating classes ...");
+        //info("Generating classes ...");
         for (ClassInfo classInfo : cgModel.getClasses()) {
-            this.convertFieldsType(classInfo);
+            super.convertFieldsType(classInfo);
             this.convertFieldsValue(classInfo);
             fmModel.put("superClassImports", this.getSuperClassImports(classInfo, projectPrefix));
             fmModel.put("fieldClassImports", this.getFieldImports(classInfo, projectPrefix));
@@ -103,7 +97,7 @@ public class IOSClientModule extends AbstractClientModule {
         }
 
         // generate enums
-        info("Generating enums ...");
+        //info("Generating enums ...");
         for (EnumInfo enumInfo : cgModel.getEnums()) {
             fmModel.put("enum", enumInfo);
 
@@ -232,8 +226,8 @@ public class IOSClientModule extends AbstractClientModule {
         for (ClassInfo classInfo : model.getClasses()) {
             // update super class reference
             if (classInfo.getSuperClass() != null) {
-                TypeInfo superType = classInfo.getSuperClass();
-                this.prefixType(superType, prefix);
+                ClassInfo superClass = classInfo.getSuperClass();
+                this.prefixType(superClass, prefix);
             }
 
             // update field reference
@@ -266,13 +260,24 @@ public class IOSClientModule extends AbstractClientModule {
         type.setFullName(name); // remove package for ios
     }
 
+    private void prefixType(ClassInfo superClass, String prefix) {
+        if (superClass == null) return; // be cautious
+        // for ios primitives, do not prefix
+        if (Java2TypeMapper.lookupType(superClass.getFullName()) != null) {
+            return;
+        }
+        String name = superClass.getName();
+        superClass.setName(name);
+        superClass.setFullName(name); // remove package for ios
+    }
+
     private Set<String> getSuperClassImports(ClassInfo clazz, String prefix) {
         Set<String> imports = new HashSet<String>();
 
         // extends super class?
         if (clazz.getSuperClass() != null) {
-            TypeInfo superClassType = clazz.getSuperClass();
-            imports.add(prefix + superClassType.getFullName());
+            ClassInfo superClass = clazz.getSuperClass();
+            imports.add(prefix + superClass.getFullName());
         }
 
         return imports;
@@ -321,58 +326,6 @@ public class IOSClientModule extends AbstractClientModule {
         }
     }
 
-    private void convertFieldsType(ClassInfo clazz) {
-        for (FieldInfo field : clazz.getFields()) {
-            TypeInfo fieldType = field.getType();
-            convertType(fieldType);
-
-            // TODO should element type of array be converted?
-//			if (fieldType.isArray()) { 
-//				convertType(fieldType.getElementType());
-//			}
-            // convert type parameters
-            for (TypeInfo paraType : fieldType.getTypeParameters()) {
-                convertType(paraType);
-            }
-        }
-    }
-
-    /**
-     * Check and covert a type
-     *
-     * @param type
-     */
-    private void convertType(TypeInfo type) {
-        if (type == null) return; // be cautious
-        String primitiveType = Java2TypeMapper.lookupType(type.getFullName());
-        if (primitiveType != null) {// ios primitive type
-            final Wrapper wrapper = TypeMapper.lookupWrapper(primitiveType);
-            type.setFullName(wrapper.getType());
-            type.setName(primitiveType); // ios primitive
-            type.setPrimitive(true);
-            type.setWrapper(wrapper);
-        } else if (type.isEnum()) {
-            type.setName(Type.ENUM); // ios enum type
-            type.setPrimitive(true); // treat enum as primitive type
-            type.setWrapper(OCWrapper.ENUM);
-        } else {
-            type.setName(Type.OBJECT);
-            type.setPrimitive(false);
-            type.setWrapper(OCWrapper.OBJECT);
-        }
-    }
-
-    @Override
-    protected URL getTemplateURL(String template) throws ModuleException {
-        URL url = IOSClientModule.class.getResource("template/" + template);
-        if (url == null) {
-            throw new ModuleException("Fail to load required template file : "
-                    + template);
-        }
-        debug("IOSClientModule get template : " + url.toString());
-        return url;
-    }
-
     @Override
     protected Set<String> getReservedWords() {
         Set<String> reservedWord = new HashSet<String>();
@@ -397,6 +350,29 @@ public class IOSClientModule extends AbstractClientModule {
         reservedWord.add("self");
         reservedWord.add("super");
         return reservedWord;
+    }
+
+    @Override
+    protected Map<String, Wrapper> getWrappers() {
+        Map<String, Wrapper> wrappers = new HashMap<String, Wrapper>();
+
+        wrappers.put(Type.INTEGER, OCWrapper.NSINTEGER);
+        wrappers.put(Type.BOOL, OCWrapper.BOOL);
+        wrappers.put(Type.BYTE, OCWrapper.NSNUMBER);
+        wrappers.put(Type.CHAR, OCWrapper.NSSTRING);
+        wrappers.put(Type.SHORT, OCWrapper.NSNUMBER);
+        wrappers.put(Type.LONG, OCWrapper.LONG);
+        wrappers.put(Type.FLOAT, OCWrapper.FLOAT);
+        wrappers.put(Type.DOUBLE, OCWrapper.DOUBLE);
+        wrappers.put(Type.ENUM, OCWrapper.NSSTRING);
+        wrappers.put(Type.DATE, OCWrapper.NSDATE);
+        wrappers.put(Type.DURATION, OCWrapper.NSSTRING);
+        wrappers.put(Type.STRING, OCWrapper.NSSTRING);
+        wrappers.put(Type.DATA, OCWrapper.NSDATA);
+        wrappers.put(Type.QNAME, OCWrapper.NSSTRING);
+        wrappers.put(Type.ANYELEMENT, OCWrapper.ID);
+
+        return wrappers;
     }
 
 

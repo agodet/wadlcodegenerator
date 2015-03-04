@@ -23,7 +23,7 @@ public class ClassInfo {
     private boolean isAbstract;
 
     // the super class this class extends
-    private TypeInfo superClass;
+    private ClassInfo superClass;
     // doc comment of this class
     private String docComment;
 
@@ -124,7 +124,7 @@ public class ClassInfo {
      *
      * @return super class type, null if this class does not explicitly extend any super class
      */
-    public TypeInfo getSuperClass() {
+    public ClassInfo getSuperClass() {
         return superClass;
     }
 
@@ -133,7 +133,7 @@ public class ClassInfo {
      *
      * @param superClass
      */
-    public void setSuperClass(TypeInfo superClass) {
+    public void setSuperClass(ClassInfo superClass) {
         this.superClass = superClass;
     }
 

@@ -2,16 +2,15 @@ package org.setareh.wadl.codegen.module;
 
 import java.io.ByteArrayOutputStream;
 import java.net.URL;
+import java.util.Map;
 import java.util.Set;
 
+import org.setareh.wadl.codegen.model.ClassInfo;
+import org.setareh.wadl.codegen.model.FieldInfo;
 import org.setareh.wadl.codegen.model.TypeInfo;
-import org.setareh.wadl.codegen.module.ios.Java2TypeMapper;
-import org.setareh.wadl.codegen.module.ios.Type;
-import org.setareh.wadl.codegen.module.ios.TypeMapper;
-import org.xml.sax.helpers.LocatorImpl;
+import org.setareh.wadl.codegen.module.objectivec.OCWrapper;
 
 import org.setareh.wadl.codegen.model.FileInfo;
-import com.sun.tools.xjc.ErrorReceiver;
 
 import freemarker.template.SimpleHash;
 
@@ -22,9 +21,9 @@ import freemarker.template.SimpleHash;
  * 
  */
 public abstract class AbstractClientModule implements ClientModule {
-	
-	private ErrorReceiver errorReceiver;
+
     private Set<String> reservedWordCache;
+    protected Map<String, Wrapper> wrappersCache;
 
 	/**
 	 * Get freemarker datamodel
@@ -34,23 +33,6 @@ public abstract class AbstractClientModule implements ClientModule {
 	protected SimpleHash getFreemarkerModel() {
 		return new SimpleHash();
 	}
-	
-	/**
-	 * Set ErrorReceiver instance to be used for error reporting
-	 */
-	public void setErrorReceiver(ErrorReceiver errorReceiver) {
-		this.errorReceiver = errorReceiver;
-	}
-	
-	/**
-	 * Get a template URL for the template of the given name.
-	 * 
-	 * @param template
-	 *            The specified template.
-	 * @return The URL to the specified template.
-	 * @throws ModuleException
-	 */
-	abstract protected URL getTemplateURL(String template) throws ModuleException;
 	
 
 	/**
@@ -107,51 +89,6 @@ public abstract class AbstractClientModule implements ClientModule {
 					+ templateURL, e);
 		}
 	}
-	
-	/**
-	 * information level report
-	 * 
-	 * @param msg
-	 */
-	protected void info(String msg) {
-		if (this.errorReceiver != null) {
-			this.errorReceiver.debug(msg);
-		}
-	}
-	
-	/**
-	 * error level report
-	 * 
-	 * @param msg
-	 */
-	protected void error(String msg) {
-		if (this.errorReceiver != null) {
-			LocatorImpl locator = new LocatorImpl();
-			locator.setLineNumber(-1);
-			locator.setSystemId("module : " + this.getName().toString());
-			this.errorReceiver.error(locator, msg);
-		}
-	}
-	
-	protected void warn(String msg) {
-		if (this.errorReceiver != null) {
-			LocatorImpl locator = new LocatorImpl();
-			locator.setLineNumber(-1);
-			locator.setSystemId("module : " + this.getName().toString());
-			this.errorReceiver.warning(locator, msg);
-		}
-	}
-	
-	/**
-	 * error level report
-	 * 
-	 * @param msg
-	 */
-	protected void debug(String msg) {
-		if (this.errorReceiver != null) {
-			this.errorReceiver.debug(msg);
-		}
-	}
 
     @Override
     public String generateSafeName(String name) {
@@ -168,6 +105,66 @@ public abstract class AbstractClientModule implements ClientModule {
         return name;
     }
 
+    protected URL getTemplateURL(String template) throws ModuleException {
+        URL url = this.getClass().getResource("template/" + template);
+        if (url == null) {
+            throw new ModuleException("Fail to load required template file : "
+                    + template);
+        }
+        //debug(getClass().getName() + "get template : " + url.toString());
+        return url;
+    }
+
+    protected void convertFieldsType(ClassInfo clazz) {
+        for (FieldInfo field : clazz.getFields()) {
+            TypeInfo fieldType = field.getType();
+            convertType(fieldType);
+
+            // TODO should element type of array be converted?
+//			if (fieldType.isArray()) {
+//				convertType(fieldType.getElementType());
+//			}
+            // convert type parameters
+            for (TypeInfo paraType : fieldType.getTypeParameters()) {
+                convertType(paraType);
+            }
+        }
+    }
+
+    /**
+     * Check and convert a type
+     *
+     * @param type
+     */
+    private void convertType(TypeInfo type) {
+        if (type == null) return; // be cautious
+        String primitiveType = Java2TypeMapper.lookupType(type.getFullName());
+        if (primitiveType != null) {// ios primitive type
+            if(wrappersCache == null)
+            {
+                wrappersCache = getWrappers();
+            }
+            final Wrapper wrapper = wrappersCache.get(primitiveType);
+            if(wrapper != null)
+            {
+                type.setFullName(wrapper.getType());
+                type.setWrapper(wrapper);
+                type.setName(primitiveType); // ios primitive
+                type.setPrimitive(true);
+            }
+        } else if (type.isEnum()) {
+            type.setName(Type.ENUM); // ios enum type
+            type.setPrimitive(true); // treat enum as primitive type
+            type.setWrapper(OCWrapper.ENUM);
+        } else {
+            type.setName(Type.OBJECT);
+            type.setPrimitive(false);
+            type.setWrapper(OCWrapper.OBJECT);
+        }
+    }
+
     protected abstract Set<String> getReservedWords();
+
+    protected abstract Map<String, Wrapper> getWrappers();
 
 }
