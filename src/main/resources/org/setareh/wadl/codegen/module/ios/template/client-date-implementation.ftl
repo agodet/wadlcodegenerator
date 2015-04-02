@@ -52,6 +52,7 @@
         }
         else {
             NSLog(@"Timezone String format problem");
+            return nil;
         }
         secondsFromGMT = (hours * 3600 + minutes * 60) * parity;
         return [NSTimeZone timeZoneForSecondsFromGMT:secondsFromGMT];
