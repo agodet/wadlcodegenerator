@@ -49,6 +49,7 @@ public class WadlCodeGenerator {
 
         URI wadlUri = new URI(cgConfig.wadlPath);
 
+        System.out.println("Reading wadl from URI : " + wadlUri);
         org.setareh.wadl.codegen.generated.bo.Application application = JAXB.unmarshal(new StringReader(readWadl(wadlUri.toString())), org.setareh.wadl.codegen.generated.bo.Application.class);
 
         Map<String, InputStream> schemaMap = getSchemaElements(application, wadlUri.toString());
@@ -120,7 +121,8 @@ public class WadlCodeGenerator {
     protected String readWadl(String wadlURI) {
         try {
             URL url = new URL(wadlURI);
-            Reader reader = new InputStreamReader(url.openStream(), "UTF-8");
+            InputStream in = url.openStream();
+            Reader reader = new InputStreamReader(in, "UTF-8");
             return IOUtils.toString(reader);
         } catch (IOException e) {
             throw new RuntimeException(e);

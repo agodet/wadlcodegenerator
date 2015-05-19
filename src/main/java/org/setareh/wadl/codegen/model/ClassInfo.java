@@ -36,6 +36,7 @@ public class ClassInfo {
 
     // fields of this class
     private final List<FieldInfo> fields = new ArrayList<FieldInfo>();
+    private final List<FieldInfo> superClassesFields = new ArrayList<FieldInfo>();
 
 
     /**
@@ -45,6 +46,10 @@ public class ClassInfo {
      */
     public List<FieldInfo> getFields() {
         return fields;
+    }
+
+    public List<FieldInfo> getSuperClassesFields() {
+        return superClassesFields;
     }
 
     /**
