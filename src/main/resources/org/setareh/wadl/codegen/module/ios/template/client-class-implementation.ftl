@@ -163,8 +163,8 @@
 
                 [${field.name}Array addObject:d];
                 }
-                self.${field.name} = ${field.name}Array;
-                }
+            }
+            self.${field.name} = ${field.name}Array;
             [#elseif field.type.primitive]
                 [#if field.type.wrapper == "TIMEZONEDATE"]
                     self.${field.name} = [${projectPrefix}${field.type.fullName} timeZoneDateFromString:dict${"["}@"${field.initialName}"]];
