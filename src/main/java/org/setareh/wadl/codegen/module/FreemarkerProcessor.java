@@ -1,20 +1,15 @@
 package org.setareh.wadl.codegen.module;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-
 import freemarker.cache.URLTemplateLoader;
 import freemarker.core.Environment;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
+
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * Freemarker template processor
@@ -67,7 +62,7 @@ public class FreemarkerProcessor {
 		try {
 			template.process(model, out);
 		} catch (Exception e) {
-			throw new ModuleException("Excpetion to process template " + templateURL.toString(), e);
+			throw new ModuleException("Exception to process template " + templateURL.toString(), e);
 		}
 	}
 	

@@ -11,85 +11,97 @@ import org.setareh.wadl.codegen.model.annotation.ElementAnnotation;
  */
 public class FieldInfo {
 
-	// name of this field
-	private String name;
+    // name of this field
+    private String name;
 
     private String initialName;
-	
-	// type of this field
-	private TypeInfo type;
-	
-	// doc comments
-	private String docComment;
-	
-	private ElementAnnotation elementAnnotation;
-	
-	private AttributeAnnotation attributeAnnotation;
+
+    // type of this field
+    private TypeInfo type;
+
+    // doc comments
+    private String docComment;
+
+    private ElementAnnotation elementAnnotation;
+
+    private AttributeAnnotation attributeAnnotation;
     private String value;
     private boolean fixedValue = false;
     private boolean propertyKindElement;
     private boolean propertyKindAttribute;
     private boolean propertyKindValue;
     private boolean propertyKindAny;
+    private boolean required;
 
     /**
-	 * doc comment of this field
-	 * @return doc comment
-	 */
-	public String getDocComment() {
-		return docComment;
-	}
-	/**
-	 * set doc comment of this field
-	 * @param docComment
-	 */
-	public void setDocComment(String docComment) {
-		this.docComment = docComment;
-	}
-	/**
-	 * simple name of this field
-	 * @return simple name
-	 */
-	public String getName() {
-		return name;
-	}
-	/**
-	 * set simple name of this field
-	 * @param name
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
-	/**
-	 * type of this field
-	 * @return {@link org.setareh.wadl.codegen.model.TypeInfo} instance
-	 */
-	public TypeInfo getType() {
-		return type;
-	}
-	/**
-	 * set type of this field
-	 * @param type
-	 */
-	public void setType(TypeInfo type) {
-		this.type = type;
-	}
-	
-	public ElementAnnotation getElementAnnotation() {
-		return elementAnnotation;
-	}
-	
-	public void setElementAnnotation(ElementAnnotation elementAnnotation) {
-		this.elementAnnotation = elementAnnotation;
-	}
-	
-	public AttributeAnnotation getAttributeAnnotation() {
-		return attributeAnnotation;
-	}
-	
-	public void setAttributeAnnotation(AttributeAnnotation attributeAnnotation) {
-		this.attributeAnnotation = attributeAnnotation;
-	}
+     * doc comment of this field
+     *
+     * @return doc comment
+     */
+    public String getDocComment() {
+        return docComment;
+    }
+
+    /**
+     * set doc comment of this field
+     *
+     * @param docComment
+     */
+    public void setDocComment(String docComment) {
+        this.docComment = docComment;
+    }
+
+    /**
+     * simple name of this field
+     *
+     * @return simple name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * set simple name of this field
+     *
+     * @param name
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * type of this field
+     *
+     * @return {@link org.setareh.wadl.codegen.model.TypeInfo} instance
+     */
+    public TypeInfo getType() {
+        return type;
+    }
+
+    /**
+     * set type of this field
+     *
+     * @param type
+     */
+    public void setType(TypeInfo type) {
+        this.type = type;
+    }
+
+    public ElementAnnotation getElementAnnotation() {
+        return elementAnnotation;
+    }
+
+    public void setElementAnnotation(ElementAnnotation elementAnnotation) {
+        this.elementAnnotation = elementAnnotation;
+    }
+
+    public AttributeAnnotation getAttributeAnnotation() {
+        return attributeAnnotation;
+    }
+
+    public void setAttributeAnnotation(AttributeAnnotation attributeAnnotation) {
+        this.attributeAnnotation = attributeAnnotation;
+    }
 
     public void setInitialName(String initialName) {
         this.initialName = initialName;
@@ -99,8 +111,7 @@ public class FieldInfo {
         return initialName;
     }
 
-    public boolean isModifiedName()
-    {
+    public boolean isModifiedName() {
         return this.initialName != this.name;
     }
 
@@ -150,5 +161,13 @@ public class FieldInfo {
 
     public boolean isPropertyKindAny() {
         return propertyKindAny;
+    }
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
     }
 }
