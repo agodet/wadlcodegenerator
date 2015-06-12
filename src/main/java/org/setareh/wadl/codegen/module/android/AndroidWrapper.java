@@ -11,7 +11,8 @@ import org.setareh.wadl.codegen.module.Wrapper;
  */
 public enum AndroidWrapper implements Wrapper {
 
-    DATE("java.util.Date");
+    DATE("java.util.Date"),
+    DATETIME("org.joda.time.DateTime");
 
     private final String type;
 

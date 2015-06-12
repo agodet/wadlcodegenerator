@@ -3,7 +3,6 @@ package org.setareh.wadl.codegen.module.swift;
 import freemarker.template.SimpleHash;
 import org.setareh.wadl.codegen.model.*;
 import org.setareh.wadl.codegen.module.*;
-import org.setareh.wadl.codegen.module.android.AndroidWrapper;
 import org.setareh.wadl.codegen.module.objectivec.OCWrapper;
 
 import java.net.URL;

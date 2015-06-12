@@ -1,14 +1,12 @@
 package org.setareh.wadl.codegen.builder;
 
-import org.setareh.wadl.codegen.model.CGConfig;
+import com.sun.tools.xjc.outline.EnumConstantOutline;
+import com.sun.tools.xjc.outline.EnumOutline;
+import com.sun.tools.xjc.outline.Outline;
 import org.setareh.wadl.codegen.model.CGModel;
 import org.setareh.wadl.codegen.model.EnumConstantInfo;
 import org.setareh.wadl.codegen.model.EnumInfo;
 import org.setareh.wadl.codegen.utils.StringUtil;
-import com.sun.tools.xjc.ErrorReceiver;
-import com.sun.tools.xjc.outline.EnumConstantOutline;
-import com.sun.tools.xjc.outline.EnumOutline;
-import com.sun.tools.xjc.outline.Outline;
 
 public class EnumModelBuilder {
     

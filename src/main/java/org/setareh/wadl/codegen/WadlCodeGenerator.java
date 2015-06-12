@@ -1,10 +1,5 @@
 package org.setareh.wadl.codegen;
 
-import org.setareh.wadl.codegen.builder.ModelBuilder;
-import org.setareh.wadl.codegen.model.CGConfig;
-import org.setareh.wadl.codegen.model.CGModel;
-import org.setareh.wadl.codegen.model.CGServices;
-import com.sun.tools.xjc.AbortException;
 import com.sun.tools.xjc.ErrorReceiver;
 import com.sun.tools.xjc.ModelLoader;
 import com.sun.tools.xjc.api.ErrorListener;
@@ -12,8 +7,12 @@ import com.sun.tools.xjc.api.SchemaCompiler;
 import com.sun.tools.xjc.model.Model;
 import com.sun.tools.xjc.outline.Outline;
 import com.sun.tools.xjc.util.ErrorReceiverFilter;
+import org.setareh.wadl.codegen.builder.ModelBuilder;
 import org.setareh.wadl.codegen.generated.bo.Application;
 import org.setareh.wadl.codegen.generated.bo.Include;
+import org.setareh.wadl.codegen.model.CGConfig;
+import org.setareh.wadl.codegen.model.CGModel;
+import org.setareh.wadl.codegen.model.CGServices;
 import org.setareh.wadl.codegen.utils.IOUtils;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXParseException;
@@ -23,7 +22,9 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author: alexandre_godet

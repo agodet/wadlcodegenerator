@@ -1,22 +1,16 @@
 package org.setareh.wadl.codegen.module;
 
+import com.sun.xml.xsom.impl.util.Uri;
+
+import javax.xml.datatype.Duration;
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URL;
 import java.sql.Date;
-import java.util.Currency;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
-
-import javax.xml.datatype.Duration;
-import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.namespace.QName;
-
-import com.sun.xml.xsom.impl.util.Uri;
+import java.util.*;
 
 /**
  * Java to Objective-c primitive type mapper

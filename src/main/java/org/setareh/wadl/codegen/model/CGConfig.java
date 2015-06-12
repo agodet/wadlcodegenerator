@@ -25,9 +25,9 @@ public class CGConfig {
         try{
             cgConfig.wadlPath = args[0];
             cgConfig.packageName = args[1];
-            cgConfig.prefix = args[2];
-            cgConfig.targetDir = args[3];
-            cgConfig.module = ModuleName.valueOf(args[4]);
+            cgConfig.prefix = args[1];
+            cgConfig.targetDir = args[2];
+            cgConfig.module = ModuleName.valueOf(args[3]);
         }
         catch (Exception e)
         {

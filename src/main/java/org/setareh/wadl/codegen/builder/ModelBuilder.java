@@ -1,12 +1,13 @@
 package org.setareh.wadl.codegen.builder;
 
-import org.setareh.wadl.codegen.model.*;
-import com.sun.tools.xjc.ErrorReceiver;
 import com.sun.tools.xjc.outline.Outline;
 import com.sun.tools.xjc.reader.xmlschema.bindinfo.BindInfo;
 import com.sun.xml.xsom.XSAnnotation;
 import com.sun.xml.xsom.XSComponent;
 import org.setareh.wadl.codegen.generated.bo.Application;
+import org.setareh.wadl.codegen.model.CGConfig;
+import org.setareh.wadl.codegen.model.CGModel;
+import org.setareh.wadl.codegen.model.CGServices;
 
 /**
  * A model builder which can build a intermediate code generation model from

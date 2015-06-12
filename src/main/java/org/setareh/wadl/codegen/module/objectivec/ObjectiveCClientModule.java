@@ -390,16 +390,16 @@ public class ObjectiveCClientModule extends AbstractClientModule {
     protected Map<String, Wrapper> getWrappers() {
         Map<String, Wrapper> wrappers = new HashMap<String, Wrapper>();
 
-        wrappers.put(Type.INTEGER, OCWrapper.NSINTEGER);
-        wrappers.put(Type.BOOL, OCWrapper.BOOL);
+        wrappers.put(Type.INTEGER, OCWrapper.NSNUMBER);
+        wrappers.put(Type.BOOL, OCWrapper.NSNUMBER);
         wrappers.put(Type.BYTE, OCWrapper.NSNUMBER);
         wrappers.put(Type.CHAR, OCWrapper.NSSTRING);
         wrappers.put(Type.SHORT, OCWrapper.NSNUMBER);
-        wrappers.put(Type.LONG, OCWrapper.LONG);
-        wrappers.put(Type.FLOAT, OCWrapper.FLOAT);
-        wrappers.put(Type.DOUBLE, OCWrapper.DOUBLE);
+        wrappers.put(Type.LONG, OCWrapper.NSNUMBER);
+        wrappers.put(Type.FLOAT, OCWrapper.NSNUMBER);
+        wrappers.put(Type.DOUBLE, OCWrapper.NSNUMBER);
         wrappers.put(Type.ENUM, OCWrapper.NSSTRING);
-        wrappers.put(Type.DATE, OCWrapper.NSDATE);
+        wrappers.put(Type.DATE, OCWrapper.TIMEZONEDATE);
         wrappers.put(Type.DURATION, OCWrapper.NSSTRING);
         wrappers.put(Type.STRING, OCWrapper.NSSTRING);
         wrappers.put(Type.DATA, OCWrapper.NSDATA);

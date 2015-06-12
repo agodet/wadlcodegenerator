@@ -3,8 +3,6 @@ package org.setareh.wadl.codegen.module.android;
 import freemarker.template.SimpleHash;
 import org.setareh.wadl.codegen.model.*;
 import org.setareh.wadl.codegen.module.*;
-import org.setareh.wadl.codegen.module.objectivec.OCWrapper;
-import org.setareh.wadl.codegen.module.swift.SwiftWrapper;
 import org.setareh.wadl.codegen.utils.ClassNameUtil;
 
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -17,7 +15,6 @@ import java.util.*;
 public class AndroidClientModule extends AbstractClientModule {
 
     private static final String JAVA_DEFAULT_PACKAGE_NAME = "java.lang";
-    private static final String TEMPLATE_FOLDER = "template";
     private static final String SOURCE_FOLDER = "src/main/java";
 
     private Map<String, String> typeMapping = new HashMap<String, String>();
@@ -188,24 +185,13 @@ public class AndroidClientModule extends AbstractClientModule {
         return imports;
     }
 
-
-    /*protected void convertFieldsType(ClassInfo clazz) {
-        for (FieldInfo field : clazz.getFields()) {
-            TypeInfo fieldType = field.getType();
-            convertType(fieldType);
-            // convert type parameters
-            for (TypeInfo paraType : fieldType.getTypeParameters()) {
-                convertType(paraType);
-            }
-        }
-    }
-
     /**
      * Check and convert a type
      *
      * @param type, TypeInfo instance
      */
-    /*private void convertType(TypeInfo type) {
+    @Override
+    protected void convertType(TypeInfo type) {
         String targetTypeFullName = typeMapping.get(type.getFullName());
         if (targetTypeFullName != null) {
             type.setFullName(targetTypeFullName);
@@ -225,7 +211,7 @@ public class AndroidClientModule extends AbstractClientModule {
                 }
             }
         }
-    }*/
+    }
 
 
     // for java implementation, we need to change nested class into package-member class,
@@ -346,12 +332,18 @@ public class AndroidClientModule extends AbstractClientModule {
         return imports;
     }
 
+
+
     private boolean needImport(String current, String target) {
         if (!target.equals(current) && !target.startsWith(JAVA_DEFAULT_PACKAGE_NAME)) {
             return true;
         }
         return false;
     }
+
+
+
+
 
     @Override
     protected Set<String> getReservedWords() {
@@ -413,7 +405,7 @@ public class AndroidClientModule extends AbstractClientModule {
     protected Map<String, Wrapper> getWrappers() {
         Map<String, Wrapper> wrappers = new HashMap<String, Wrapper>();
 
-        wrappers.put(Type.DATE, AndroidWrapper.DATE);
+        wrappers.put(Type.DATE, AndroidWrapper.DATETIME);
 
         return wrappers;
     }

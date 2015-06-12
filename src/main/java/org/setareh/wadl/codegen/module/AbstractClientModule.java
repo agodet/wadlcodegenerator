@@ -1,18 +1,16 @@
 package org.setareh.wadl.codegen.module;
 
+import freemarker.template.SimpleHash;
+import org.setareh.wadl.codegen.model.ClassInfo;
+import org.setareh.wadl.codegen.model.FieldInfo;
+import org.setareh.wadl.codegen.model.FileInfo;
+import org.setareh.wadl.codegen.model.TypeInfo;
+import org.setareh.wadl.codegen.module.objectivec.OCWrapper;
+
 import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.util.Map;
 import java.util.Set;
-
-import org.setareh.wadl.codegen.model.ClassInfo;
-import org.setareh.wadl.codegen.model.FieldInfo;
-import org.setareh.wadl.codegen.model.TypeInfo;
-import org.setareh.wadl.codegen.module.objectivec.OCWrapper;
-
-import org.setareh.wadl.codegen.model.FileInfo;
-
-import freemarker.template.SimpleHash;
 
 /**
  * Common client module
@@ -136,7 +134,7 @@ public abstract class AbstractClientModule implements ClientModule {
      *
      * @param type
      */
-    private void convertType(TypeInfo type) {
+    protected void convertType(TypeInfo type) {
         if (type == null) return; // be cautious
         String primitiveType = Java2TypeMapper.lookupType(type.getFullName());
         if (primitiveType != null) {// ios primitive type

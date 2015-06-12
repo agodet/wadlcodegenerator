@@ -1,14 +1,20 @@
 package org.setareh.wadl.codegen.builder;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.namespace.QName;
-
+import com.sun.codemodel.ClassType;
+import com.sun.codemodel.JClass;
+import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JType;
+import com.sun.tools.xjc.model.*;
+import com.sun.tools.xjc.outline.Aspect;
+import com.sun.tools.xjc.outline.ClassOutline;
+import com.sun.tools.xjc.outline.FieldOutline;
+import com.sun.tools.xjc.outline.Outline;
+import com.sun.xml.bind.api.impl.NameConverter;
 import com.sun.xml.bind.v2.model.core.PropertyKind;
+import com.sun.xml.xsom.XSComponent;
 import com.sun.xml.xsom.XSElementDecl;
+import com.sun.xml.xsom.XSParticle;
+import com.sun.xml.xsom.XSTerm;
 import org.setareh.wadl.codegen.model.*;
 import org.setareh.wadl.codegen.model.annotation.AttributeAnnotation;
 import org.setareh.wadl.codegen.model.annotation.ElementAnnotation;
@@ -17,24 +23,11 @@ import org.setareh.wadl.codegen.model.annotation.XmlTypeAnnotation;
 import org.setareh.wadl.codegen.module.ClientModule;
 import org.setareh.wadl.codegen.utils.ClassNameUtil;
 import org.setareh.wadl.codegen.utils.StringUtil;
-import com.sun.codemodel.ClassType;
-import com.sun.codemodel.JClass;
-import com.sun.codemodel.JDefinedClass;
-import com.sun.codemodel.JType;
-import com.sun.tools.xjc.ErrorReceiver;
-import com.sun.tools.xjc.model.CAttributePropertyInfo;
-import com.sun.tools.xjc.model.CElementInfo;
-import com.sun.tools.xjc.model.CElementPropertyInfo;
-import com.sun.tools.xjc.model.CPropertyInfo;
-import com.sun.tools.xjc.model.CTypeRef;
-import com.sun.tools.xjc.outline.Aspect;
-import com.sun.tools.xjc.outline.ClassOutline;
-import com.sun.tools.xjc.outline.FieldOutline;
-import com.sun.tools.xjc.outline.Outline;
-import com.sun.xml.bind.api.impl.NameConverter;
-import com.sun.xml.xsom.XSComponent;
-import com.sun.xml.xsom.XSParticle;
-import com.sun.xml.xsom.XSTerm;
+
+import javax.xml.namespace.QName;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ClassModelBuilder {
     

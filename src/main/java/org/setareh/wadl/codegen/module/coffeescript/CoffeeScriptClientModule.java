@@ -6,6 +6,7 @@ import org.setareh.wadl.codegen.model.*;
 import org.setareh.wadl.codegen.module.AbstractClientModule;
 import org.setareh.wadl.codegen.module.ModuleException;
 import org.setareh.wadl.codegen.module.ModuleName;
+import org.setareh.wadl.codegen.module.Wrapper;
 import org.setareh.wadl.codegen.utils.ClassNameUtil;
 
 import java.net.URL;
@@ -28,9 +29,9 @@ public class CoffeeScriptClientModule extends AbstractClientModule {
 
     @Override
     public void init() throws ModuleException {
-        info("CoffeeScriptClientModule loading ...");
+        //info("CoffeeScriptClientModule loading ...");
         classTemplate = getTemplateURL("coffee-schemas-template.ftl");
-        info("CoffeeScriptClientModule loaded.");
+        //info("CoffeeScriptClientModule loaded.");
     }
 
     @Override
@@ -95,7 +96,7 @@ public class CoffeeScriptClientModule extends AbstractClientModule {
             throw new ModuleException("Fail to load required template file : "
                     + template);
         }
-        debug("CoffeeScriptClientModule get template : " + url.toString());
+        //debug("CoffeeScriptClientModule get template : " + url.toString());
         return url;
     }
 
@@ -149,5 +150,10 @@ public class CoffeeScriptClientModule extends AbstractClientModule {
         reservedWords.add("static");
         reservedWords.add("yield");
         return reservedWords;
+    }
+
+    @Override
+    protected Map<String, Wrapper> getWrappers() {
+        return null;
     }
 }
