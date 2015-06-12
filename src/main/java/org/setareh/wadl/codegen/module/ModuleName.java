@@ -2,13 +2,15 @@ package org.setareh.wadl.codegen.module;
 
 import org.setareh.wadl.codegen.module.android.AndroidClientModule;
 import org.setareh.wadl.codegen.module.coffeescript.CoffeeScriptClientModule;
-import org.setareh.wadl.codegen.module.ios.IOSClientModule;
+import org.setareh.wadl.codegen.module.objectivec.ObjectiveCClientModule;
+import org.setareh.wadl.codegen.module.swift.SwiftClientModule;
 
 public enum ModuleName {
 
     ANDROID(new AndroidClientModule()),  // android java
-	IOS(new IOSClientModule()), // ios objective-c
-    COFFEESCRIPT(new CoffeeScriptClientModule());
+    COFFEESCRIPT(new CoffeeScriptClientModule()),
+	OBJECTIVEC(new ObjectiveCClientModule()), // ios objective-c
+    SWIFT(new SwiftClientModule()); // ios swift
     //PHP, // php
     //JAVA; // pure java;
 

@@ -2,9 +2,9 @@ package org.setareh.wadl.codegen.module.android;
 
 import freemarker.template.SimpleHash;
 import org.setareh.wadl.codegen.model.*;
-import org.setareh.wadl.codegen.module.AbstractClientModule;
-import org.setareh.wadl.codegen.module.ModuleException;
-import org.setareh.wadl.codegen.module.ModuleName;
+import org.setareh.wadl.codegen.module.*;
+import org.setareh.wadl.codegen.module.objectivec.OCWrapper;
+import org.setareh.wadl.codegen.module.swift.SwiftWrapper;
 import org.setareh.wadl.codegen.utils.ClassNameUtil;
 
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -40,7 +40,7 @@ public class AndroidClientModule extends AbstractClientModule {
 
     @Override
     public void init() throws ModuleException {
-        info("AndroidClientModule loading templates ...");
+        //info("AndroidClientModule loading templates ...");
         loadTemplates();
 
         // some custom type mappings
@@ -69,7 +69,7 @@ public class AndroidClientModule extends AbstractClientModule {
         // container for target codes
         Set<FileInfo> targetFileSet = new HashSet<FileInfo>();
 
-        info("Generating the client classes...");
+        //info("Generating the client classes...");
 
         // adjust package name of nested class
         adjustPackageNameOfNestClass(cgModel.getClasses());
@@ -77,7 +77,7 @@ public class AndroidClientModule extends AbstractClientModule {
         fmModel.put("config", config);
 
         // generate classes
-        info("Generating classes ...");
+        //info("Generating classes ...");
         for (ClassInfo classInfo : cgModel.getClasses()) {
             this.convertFieldsType(classInfo);
             fmModel.put("clazz", classInfo);
@@ -88,7 +88,7 @@ public class AndroidClientModule extends AbstractClientModule {
         }
 
         // generate enums
-        info("Generating enums ...");
+        //info("Generating enums ...");
         for (EnumInfo enumInfo : cgModel.getEnums()) {
             fmModel.put("enum", enumInfo);
             String relativePath = ClassNameUtil.packageNameToPath(enumInfo.getPackageName());
@@ -188,12 +188,8 @@ public class AndroidClientModule extends AbstractClientModule {
         return imports;
     }
 
-    /**
-     * check every field of a class and convert type if necessary
-     *
-     * @param clazz , ClassInfo instance to be converted
-     */
-    private void convertFieldsType(ClassInfo clazz) {
+
+    /*protected void convertFieldsType(ClassInfo clazz) {
         for (FieldInfo field : clazz.getFields()) {
             TypeInfo fieldType = field.getType();
             convertType(fieldType);
@@ -209,7 +205,7 @@ public class AndroidClientModule extends AbstractClientModule {
      *
      * @param type, TypeInfo instance
      */
-    private void convertType(TypeInfo type) {
+    /*private void convertType(TypeInfo type) {
         String targetTypeFullName = typeMapping.get(type.getFullName());
         if (targetTypeFullName != null) {
             type.setFullName(targetTypeFullName);
@@ -229,7 +225,7 @@ public class AndroidClientModule extends AbstractClientModule {
                 }
             }
         }
-    }
+    }*/
 
 
     // for java implementation, we need to change nested class into package-member class,
@@ -298,11 +294,11 @@ public class AndroidClientModule extends AbstractClientModule {
 
         // extends super class?
         if (clazz.getSuperClass() != null) {
-            TypeInfo superClassType = clazz.getSuperClass();
+            ClassInfo superClass = clazz.getSuperClass();
             String superClassTypePackageName = ClassNameUtil
-                    .getPackageName(superClassType.getFullName());
+                    .getPackageName(superClass.getFullName());
             if (needImport(clazzPackageName, superClassTypePackageName)) {
-                imports.add(ClassNameUtil.erase(superClassType.getFullName()));
+                imports.add(ClassNameUtil.erase(superClass.getFullName()));
             }
 
         }
@@ -355,17 +351,6 @@ public class AndroidClientModule extends AbstractClientModule {
             return true;
         }
         return false;
-    }
-
-    @Override
-    protected URL getTemplateURL(String template) throws ModuleException {
-        URL url = AndroidClientModule.class.getResource(TEMPLATE_FOLDER + "/" + template);
-        if (url == null) {
-            throw new ModuleException("Fail to load required template file : "
-                    + template);
-        }
-        debug("AndroidClientModule get template : " + url.toString());
-        return url;
     }
 
     @Override
@@ -422,6 +407,15 @@ public class AndroidClientModule extends AbstractClientModule {
         reservedWord.add("volatile");
         reservedWord.add("while");
         return reservedWord;
+    }
+
+    @Override
+    protected Map<String, Wrapper> getWrappers() {
+        Map<String, Wrapper> wrappers = new HashMap<String, Wrapper>();
+
+        wrappers.put(Type.DATE, AndroidWrapper.DATE);
+
+        return wrappers;
     }
 
 }

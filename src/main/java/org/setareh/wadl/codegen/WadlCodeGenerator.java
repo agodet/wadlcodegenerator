@@ -107,7 +107,7 @@ public class WadlCodeGenerator {
             }
 
             // GENERATE MODEL
-            CGModel cgModel = ModelBuilder.buildCodeGenModel(outline, receiver, cgConfig);
+            CGModel cgModel = ModelBuilder.buildCodeGenModel(outline, cgConfig);
 
             //GENERATE SERVICES
             CGServices cgServices = ModelBuilder.buildServicesGenModel(application);

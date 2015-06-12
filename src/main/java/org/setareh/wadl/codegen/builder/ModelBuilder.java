@@ -24,19 +24,15 @@ import org.setareh.wadl.codegen.generated.bo.Application;
 public class ModelBuilder {
 	
 	
-	public static CGModel buildCodeGenModel(Outline outline, ErrorReceiver errorReceiver, CGConfig cgConfig) {
+	public static CGModel buildCodeGenModel(Outline outline, CGConfig cgConfig) {
 		
 		CGModel cgModel = new CGModel();
-		
-		if (errorReceiver != null)
-			errorReceiver.debug("Building class model ...");
+
 		// build class/bean model
-		ClassModelBuilder.buildClassModel(outline, cgModel, cgConfig, errorReceiver);
-		
-		if (errorReceiver != null)
-			errorReceiver.debug("Building enum model ...");
+		ClassModelBuilder.buildClassModel(outline, cgModel, cgConfig);
+
 		// build enum model
-		EnumModelBuilder.buildEnumModel(outline, cgModel, cgConfig, errorReceiver);
+		EnumModelBuilder.buildEnumModel(outline, cgModel);
 		
 		return cgModel;
 	}

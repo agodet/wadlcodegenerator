@@ -1,4 +1,4 @@
-package org.setareh.wadl.codegen.module.ios;
+package org.setareh.wadl.codegen.module.objectivec;
 
 import org.setareh.wadl.codegen.module.Wrapper;
 
