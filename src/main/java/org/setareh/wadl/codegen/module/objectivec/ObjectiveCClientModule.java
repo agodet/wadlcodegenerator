@@ -404,8 +404,8 @@ public class ObjectiveCClientModule extends AbstractClientModule {
         wrappers.put(Type.STRING, OCWrapper.NSSTRING);
         wrappers.put(Type.DATA, OCWrapper.NSDATA);
         wrappers.put(Type.QNAME, OCWrapper.NSSTRING);
-        wrappers.put(Type.ANYELEMENT, OCWrapper.ID);
-
+        wrappers.put(Type.ENUM, OCWrapper.ENUM);
+        wrappers.put(Type.OBJECT, OCWrapper.OBJECT);
         return wrappers;
     }
 

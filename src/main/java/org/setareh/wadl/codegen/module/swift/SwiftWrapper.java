@@ -18,7 +18,8 @@ public enum SwiftWrapper implements Wrapper {
 
     NSNUMBER("NSNumber"),
     STRING("String"),
-    DATE("NSDate");
+    DATE("NSDate"),
+    OBJECT("Any");
 
     private final String type;
 

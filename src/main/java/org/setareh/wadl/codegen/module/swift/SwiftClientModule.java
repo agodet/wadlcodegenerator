@@ -3,7 +3,6 @@ package org.setareh.wadl.codegen.module.swift;
 import freemarker.template.SimpleHash;
 import org.setareh.wadl.codegen.model.*;
 import org.setareh.wadl.codegen.module.*;
-import org.setareh.wadl.codegen.module.objectivec.OCWrapper;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -224,9 +223,7 @@ public class SwiftClientModule extends AbstractClientModule {
 
         wrappers.put(Type.INTEGER, SwiftWrapper.INT);
         wrappers.put(Type.BOOL, SwiftWrapper.BOOL);
-        wrappers.put(Type.BYTE, OCWrapper.NSNUMBER);
         wrappers.put(Type.CHAR, SwiftWrapper.STRING);
-        wrappers.put(Type.SHORT, OCWrapper.NSNUMBER);
         wrappers.put(Type.LONG, SwiftWrapper.INT);
         wrappers.put(Type.FLOAT, SwiftWrapper.FLOAT);
         wrappers.put(Type.DOUBLE, SwiftWrapper.DOUBLE);
@@ -234,9 +231,7 @@ public class SwiftClientModule extends AbstractClientModule {
         wrappers.put(Type.DATE, SwiftWrapper.DATE);
         wrappers.put(Type.DURATION, SwiftWrapper.STRING);
         wrappers.put(Type.STRING, SwiftWrapper.STRING);
-        wrappers.put(Type.DATA, OCWrapper.NSDATA);
-        wrappers.put(Type.QNAME, OCWrapper.NSSTRING);
-        wrappers.put(Type.ANYELEMENT, OCWrapper.ID);
+        wrappers.put(Type.OBJECT, SwiftWrapper.OBJECT);
 
         return wrappers;
     }

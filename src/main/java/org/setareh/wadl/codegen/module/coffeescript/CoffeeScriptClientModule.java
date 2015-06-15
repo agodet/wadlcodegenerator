@@ -22,7 +22,6 @@ public class CoffeeScriptClientModule extends AbstractClientModule {
         return ModuleName.COFFEESCRIPT;
     }
 
-    private static final String TEMPLATE_FOLDER = "/org/setareh/wadl/codegen/module/coffeescript.template";
     private static final String SOURCE_FOLDER = "";
 
     private URL classTemplate;
@@ -30,7 +29,7 @@ public class CoffeeScriptClientModule extends AbstractClientModule {
     @Override
     public void init() throws ModuleException {
         //info("CoffeeScriptClientModule loading ...");
-        classTemplate = getTemplateURL("coffee-schemas-template.ftl");
+        classTemplate = this.getTemplateURL("coffee-schemas-template.ftl");
         //info("CoffeeScriptClientModule loaded.");
     }
 
@@ -74,30 +73,12 @@ public class CoffeeScriptClientModule extends AbstractClientModule {
 
     @Override
     public Set<FileInfo> generate(CGServices cgServices, CGConfig cgConfig) throws ModuleException {
-        Set<FileInfo> targetFileSet = new HashSet<>();
-//        System.out.println("Services");
-//        for(CGService service : cgServices.getServices()) {
-//            System.out.println("Service: "+service.getName()+" / Path="+service.getPath()+" / Methods"+service.getMethods());
-//        }
-        return targetFileSet;
+        return new HashSet<>();
     }
 
     @Override
     public Set<FileInfo> generateProjectModel(CGConfig cgConfig) throws ModuleException {
-        Set<FileInfo> targetFileSet = new HashSet<FileInfo>();
-        System.out.println("ProjectModel");
-        return targetFileSet;
-    }
-
-    @Override
-    protected URL getTemplateURL(String template) throws ModuleException {
-        URL url = CoffeeScriptClientModule.class.getResource(TEMPLATE_FOLDER + "/" + template);
-        if (url == null) {
-            throw new ModuleException("Fail to load required template file : "
-                    + template);
-        }
-        //debug("CoffeeScriptClientModule get template : " + url.toString());
-        return url;
+        return new HashSet<FileInfo>();
     }
 
     @Override
