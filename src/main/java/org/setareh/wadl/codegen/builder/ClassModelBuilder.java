@@ -25,319 +25,290 @@ import org.setareh.wadl.codegen.utils.ClassNameUtil;
 import org.setareh.wadl.codegen.utils.StringUtil;
 
 import javax.xml.namespace.QName;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ClassModelBuilder {
-    
+
     public static void buildClassModel(Outline outline, CGModel cgModel, CGConfig cgConfig) {
-    	
-		// build class full name to element qname mapping
-		Map<String, QName> mapping = buildClass2ElementMapping(outline);
 
-        ClientModule clientModule = cgConfig.module.getClientModule();
+        // build class full name to element qname mapping
+        Map<String, QName> mapping = buildClass2ElementMapping(outline);
 
-		for (ClassOutline co : outline.getClasses()) {
-            ClassInfo classInfo = getClassInfo(clientModule, mapping, co);
+        for (ClassOutline co : outline.getClasses()) {
+            ClassInfo classInfo = new ClassInfo();
+            String packageName = ClassNameUtil.getPackageName(co.implClass.fullName());
+            // for anonymous inner class, we need to change package name to lower case
+            classInfo.setNestClass(isNestClass(co.implClass));
 
-			// add this class in the code generation model
-			cgModel.getClasses().add(classInfo);
-		}
+            classInfo.setPackageName(packageName);
+
+            classInfo.setName(co.implClass.name());
+            classInfo.setFullName((!StringUtil.isEmpty(classInfo.getPackageName()) ? packageName + "." : "") + classInfo.getName());
+
+            classInfo.setXmlTypeAnnotation(getXmlTypeAnnotation(co)); // @XmlType(name="foo", targetNamespace="bar://baz")
+            classInfo.setAbstract(co.implClass.isAbstract());
+            setSuperClass(co, classInfo);
+            classInfo.setRootElementAnnotation(getRootElementAnnotation(co, mapping, classInfo));
+            classInfo.setDocComment(ModelBuilder.getDocumentation(co.target.getSchemaComponent()));
+
+            addFields(cgConfig, co, classInfo);
+            addSuperClassesFields(cgConfig, co, classInfo);
+
+            // add this class in the code generation model
+            cgModel.getClasses().add(classInfo);
+        }
     }
 
-    private static ClassInfo getClassInfo(ClientModule clientModule, Map<String, QName> mapping, ClassOutline co) {
-        ClassInfo classInfo = new ClassInfo();
-        // package name of the class
-//			classInfo.setPackageName(co._package()._package().name());
-        String pkgName = ClassNameUtil.getPackageName(co.implClass.fullName());
-        // for anonymous inner class, we need to change package name to lower case
-        if (isNestClass(co.implClass)) {
-            classInfo.setNestClass(true);
+    private static void addSuperClassesFields(CGConfig cgConfig, ClassOutline co, ClassInfo classInfo) {
+        ClassOutline superClass = co.getSuperClass();
+        while (superClass != null && !"Object".equals(superClass.implClass.name())) {
+            classInfo.getSuperClassesFields().addAll(getFields(cgConfig, superClass));
+            superClass = superClass.getSuperClass();
         }
-        classInfo.setPackageName(pkgName);
-        // simple name of the class
-        classInfo.setName(co.implClass.name());
-        // full name of the class
-        if (!StringUtil.isEmpty(classInfo.getPackageName())) {
-            classInfo.setFullName(pkgName + "." + classInfo.getName());
-        } else {
-            classInfo.setFullName(classInfo.getName());
-        }
+    }
 
-        // [SAMPLE RESULT]
-        // @XmlType(name="foo", targetNamespace="bar://baz")
-        classInfo.setXmlTypeAnnotation(getXmlTypeAnnotation(co));
+    private static void addFields(CGConfig cgConfig, ClassOutline co, ClassInfo classInfo) {
+        classInfo.getFields().addAll(getFields(cgConfig, co));
+    }
 
-        // abstract class?
-        classInfo.setAbstract(co.implClass.isAbstract());
-
-        // has super class?
-        ClassOutline sco = co.getSuperClass();
-        if (sco != null) {
-            classInfo.setSuperClass(getClassInfo(clientModule, mapping, sco));
-        }
-
-        classInfo.setRootElementAnnotation(getRootElementAnnotation(co, mapping, classInfo));
-
-        // xsd annotation as doc comment
-        String docComment = ModelBuilder.getDocumentation(co.target.getSchemaComponent());
-        classInfo.setDocComment(docComment);
-
-        // build field model
+    private static List<FieldInfo> getFields(CGConfig cgConfig, ClassOutline co) {
+        List<FieldInfo> fields = new ArrayList<>();
         for (FieldOutline fo : co.getDeclaredFields()) {
 
-            FieldInfo attrInfo = new FieldInfo();
+            FieldInfo fieldInfo = new FieldInfo();
             // field name
-attrInfo.setName(clientModule.generateSafeName(fo.getPropertyInfo().getName(false)));
-attrInfo.setInitialName(fo.getPropertyInfo().getName(false));
+            ClientModule clientModule = cgConfig.module.getClientModule();
+            fieldInfo.setName(clientModule.generateSafeName(fo.getPropertyInfo().getName(false)));
+            fieldInfo.setInitialName(fo.getPropertyInfo().getName(false));
+            fieldInfo.setRequired(isRequired(fo));
 
-            // raw type of this field
-            TypeInfo typeInfo = new TypeInfo();
             JType rawType = fo.getRawType();
-            typeInfo.setName(rawType.name());
+            TypeInfo typeInfo = buildTypeInfo(rawType);
 
-//				pkgName = ClassNameUtil.getPackageName(rawType.fullName());
-            // for anonymous inner class, we need to change package name to lower case
-            if (isNestClass(rawType)) {
-                typeInfo.setNestClass(true);
-            }
-//				String typeName = ClassNameUtil.stripQualifier(rawType.fullName());
-            typeInfo.setFullName(rawType.fullName());
-            typeInfo.setPrimitive(rawType.isPrimitive());
-
-            if (isEnum(rawType)) {
-                typeInfo.setEnum(true);
-            } else {
-                typeInfo.setEnum(false);
-            }
-
-            if (rawType.isArray()) { // is array type?
+            if (rawType.isArray()) {
                 typeInfo.setArray(true);
-
-                // T of T[]
-                JType elementType = rawType.elementType();
-                TypeInfo elementTypeInfo = new TypeInfo();
-                elementTypeInfo.setName(elementType.name());
-
-//					pkgName = ClassNameUtil.getPackageName(elementType.fullName());
-                // for anonymous inner class, we need to change package name to lower case
-                if (isNestClass(elementType)) {
-                    elementTypeInfo.setNestClass(true);
-                }
-//					typeName = ClassNameUtil.stripQualifier(elementType.fullName());
-                elementTypeInfo.setFullName(elementType.fullName());
-                elementTypeInfo.setPrimitive(elementType.isPrimitive());
-                if (isEnum(elementType)) {
-                    elementTypeInfo.setEnum(true);
-                }
-                typeInfo.setElementType(elementTypeInfo);
+                typeInfo.setElementType(buildTypeInfo(rawType.elementType())); // T of T[]
             }
 
-            if (rawType instanceof JClass) { // has type parameters?
-                JClass clzType = (JClass) rawType;
-                for(JClass typeParamClass : clzType.getTypeParameters()) {
-                    TypeInfo typeParamInfo = new TypeInfo();
-                    typeParamInfo.setName(typeParamClass.name());
+            typeInfo.getTypeParameters().addAll(getTypeParameters(rawType));
 
-//						pkgName = ClassNameUtil.getPackageName(typeParamClass.fullName());
-                    // for anonymous inner class, we need to change package name to lower case
-                    if (isNestClass(typeParamClass)) {
-                        typeParamInfo.setNestClass(true);
-                    }
-//						typeName = ClassNameUtil.stripQualifier(typeParamClass.fullName());
-                    typeParamInfo.setFullName(typeParamClass.fullName());
-                    typeParamInfo.setPrimitive(typeParamClass.isPrimitive());
-                    if (isEnum(typeParamClass)) {
-                        typeParamInfo.setEnum(true);
-                    }
-                    typeInfo.getTypeParameters().add(typeParamInfo);
-                }
-
-//					JClass outerClass = clzType.outer();
-//					if (outerClass != null) { // for anonymous type, we use package of the outer class since we treat it as stand-alone class
-//						logger.info(typeInfo.getName() + " is inner class of " + outerClass.name());
-//						typeInfo.setFullName(outerClass._package().name() + "." + typeInfo.getName());
-//					}
-            }
-            attrInfo.setType(typeInfo);
+            fieldInfo.setType(typeInfo);
 
             // schema kind
             CPropertyInfo cProp = fo.getPropertyInfo();
-            if (cProp.kind() == PropertyKind.ELEMENT) {
-                attrInfo.setPropertyKindElement(true);
-            } else if (cProp.kind() == PropertyKind.ATTRIBUTE) {
-                attrInfo.setPropertyKindAttribute(true);
-            } else if (cProp.kind() == PropertyKind.VALUE) {
-                attrInfo.setPropertyKindValue(true);
-            } else if (cProp.kind() == PropertyKind.REFERENCE) {
-                attrInfo.setPropertyKindAny(true);
+            fieldInfo.setPropertyKindElement(cProp.kind() == PropertyKind.ELEMENT);
+            fieldInfo.setPropertyKindAttribute(cProp.kind() == PropertyKind.ATTRIBUTE);
+            fieldInfo.setPropertyKindValue(cProp.kind() == PropertyKind.VALUE);
+            fieldInfo.setPropertyKindAny(cProp.kind() == PropertyKind.REFERENCE);
+
+            setAnnotation(co, fieldInfo, cProp);
+
+            fieldInfo.getType().setCollection(cProp.isCollection());
+
+            setDocComment(fo, fieldInfo);
+            if (fieldInfo.isRequired() && fieldInfo.getType().isCollection()) {
+                System.out.println("min occurs : 1 " + co.implClass.name() + "." + fieldInfo.getInitialName());
             }
-
-            // Annotation
-            if (cProp instanceof CElementPropertyInfo) {
-                CElementPropertyInfo ep = (CElementPropertyInfo) cProp;
-                List<CTypeRef> types = ep.getTypes();
-                if (types.size() == 1) {
-                    CTypeRef t = types.get(0);
-                    attrInfo.setElementAnnotation(getElementAnnotation(co, cProp, t));
-                } else {
-                        //errorReceiver.warning(ep.locator, "found xsd choice which is not supported yet");
-                }
-            } else if (cProp instanceof CAttributePropertyInfo) {
-                attrInfo.setAttributeAnnotation(getAttributeAnnotation(co, cProp));
-            }
-
-
-            // is collection?
-            if (cProp.isCollection()) {
-                attrInfo.getType().setCollection(true);
-            }
-
-            // doc comment
-            XSComponent xsComp = fo.getPropertyInfo().getSchemaComponent();
-            if (xsComp != null && xsComp instanceof XSParticle) {
-                XSParticle xsParticle = (XSParticle) xsComp;
-                XSTerm xsTerm = xsParticle.getTerm();
-XSElementDecl elemndecl = xsTerm.asElementDecl();
-if(elemndecl.getDefaultValue() != null)
-{
-attrInfo.setValue(elemndecl.getDefaultValue().value);
-attrInfo.setFixedValue(false);
-}
-else if(elemndecl.getFixedValue() != null)
-{
-attrInfo.setValue(elemndecl.getFixedValue().value);
-attrInfo.setFixedValue(true);
-}
-
-                String attrDoc = ModelBuilder.getDocumentation(xsTerm);
-                attrInfo.setDocComment(attrDoc);
-            }
-
-
-            classInfo.getFields().add(attrInfo);
+            fields.add(fieldInfo);
         }
-        return classInfo;
+        return fields;
     }
 
+    private static void setDocComment(FieldOutline fo, FieldInfo attrInfo) {
+        XSComponent xsComp = fo.getPropertyInfo().getSchemaComponent();
+        if (xsComp != null && xsComp instanceof XSParticle) {
+            XSParticle xsParticle = (XSParticle) xsComp;
+            XSTerm xsTerm = xsParticle.getTerm();
+            XSElementDecl elemndecl = xsTerm.asElementDecl();
+            if (elemndecl.getDefaultValue() != null) {
+                attrInfo.setValue(elemndecl.getDefaultValue().value);
+                attrInfo.setFixedValue(false);
+            } else if (elemndecl.getFixedValue() != null) {
+                attrInfo.setValue(elemndecl.getFixedValue().value);
+                attrInfo.setFixedValue(true);
+            }
+
+            String attrDoc = ModelBuilder.getDocumentation(xsTerm);
+            attrInfo.setDocComment(attrDoc);
+        }
+    }
+
+    private static void setAnnotation(ClassOutline co, FieldInfo attrInfo, CPropertyInfo cProp) {
+        if (cProp instanceof CElementPropertyInfo) {
+            CElementPropertyInfo ep = (CElementPropertyInfo) cProp;
+            List<CTypeRef> types = ep.getTypes();
+            if (types.size() == 1) {
+                CTypeRef t = types.get(0);
+                attrInfo.setElementAnnotation(getElementAnnotation(co, cProp, t));
+            }
+        } else if (cProp instanceof CAttributePropertyInfo) {
+            attrInfo.setAttributeAnnotation(getAttributeAnnotation(co, cProp));
+        }
+    }
+
+    private static List<TypeInfo> getTypeParameters(JType rawType) {
+        List<TypeInfo> typeParameters = new ArrayList<>();
+        if (rawType instanceof JClass) { // has type parameters?
+            JClass clzType = (JClass) rawType;
+            for (JClass typeParamClass : clzType.getTypeParameters()) {
+                typeParameters.add(buildTypeInfo(typeParamClass));
+            }
+        }
+        return typeParameters;
+    }
+
+    private static boolean isRequired(FieldOutline fo) {
+        boolean isRequired = false;
+        if (fo.getPropertyInfo() instanceof CElementPropertyInfo) {
+            CElementPropertyInfo cElementPropertyInfo = (CElementPropertyInfo) fo.getPropertyInfo();
+            isRequired = cElementPropertyInfo.isRequired();
+        }
+        return isRequired;
+    }
+
+    private static TypeInfo buildTypeInfo(JType jType) {
+        TypeInfo typeInfo = new TypeInfo();
+        typeInfo.setName(jType.name());
+
+        // for anonymous inner class, we need to change package name to lower case
+        typeInfo.setNestClass(isNestClass(jType));
+        typeInfo.setFullName(jType.fullName());
+        typeInfo.setPrimitive(jType.isPrimitive());
+
+        typeInfo.setEnum(isEnum(jType));
+        return typeInfo;
+    }
+
+    private static void setSuperClass(ClassOutline co, ClassInfo classInfo) {
+        // has super class?
+        ClassOutline sco = co.getSuperClass();
+        if (sco != null) {
+            ClassInfo superClass = new ClassInfo();
+            superClass.setName(sco.implClass.name());
+            superClass.setFullName(sco.implClass.fullName());
+            classInfo.setSuperClass(superClass);
+        }
+    }
 
     private static boolean isNestClass(JType type) {
-    	if (type instanceof JClass) {
-    		JClass clazz = (JClass)type;
-    		JClass out = clazz.outer();
-    		if (out == null) {
-    			return false;
-    		}
-    		if (out instanceof JClass) {
-    			return true;
-    		}
-    	}
-    	return false;
+        if (type instanceof JClass) {
+            JClass clazz = (JClass)type;
+            JClass out = clazz.outer();
+            if (out == null) {
+                return false;
+            }
+            if (out instanceof JClass) {
+                return true;
+            }
+        }
+        return false;
     }
-    
+
     private static XmlTypeAnnotation getXmlTypeAnnotation(ClassOutline co) {
-    	XmlTypeAnnotation xmlTypeAnnotation = new XmlTypeAnnotation();
-    	
+        XmlTypeAnnotation xmlTypeAnnotation = new XmlTypeAnnotation();
+
         // used to simplify the generated annotations
         String mostUsedNamespaceURI = co._package().getMostUsedNamespaceURI();
-        
+
         QName typeName = co.target.getTypeName();
         if (typeName == null) {
-        	xmlTypeAnnotation.setName(""); // TODO, handle anonymous type
-        	xmlTypeAnnotation.setNamespace(mostUsedNamespaceURI);
+            xmlTypeAnnotation.setName(""); // TODO, handle anonymous type
+            xmlTypeAnnotation.setNamespace(mostUsedNamespaceURI);
         } else {
-        	xmlTypeAnnotation.setName(typeName.getLocalPart());
+            xmlTypeAnnotation.setName(typeName.getLocalPart());
             final String typeNameURI = typeName.getNamespaceURI();
 //            if(!typeNameURI.equals(mostUsedNamespaceURI)) // only generate if necessary
-            	xmlTypeAnnotation.setNamespace(typeNameURI);
+            xmlTypeAnnotation.setNamespace(typeNameURI);
         }
-        
+
         return xmlTypeAnnotation;
     }
-    
+
     private static RootElementAnnotation getRootElementAnnotation(ClassOutline co, Map<String, QName> mapping, ClassInfo classInfo) {
-    	// does this type map to a global element?
-    	QName elementName = null;
-    	if (co.target.isElement()) {
-    		elementName = co.target.getElementName();
-    	} else {// TODO, need to figure out a general way to handle element to class mapping
-			elementName = mapping.get(classInfo.getFullName());
-    	}
-    	
-    	if (elementName != null) {
-    		RootElementAnnotation rootElementAnnotation = new RootElementAnnotation();
-    		rootElementAnnotation.setName(elementName.getLocalPart());
-    		rootElementAnnotation.setNamespace(elementName.getNamespaceURI());
-    		
-        	return rootElementAnnotation;
-    	} else {
-    		return null;
-    	}
+        // does this type map to a global element?
+        QName elementName = null;
+        if (co.target.isElement()) {
+            elementName = co.target.getElementName();
+        } else {// TODO, need to figure out a general way to handle element to class mapping
+            elementName = mapping.get(classInfo.getFullName());
+        }
+
+        if (elementName != null) {
+            RootElementAnnotation rootElementAnnotation = new RootElementAnnotation();
+            rootElementAnnotation.setName(elementName.getLocalPart());
+            rootElementAnnotation.setNamespace(elementName.getNamespaceURI());
+
+            return rootElementAnnotation;
+        } else {
+            return null;
+        }
     }
-    
+
     private static AttributeAnnotation getAttributeAnnotation(ClassOutline parent, CPropertyInfo prop) {
         CAttributePropertyInfo ap = (CAttributePropertyInfo) prop;
         QName attName = ap.getXmlName();
-        
+
         AttributeAnnotation attributeAnnotation = new AttributeAnnotation();
-        
+
         final String generatedName = attName.getLocalPart();
-        
+
         // Issue 570; always force generating name="" when do it when globalBindings underscoreBinding is set to non default value
         // generate name property?
         if(!generatedName.equals(ap.getName(false)) || (parent.parent().getModel().getNameConverter() != NameConverter.standard)) {
-        	attributeAnnotation.setName(generatedName);
+            attributeAnnotation.setName(generatedName);
         }
-        
+
         return attributeAnnotation;
     }
-    
+
     private static ElementAnnotation getElementAnnotation(ClassOutline parent, CPropertyInfo prop, CTypeRef ctype) {
-    	ElementAnnotation elementAnnotation = null;
-    	
+        ElementAnnotation elementAnnotation = null;
+
         String propName = prop.getName(false);
-        
+
         // generate the name property?
         String generatedName = ctype.getTagName().getLocalPart();
         if(!generatedName.equals(propName)) {
-        	elementAnnotation = new ElementAnnotation();
-        	elementAnnotation.setName(generatedName);
+            elementAnnotation = new ElementAnnotation();
+            elementAnnotation.setName(generatedName);
         }
-    	
-    	return elementAnnotation;
+
+        return elementAnnotation;
     }
-    
-	/**
-	 * check if a JType is an enum type
-	 * 
-	 * @param jType
-	 * @return boolean
-	 */
-	private static boolean isEnum(JType jType) {
-		if (jType instanceof JDefinedClass) { // is enum?
-			JDefinedClass jDefinedClass = (JDefinedClass) jType;
-			ClassType classType = jDefinedClass.getClassType();
-			if (classType == ClassType.ENUM) {
-				return true;
-			}
-		}
-		return false;
-	}
-    
-	/**
-	 * Build class name to element name mapping
-	 * 
-	 * @param outline, JAXB schema/code model
-	 * @return class name to element name map
-	 */
-	private static Map<String, QName> buildClass2ElementMapping(Outline outline) {
-		Map<String, QName> mapping = new HashMap<String, QName>();
-		for(CElementInfo ei : outline.getModel().getAllElements()) {
-	        JType exposedType = ei.getContentInMemoryType().toType(outline,Aspect.EXPOSED);
-	        mapping.put(exposedType.fullName(), ei.getElementName());
-		}
-		return mapping;
-	}
+
+    /**
+     * check if a JType is an enum type
+     *
+     * @param jType
+     * @return boolean
+     */
+    private static boolean isEnum(JType jType) {
+        if (jType instanceof JDefinedClass) { // is enum?
+            JDefinedClass jDefinedClass = (JDefinedClass) jType;
+            ClassType classType = jDefinedClass.getClassType();
+            if (classType == ClassType.ENUM) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Build class name to element name mapping
+     *
+     * @param outline, JAXB schema/code model
+     * @return class name to element name map
+     */
+    private static Map<String, QName> buildClass2ElementMapping(Outline outline) {
+        Map<String, QName> mapping = new HashMap<String, QName>();
+        for(CElementInfo ei : outline.getModel().getAllElements()) {
+            JType exposedType = ei.getContentInMemoryType().toType(outline,Aspect.EXPOSED);
+            mapping.put(exposedType.fullName(), ei.getElementName());
+        }
+        return mapping;
+    }
 
 }
