@@ -4,7 +4,7 @@
 // DO NOT CHANGE!
 
 #import <Foundation/Foundation.h>
-#import "${projectPrefix}${clazz.name}.h"0
+#import "${projectPrefix}${clazz.name}.h"
 
 @interface ${projectPrefix}${clazz.name} ()
 [#list clazz.fields as field]
