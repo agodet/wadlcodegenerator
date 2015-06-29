@@ -1,34 +1,35 @@
 package org.setareh.wadl.codegen.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.TreeSet;
 
 /**
  * Data model for code generation
- * 
- * @author bulldog
  *
+ * @author bulldog
  */
 public class CGModel {
-	
-	private final List<ClassInfo> classes = new ArrayList<ClassInfo>();
-	
-	private final List<EnumInfo> enums = new ArrayList<EnumInfo>();
+
+    private final TreeSet<ClassInfo> classes = new TreeSet<>();
+
+    private final TreeSet<EnumInfo> enums = new TreeSet<>();
 
     /**
-     *  Class model for codegen
+     * Class model for codegen
+     *
      * @return List<ClassInfo>
      */
-	public List<ClassInfo> getClasses() {
-		return classes;
-	}
-	
+    public Collection<ClassInfo> getClasses() {
+        return classes;
+    }
+
     /**
-     *  Enum model for codegen
+     * Enum model for codegen
+     *
      * @return List<EnumInfo>
      */
-	public List<EnumInfo> getEnums() {
-		return enums;
-	}
-	
+    public Collection<EnumInfo> getEnums() {
+        return enums;
+    }
+
 }

@@ -1,5 +1,6 @@
 package org.setareh.wadl.codegen.model;
 
+import com.sun.istack.NotNull;
 import org.setareh.wadl.codegen.model.annotation.RootElementAnnotation;
 import org.setareh.wadl.codegen.model.annotation.XmlTypeAnnotation;
 
@@ -11,7 +12,7 @@ import java.util.List;
  *
  * @author bulldog
  */
-public class ClassInfo {
+public class ClassInfo implements Comparable<ClassInfo> {
 
     // package name of this class
     private String packageName;
@@ -81,8 +82,6 @@ public class ClassInfo {
 
     /**
      * set simple name of this class
-     *
-     * @param simple name
      */
     public void setName(String name) {
         this.name = name;
@@ -221,5 +220,14 @@ public class ClassInfo {
     @Override
     public String toString() {
         return fullName == null ? super.toString() : fullName;
+    }
+
+    @Override
+    public int compareTo(ClassInfo o) {
+        final int compare = packageName.compareTo(o.packageName);
+        if (compare != 0) {
+            return compare;
+        }
+        return fullName.compareTo(o.fullName);
     }
 }

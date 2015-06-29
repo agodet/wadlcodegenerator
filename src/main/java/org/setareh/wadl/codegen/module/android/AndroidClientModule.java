@@ -216,7 +216,7 @@ public class AndroidClientModule extends AbstractClientModule {
 
     // for java implementation, we need to change nested class into package-member class,
     // so package name should be adjusted accordingly
-    private void adjustPackageNameOfNestClass(List<ClassInfo> classes) {
+    private void adjustPackageNameOfNestClass(Collection<ClassInfo> classes) {
         for (ClassInfo classInfo : classes) {
             // adjust class
             if (classInfo.isNestClass()) {
