@@ -2,6 +2,7 @@
 package ${packageName};
 
 import android.util.Base64;
+import android.text.TextUtils;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -51,8 +52,9 @@ public class ApiInvoker {
             final URL url = new URL(path);
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("User-Agent", userAgent);
+            connection.setDoInput(true);
 
-            if (login != null) {
+            if (!TextUtils.isEmpty(login)) {
                 String userpass = login + ":" + password;
                 String basicAuth = "Basic " + new String(Base64.encode(userpass.getBytes(), Base64.DEFAULT));
                 connection.setRequestProperty("Authorization", basicAuth);
@@ -76,8 +78,11 @@ public class ApiInvoker {
                 if (enableLogging) {
                     android.util.Log.d(REST_API_LOGGER, "Called " + url + " with json :\n" + requestAsString);
                 }
+                connection.setDoOutput(true);
+
             } else {
                 requestAsString = null;
+                connection.setDoOutput(false);
             }
 
             if (extraComputedHeaders != null) {
@@ -118,7 +123,7 @@ public class ApiInvoker {
                         return JsonUtil.readJson(reader, responseClass);
                     default:
                         // Other responses
-                        final InputStream errorContent = connection.getInputStream();
+                        final InputStream errorContent = connection.getErrorStream();
                         final Class<?> faultClass = faultClasses.get(responseCode);
                         if (errorContent == null || faultClass == null) {
                             throw new ApiException("Error " + responseCode);
