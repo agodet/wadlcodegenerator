@@ -1,28 +1,11 @@
 [#ftl]
 package ${packageName};
 
-import android.net.http.AndroidHttpClient;
-import android.util.Log;
-
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpOptions;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.protocol.ClientContext;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
+import android.util.Base64;
 
 import java.io.*;
-import java.net.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Map;
 
 /**
@@ -60,90 +43,64 @@ public class ApiInvoker {
                                final Map<String, String> extraHeaders,
                                final Map<String, ComputedHttpHeaderValue> extraComputedHeaders)
             throws ApiException, ApiFunctionalError {
-        AndroidHttpClient client = null;
+
+        HttpURLConnection connection = null;
+
         try {
+
             final URL url = new URL(path);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestProperty("User-Agent", userAgent);
 
-            client = AndroidHttpClient.newInstance(userAgent);
-            if (enableLogging) {
-                client.enableCurlLogging(REST_API_LOGGER, Log.VERBOSE);
-            }
-
-            HttpContext credContext = new BasicHttpContext();
             if (login != null) {
-                AuthScope scope = new AuthScope(url.getHost(), url.getPort());
-                UsernamePasswordCredentials creds = new UsernamePasswordCredentials(login, password);
-                CredentialsProvider cp = new BasicCredentialsProvider();
-                cp.setCredentials(scope, creds);
-                credContext.setAttribute(ClientContext.CREDS_PROVIDER, cp);
+                String userpass = login + ":" + password;
+                String basicAuth = "Basic " + new String(Base64.encode(userpass.getBytes(), Base64.DEFAULT));
+                connection.setRequestProperty("Authorization", basicAuth);
             }
 
-            // Prepare json request
-            final StringEntity outputEntity;
+            connection.setRequestMethod(method.name());
+
+            if (extraHeaders != null) {
+                for (Map.Entry<String, String> entry : extraHeaders.entrySet()) {
+                    connection.addRequestProperty(entry.getKey(), entry.getValue());
+                }
+            }
+
+            connection.addRequestProperty("Content-Type", "application/json");
+
+            // Invoke
+
+            final String requestAsString;
             if (userRequest != null) {
-                final String requestAsString = JsonUtil.toJson(userRequest);
-                outputEntity = new StringEntity(requestAsString, "UTF-8");
+                requestAsString = JsonUtil.toJson(userRequest);
                 if (enableLogging) {
                     android.util.Log.d(REST_API_LOGGER, "Called " + url + " with json :\n" + requestAsString);
                 }
             } else {
-                outputEntity = null;
+                requestAsString = null;
             }
-
-            final HttpRequestBase httpRequest;
-            final URI uri = url.toURI();
-            switch (method) {
-                case POST:
-                    final HttpPost httpPost = new HttpPost(uri);
-                    httpPost.setEntity(outputEntity);
-                    httpRequest = httpPost;
-                    break;
-                case GET:
-                    httpRequest = new HttpGet(uri);
-                    break;
-                case PUT:
-                    final HttpPut httpPut = new HttpPut(uri);
-                    httpPut.setEntity(outputEntity);
-                    httpRequest = httpPut;
-                    break;
-                case OPTIONS:
-                    httpRequest = new HttpOptions(uri);
-                    break;
-                case DELETE:
-                    httpRequest = new HttpDelete(uri);
-                    break;
-                case HEAD:
-                case CONNECT:
-                case TRACE:
-                default:
-                    throw new RuntimeException("Unsupported method : " + method);
-            }
-
-            if (extraHeaders != null) {
-                for (Map.Entry<String, String> entry : extraHeaders.entrySet()) {
-                    httpRequest.addHeader(entry.getKey(), entry.getValue());
-                }
-            }
-
-            httpRequest.addHeader("Content-Type", "application/json");
-
-            // Invoke
-            final HttpHost host = new HttpHost(url.getHost(), url.getPort(), url.getProtocol());
 
             if (extraComputedHeaders != null) {
                 for (Map.Entry<String, ComputedHttpHeaderValue> entry : extraComputedHeaders.entrySet()) {
-                    httpRequest.addHeader(entry.getKey(), entry.getValue().computeHeader(url, method, httpRequest));
+                    connection.addRequestProperty(entry.getKey(), entry.getValue().computeHeader(url, method, requestAsString));
                 }
             }
 
-            final HttpResponse httpResponse = client.execute(host, httpRequest, credContext);
+            // Prepare json request
+            if (requestAsString != null) {
+                final OutputStream os = connection.getOutputStream();
+                os.write(requestAsString.getBytes("UTF-8"));
+                os.flush();
+                os.close();
+            }
 
-            final int responseCode = httpResponse.getStatusLine().getStatusCode();
+            final int responseCode = connection.getResponseCode();
+
             android.util.Log.d(REST_API_LOGGER, "Server answered with response " + responseCode);
 
             // Manage simple InputStream fetches.
             if (responseClass.equals(InputStream.class) && responseCode / 100 == 2) {
-                InputStream content = httpResponse.getEntity().getContent();
+                InputStream content = connection.getInputStream();
                 return (T) content;
             }
 
@@ -153,7 +110,7 @@ public class ApiInvoker {
                 switch (responseFactor) {
                     case 2:
                         // Normal responses : 200, 201, ... 299
-                        final InputStream content = httpResponse.getEntity().getContent();
+                        final InputStream content = connection.getInputStream();
                         if (content == null) {
                             return null;
                         }
@@ -161,7 +118,7 @@ public class ApiInvoker {
                         return JsonUtil.readJson(reader, responseClass);
                     default:
                         // Other responses
-                        final InputStream errorContent = httpResponse.getEntity().getContent();
+                        final InputStream errorContent = connection.getInputStream();
                         final Class<?> faultClass = faultClasses.get(responseCode);
                         if (errorContent == null || faultClass == null) {
                             throw new ApiException("Error " + responseCode);
@@ -180,15 +137,15 @@ public class ApiInvoker {
                     }
                 }
             }
-        } catch (JsonUtil.JsonException | URISyntaxException e) {
+        } catch (JsonUtil.JsonException e) {
             throw new ApiException(e);
         } catch (IOException e) {
             android.util.Log.e(REST_API_LOGGER, "Network error", e);
             throw new ApiException(ApiException.NETWORK_ERROR, e.getMessage());
         } finally {
             try {
-                if (client != null) {
-                    client.close();
+                if (connection != null) {
+                    connection.disconnect();
                 }
             } catch (final Exception e) {
                 android.util.Log.e(REST_API_LOGGER, "Error while closing client", e);
