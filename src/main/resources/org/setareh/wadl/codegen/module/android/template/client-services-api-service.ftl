@@ -76,7 +76,7 @@ public ${method.response.name} ${method.name} (
             [#case 'long'] Long.toString(${param.name?uncap_first})[#break]
             [#case 'date'] JsonUtil.formatDate(${param.name?uncap_first})[#break]
             [#case 'float']
-            [#case 'double']String.format(java.util.Locale.ENGLISH, "%0.0f", ${param.name?uncap_first})[#break]
+            [#case 'double']String.format(java.util.Locale.ENGLISH, "%.8f", ${param.name?uncap_first})[#break]
             [#default]${param.name?uncap_first}.toString()
         [/#switch];
     [/#list]
