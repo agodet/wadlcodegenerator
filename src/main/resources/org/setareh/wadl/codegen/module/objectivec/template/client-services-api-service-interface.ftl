@@ -20,7 +20,19 @@
 
 [#list methods as method]
 - (NSNumber *)${method.name}With[#if method.request??]CompletionBlock:(${projectPrefix}${method.request.name}*) body
-[/#if][#if method.requestParams??][#list method.requestParams as param]param${param.name}: (NSString *) ${param.name} [/#list][/#if]completionHandler: (void (^)(${projectPrefix}${method.response.name} *output, [#if method.faultsMap?has_content]id specificErrorObject, [/#if]NSError *error))completionBlock;
+[/#if]
+[#compress]
+    [#if method.templateParams??]
+        [#list method.templateParams as param]
+            param${param.name}: (NSString *) ${param.name}
+        [/#list]
+    [/#if]
+    [#if method.requestParams??]
+        [#list method.requestParams as param]
+            param${param.name}: (NSString *) ${param.name}
+        [/#list]
+    [/#if]completionHandler: (void (^)(${projectPrefix}${method.response.name} *output, [#if method.faultsMap?has_content]id specificErrorObject, [/#if] NSError *error))completionBlock;
+[/#compress]
 [/#list]
 
 @end
