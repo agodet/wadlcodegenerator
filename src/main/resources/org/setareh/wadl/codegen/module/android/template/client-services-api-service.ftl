@@ -16,11 +16,9 @@ import java.net.URLEncoder;
 public class ${className}Api {
 
 private final ApiConfig mConfig;
-private final ApiInvoker mApiInvoker;
 
 public ${className}Api(final ApiConfig config) {
     mConfig = config;
-    mApiInvoker = new ApiInvoker();
 }
 
 [#list faults as fault]
@@ -44,7 +42,7 @@ public ${className}Api(final ApiConfig config) {
 public ${method.response.name} ${method.name} (
     [#if method.templateParams??]
         [#list method.templateParams as param]
-        final ${param.classInfo.name} ${param.name?uncap_first}[#if param_has_next || method.request?? || method.requestParams??],[/#if]
+        final ${param.classInfo.name} ${param.name?uncap_first}[#if param_has_next || method.request?? || method.requestParams?has_content],[/#if]
         [/#list]
     [/#if]
     [#if method.requestParams??]
@@ -65,14 +63,13 @@ public ${method.response.name} ${method.name} (
     [/#list]
     }};
 
-    [#assign hasParams = method.requestParams?? && method.requestParams?has_content/]
+    [#assign hasRequestParams = method.requestParams?? && method.requestParams?has_content/]
+    [#assign hasTemplateParams = method.templateParams?? && method.templateParams?has_content/]
 
     [#-- Ajout des requestParams --]
-    [#if hasParams]
-    /* Add extra parameters */
-    final String extraParamsFormat = "?[#list method.requestParams as param]${param.name}=%${param_index + 1}$s[#if param_has_next]&[/#if][/#list]";
-
-    [#list method.requestParams as param]
+    [#if hasRequestParams || hasTemplateParams]
+    /* Stringify parameters */
+    [#list method.requestParams + method.templateParams as param]
     final String ${param.name?uncap_first}AsStr = ${param.name?uncap_first} == null ? "" :
         [#switch param.classInfo.name?lower_case]
             [#case 'string'] ${param.name?uncap_first}[#break]
@@ -85,12 +82,17 @@ public ${method.response.name} ${method.name} (
             [#default]${param.name?uncap_first}.toString()
         [/#switch];
     [/#list]
+    [/#if]
+
+    [#if hasRequestParams]
+    /* Build queryString parameters */
+    final String extraParamsFormat = "?[#list method.requestParams as param]${param.name}=%${param_index + 1}$s[#if param_has_next]&[/#if][/#list]";
 
 
     final String extraParams;
     try{
         extraParams = [#compress]
-        [#if hasParams]
+        [#if hasRequestParams]
         String.format(extraParamsFormat,[#list method.requestParams as param]
         URLEncoder.encode(${param.name?uncap_first}AsStr, "UTF-8")[#if param_has_next],[/#if]
         [/#list])
@@ -106,14 +108,14 @@ public ${method.response.name} ${method.name} (
     final String basePath = "${method.path}"[#compress]
     [#if method.templateParams??]
         [#list method.templateParams as param]
-        .replace("{${param.name}}", ${param.name?uncap_first})
+        .replace("{${param.name}}", ${param.name?uncap_first}AsStr)
         [/#list]
     [/#if]
     [/#compress];
 
     try {
-        return mApiInvoker.invoke(
-                mConfig.getBaseUrl() + basePath[#if hasParams] + extraParams[/#if],
+        return ApiInvoker.invoke(
+                mConfig.getBaseUrl() + basePath[#if hasRequestParams] + extraParams[/#if],
                 ApiInvoker.Method.${method.type},
                 [#if method.request??]body[#else]null[/#if],
                 ${method.response.name}.class,
