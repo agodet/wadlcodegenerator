@@ -1,6 +1,5 @@
 package org.setareh.wadl.codegen.builder;
 
-import com.sun.istack.internal.NotNull;
 import org.setareh.wadl.codegen.generated.bo.*;
 import org.setareh.wadl.codegen.model.*;
 
