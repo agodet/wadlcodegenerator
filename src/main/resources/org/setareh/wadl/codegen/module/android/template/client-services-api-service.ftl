@@ -42,6 +42,11 @@ public ${className}Api(final ApiConfig config) {
 [#list methods as method]
 
 public ${method.response.name} ${method.name} (
+    [#if method.templateParams??]
+        [#list method.templateParams as param]
+        final ${param.classInfo.name} ${param.name?uncap_first}[#if param_has_next || method.request?? || method.requestParams??],[/#if]
+        [/#list]
+    [/#if]
     [#if method.requestParams??]
         [#list method.requestParams as param]
         final ${param.classInfo.name} ${param.name?uncap_first}[#if param_has_next || method.request??],[/#if]
@@ -98,9 +103,17 @@ public ${method.response.name} ${method.name} (
     [/#if]
     [#-- Fin des requestParams --]
 
+    final String basePath = "${method.path}"[#compress]
+    [#if method.templateParams??]
+        [#list method.templateParams as param]
+        .replace("{${param.name}}", ${param.name?uncap_first})
+        [/#list]
+    [/#if]
+    [/#compress];
+
     try {
         return mApiInvoker.invoke(
-                mConfig.getBaseUrl() + "${method.path}"[#if hasParams] + extraParams[/#if],
+                mConfig.getBaseUrl() + basePath[#if hasParams] + extraParams[/#if],
                 ApiInvoker.Method.${method.type},
                 [#if method.request??]body[#else]null[/#if],
                 ${method.response.name}.class,

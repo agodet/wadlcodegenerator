@@ -180,6 +180,13 @@ public class AndroidClientModule extends AbstractClientModule {
                     imports.add(packageName + "." + classInfo.getName());
                 }
             }
+            for (CGParam cgParam : method.getTemplateParams()) {
+                final ClassInfo classInfo = cgParam.getClassInfo();
+                final String packageName = classInfo.getPackageName();
+                if(!packageName.startsWith("org.w3")) {
+                    imports.add(packageName + "." + classInfo.getName());
+                }
+            }
         }
 
         return imports;

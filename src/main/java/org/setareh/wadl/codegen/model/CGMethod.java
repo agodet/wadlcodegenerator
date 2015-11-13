@@ -14,6 +14,7 @@ public class CGMethod implements Cloneable {
     private String path;
     private HashMap<String, ClassInfo> faults = new HashMap<>();
     private List<CGParam> requestParams;
+    private List<CGParam> templateParams;
 
     public ClassInfo getRequest() {
         return request;
@@ -84,5 +85,13 @@ public class CGMethod implements Cloneable {
 
     public List<CGParam> getRequestParams() {
         return requestParams;
+    }
+
+    public void setTemplateParams(List<CGParam> templateParams) {
+        this.templateParams = templateParams;
+    }
+
+    public List<CGParam> getTemplateParams() {
+        return templateParams;
     }
 }

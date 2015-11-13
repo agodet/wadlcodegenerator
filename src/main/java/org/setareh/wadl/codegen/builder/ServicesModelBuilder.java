@@ -1,5 +1,6 @@
 package org.setareh.wadl.codegen.builder;
 
+import com.sun.istack.internal.NotNull;
 import org.setareh.wadl.codegen.generated.bo.*;
 import org.setareh.wadl.codegen.model.*;
 
@@ -80,7 +81,8 @@ public class ServicesModelBuilder {
             cgMethod.setRequest(createClassInfo(method.getRequest().getRepresentation().get(0).getElement()));
         }
         if (method.getRequest() != null) {
-            cgMethod.setRequestParams(createParams(method.getRequest().getParam()));
+            cgMethod.setRequestParams(createParams(method.getRequest().getParam(), ParamStyle.QUERY));
+            cgMethod.setTemplateParams(createParams(method.getRequest().getParam(), ParamStyle.TEMPLATE));
         }
         for (Response response : method.getResponse()) {
             if (isSuccessHttpCode(response)) {
@@ -94,13 +96,18 @@ public class ServicesModelBuilder {
         return cgMethod;
     }
 
-    private static List<CGParam> createParams(List<Param> params) {
+    private static List<CGParam> createParams(List<Param> params, ParamStyle style) {
         List<CGParam> cgParams = new ArrayList<CGParam>();
         if (params != null) {
             for (Param param : params) {
-                CGParam cgParam = new CGParam();
+                final ParamStyle paramStyle = param.getStyle() == null ? ParamStyle.QUERY : param.getStyle();
+                if (paramStyle != style) {
+                    continue;
+                }
+                final CGParam cgParam = new CGParam();
                 cgParam.setName(param.getName());
                 cgParam.setClassInfo(createClassInfo(param.getType()));
+                cgParam.setStyle(paramStyle);
                 cgParams.add(cgParam);
             }
         }
@@ -122,12 +129,16 @@ public class ServicesModelBuilder {
     }
 
     private static String createClassName(String path) {
-        String className = path.replace("/", "");
+        String className = path
+                .replace("/", "")
+                .replaceAll("\\{.*\\}", "");
+
         return Character.toUpperCase(className.charAt(0)) + className.substring(1);
     }
 
     private static String createMethodName(String path) {
-        return path.replace("/", "");
+        return path.replace("/", "")
+                .replaceAll("\\{(.*)\\}", "With$1");
     }
 
     private static ClassInfo createClassInfo(QName qname) {
