@@ -134,7 +134,7 @@
         bodyDictionary = body;
     }
     else{
-        NSLog(@"don't know what to do with %@", body);
+        DDLogDebug(@"don't know what to do with %@", body);
     }
 
     if(body == nil) {

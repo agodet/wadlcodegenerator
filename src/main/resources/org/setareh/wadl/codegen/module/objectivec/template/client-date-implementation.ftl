@@ -51,7 +51,7 @@
             minutes = [[[components firstObject] substringFromIndex:2] integerValue];
         }
         else {
-            NSLog(@"Timezone String format problem");
+            DDLogDebug(@"Timezone String format problem");
             return nil;
         }
         secondsFromGMT = (hours * 3600 + minutes * 60) * parity;

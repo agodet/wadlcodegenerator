@@ -55,7 +55,7 @@ cacheEnabled = enabled;
 + (NSNumber *)nextRequestId {
     long nextId = ++requestId;
     if(loggingEnabled) {
-        NSLog(@"got id %ld", nextId);
+        DDLogDebug(@"got id %ld", nextId);
     }
     return [NSNumber numberWithLong:nextId];
 }
@@ -63,7 +63,7 @@ cacheEnabled = enabled;
 + (NSNumber *)queueRequest {
     NSNumber* requestId = [${projectPrefix}ApiClient nextRequestId];
     if(loggingEnabled) {
-        NSLog(@"added %@ to request queue", requestId);
+        DDLogDebug(@"added %@ to request queue", requestId);
     }
     [queuedRequests addObject:requestId];
     return requestId;
@@ -107,28 +107,28 @@ cacheEnabled = enabled;
         switch (status) {
             case AFNetworkReachabilityStatusUnknown:
                 if(loggingEnabled) {
-                    NSLog(@"reachability changed to AFNetworkReachabilityStatusUnknown");
+                    DDLogDebug(@"reachability changed to AFNetworkReachabilityStatusUnknown");
                 }
                 [${projectPrefix}ApiClient setOfflineState:true];
                 break;
 
             case AFNetworkReachabilityStatusNotReachable:
                 if(loggingEnabled){
-                    NSLog(@"reachability changed to AFNetworkReachabilityStatusNotReachable");
+                    DDLogDebug(@"reachability changed to AFNetworkReachabilityStatusNotReachable");
                 }
                 [${projectPrefix}ApiClient setOfflineState:true];
                 break;
 
             case AFNetworkReachabilityStatusReachableViaWWAN:
                 if(loggingEnabled){
-                    NSLog(@"reachability changed to AFNetworkReachabilityStatusReachableViaWWAN");
+                    DDLogDebug(@"reachability changed to AFNetworkReachabilityStatusReachableViaWWAN");
                 }
                 [${projectPrefix}ApiClient setOfflineState:false];
                 break;
 
             case AFNetworkReachabilityStatusReachableViaWiFi:
                 if(loggingEnabled){
-                    NSLog(@"reachability changed to AFNetworkReachabilityStatusReachableViaWiFi");
+                    DDLogDebug(@"reachability changed to AFNetworkReachabilityStatusReachableViaWiFi");
                 }
                 [${projectPrefix}ApiClient setOfflineState:false];
                 break;
@@ -176,11 +176,11 @@ cacheEnabled = enabled;
             client = [[${projectPrefix}ApiClient alloc] initWithBaseURL:[NSURL URLWithString:baseUrl]];
             [_pool setValue:client forKey:shareKey ];
             if(loggingEnabled) {
-                NSLog(@"[API POOL] New client for path %@", shareKey);
+                DDLogDebug(@"[API POOL] New client for path %@", shareKey);
             }
         }
         if(loggingEnabled) {
-            NSLog(@"[API POOL] Returning client for path %@", shareKey);
+            DDLogDebug(@"[API POOL] Returning client for path %@", shareKey);
         }
         return client;
     }
@@ -220,7 +220,7 @@ cacheEnabled = enabled;
 
     if(matchingItems.count == 1) {
         if(loggingEnabled) {
-            NSLog(@"removing request id %@", requestId);
+            DDLogDebug(@"removing request id %@", requestId);
         }
         [queuedRequests removeObject:requestId];
         return true;
@@ -280,15 +280,15 @@ cacheEnabled = enabled;
     }
 
     if(offlineState) {
-        NSLog(@"%@ cache forced", completePath);
+        DDLogDebug(@"%@ cache forced", completePath);
         [self.requestSerializer setCachePolicy:NSURLRequestReturnCacheDataDontLoad];
     }
     else if(!hasHeaderParams && [method isEqualToString:@"GET"] && cacheEnabled) {
-        NSLog(@"%@ cache enabled", completePath);
+        DDLogDebug(@"%@ cache enabled", completePath);
         [self.requestSerializer setCachePolicy:NSURLRequestUseProtocolCachePolicy];
     }
     else {
-        NSLog(@"%@ cache disabled", completePath);
+        DDLogDebug(@"%@ cache disabled", completePath);
         [self.requestSerializer setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
     }
 
@@ -432,7 +432,7 @@ cacheEnabled = enabled;
         }];
     }
     else {
-        NSLog(@"HTTP Method not recognized : %@", method);
+        DDLogDebug(@"HTTP Method not recognized : %@", method);
         failureCompletionBlock(nil, nil, nil, nil);
     }
 }
@@ -497,11 +497,11 @@ cacheEnabled = enabled;
 }
 
 - (void)logRequest:(NSURLRequest *)request {
-    NSLog(@"Request: %@", [self descriptionForRequest:request]);
+    DDLogDebug(@"Request: %@", [self descriptionForRequest:request]);
 }
 
 - (void)logResponse:(id)data forRequest:(NSURLRequest *)request error:(NSError *)error {
-    NSLog(@"Request: %@  Response: %@ ",  [self descriptionForRequest:request], data );
+    DDLogDebug(@"Request: %@  Response: %@ ",  [self descriptionForRequest:request], data );
 }
 
 @end
