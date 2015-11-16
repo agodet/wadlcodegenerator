@@ -1,6 +1,7 @@
 [#ftl]
 #import "${projectPrefix}DateFormatterUtils.h"
 #import "${projectPrefix}RegistryManager.h"
+#import <CocoaLumberjack/CocoaLumberjack.h>
 
 @implementation ${projectPrefix}DateFormatterUtils
 
