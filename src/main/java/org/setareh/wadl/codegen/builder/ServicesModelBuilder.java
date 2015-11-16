@@ -137,7 +137,8 @@ public class ServicesModelBuilder {
 
     private static String createMethodName(String path) {
         return path.replace("/", "")
-                .replaceAll("\\{(.*)\\}", "With$1");
+                .replaceAll("\\{(.*)\\}", "With$1")
+                .replaceAll("\\.", "_");
     }
 
     private static ClassInfo createClassInfo(QName qname) {
