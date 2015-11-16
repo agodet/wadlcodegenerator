@@ -34,6 +34,7 @@ public class ObjectiveCClientModule extends AbstractClientModule {
     private URL inputstreamImplementationTemplate;
     private URL clientServicesRegistryManagerIntTemplate;
     private URL clientServicesRegistryManagerImplTemplate;
+    private URL clientClassConstantsTemplate;
 
     @Override
     public ModuleName getName() {
@@ -70,6 +71,7 @@ public class ObjectiveCClientModule extends AbstractClientModule {
         clientServicesRegistryManagerImplTemplate = this.getTemplateURL("client-services-registry-manager-implementation.ftl");
         inputstreamInterfaceTemplate = this.getTemplateURL("inputstream-interface.ftl");
         inputstreamImplementationTemplate = this.getTemplateURL("inputstream-implementation.ftl");
+        clientClassConstantsTemplate = this.getTemplateURL("client-constants-interface.ftl");
     }
 
     @Override
@@ -154,6 +156,9 @@ public class ObjectiveCClientModule extends AbstractClientModule {
 
         final FileInfo inputStreamInterface = this.generateFile(inputstreamInterfaceTemplate, fmModel, projectPrefix + "InputStream", "h", "Classes", SOURCE_FOLDER);
         targetFileSet.add(inputStreamInterface);
+
+        final FileInfo constantsInterface = this.generateFile(clientClassConstantsTemplate, fmModel, projectPrefix + "Constants", "h", "Classes", SOURCE_FOLDER);
+        targetFileSet.add(constantsInterface);
 
         return targetFileSet;
     }

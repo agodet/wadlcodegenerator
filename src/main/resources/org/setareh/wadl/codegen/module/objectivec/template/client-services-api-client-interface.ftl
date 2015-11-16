@@ -2,8 +2,6 @@
 #import <Foundation/Foundation.h>
 #import "AFHTTPRequestOperationManager.h"
 #import <CocoaLumberjack/CocoaLumberjack.h>
-static const int ddLogLevel = DDLogLevelDebug;
-
 
 @interface ${projectPrefix}ApiClient : AFHTTPRequestOperationManager
 
