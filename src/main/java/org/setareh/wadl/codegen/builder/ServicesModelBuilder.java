@@ -137,7 +137,7 @@ public class ServicesModelBuilder {
 
     private static String createMethodName(String path) {
         return path.replace("/", "")
-                .replaceAll("\\{(.*)\\}", "With$1")
+                .replaceAll("\\{([A-Za-z0-9]*)\\}", "With$1")
                 .replaceAll("\\.", "_");
     }
 
