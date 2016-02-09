@@ -115,10 +115,10 @@
 
 -(id) initWithDictionnary:(NSDictionary*)dict
 {
-    self = [#if clazz.superClass??][super initWithDictionnary:dict][#else][super init][/#if];
+    self = [#if clazz.superClass??][super initWithDictionnary:dict][#else][self init][/#if];
     if(self) {
     [#list clazz.fields as field]
-        if (dict${"[@"}"${field.initialName}"] != [NSNull null])
+        if (dict${"[@"}"${field.initialName}"] != [NSNull null] && dict${"[@"}"${field.initialName}"] != nil)
         {
             [#if field.type.enum]
             self.${field.name} = [${projectPrefix}${field.type.fullName} fromString:dict${"["}@"${field.initialName}"]];
