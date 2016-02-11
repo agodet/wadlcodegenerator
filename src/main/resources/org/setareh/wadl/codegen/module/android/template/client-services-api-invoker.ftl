@@ -6,6 +6,8 @@ import android.text.TextUtils;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocketFactory;
 import java.net.URL;
 import java.util.Map;
 
@@ -42,7 +44,8 @@ public class ApiInvoker {
                                final String login,
                                final String password,
                                final Map<String, String> extraHeaders,
-                               final Map<String, ComputedHttpHeaderValue> extraComputedHeaders)
+                               final Map<String, ComputedHttpHeaderValue> extraComputedHeaders,
+                               final SSLSocketFactory sslSocketFactory)
             throws ApiException, ApiFunctionalError {
 
         HttpURLConnection connection = null;
@@ -58,6 +61,10 @@ public class ApiInvoker {
                 String userpass = login + ":" + password;
                 String basicAuth = "Basic " + new String(Base64.encode(userpass.getBytes(), Base64.DEFAULT));
                 connection.setRequestProperty("Authorization", basicAuth);
+            }
+
+            if (sslSocketFactory != null && connection instanceof HttpsURLConnection) {
+                ((HttpsURLConnection) connection).setSSLSocketFactory(sslSocketFactory);
             }
 
             connection.setRequestMethod(method.name());
