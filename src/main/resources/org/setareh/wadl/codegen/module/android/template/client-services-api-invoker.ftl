@@ -1,13 +1,13 @@
 [#ftl]
 package ${packageName};
 
-import android.util.Base64;
 import android.text.TextUtils;
+import android.util.Base64;
 
-import java.io.*;
-import java.net.HttpURLConnection;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
 
@@ -18,7 +18,7 @@ public class ApiInvoker {
 
     public static final String REST_API_LOGGER = "REST API LOG";
 
-    public static enum Method {
+    public enum Method {
         GET, POST, PUT, DELETE, HEAD, OPTIONS, TRACE, CONNECT
     }
 
@@ -49,7 +49,7 @@ public class ApiInvoker {
             throws ApiException, ApiFunctionalError {
 
         HttpURLConnection connection = null;
-
+        boolean closeConnectionWhenFinished = true;
         try {
 
             final URL url = new URL(path);
@@ -113,7 +113,8 @@ public class ApiInvoker {
             // Manage simple InputStream fetches.
             if (responseClass.equals(InputStream.class) && responseCode / 100 == 2) {
                 InputStream content = connection.getInputStream();
-                return (T) content;
+                closeConnectionWhenFinished = false;
+                return (T) new ConnectionClosingInputStream(content, connection);
             }
 
             Reader reader = null;
@@ -156,7 +157,7 @@ public class ApiInvoker {
             throw new ApiException(ApiException.NETWORK_ERROR, e.getMessage());
         } finally {
             try {
-                if (connection != null) {
+                if (connection != null && closeConnectionWhenFinished) {
                     connection.disconnect();
                 }
             } catch (final Exception e) {
@@ -198,5 +199,65 @@ public class ApiInvoker {
             return read;
         }
 
+    }
+
+    /**
+     * An InputStream that will disconnect the wrapping connection when closed itself.
+     */
+    private static class ConnectionClosingInputStream extends InputStream {
+
+        private final InputStream content;
+        private final HttpURLConnection connection;
+
+        public ConnectionClosingInputStream(InputStream content, HttpURLConnection connection) {
+            this.content = content;
+            this.connection = connection;
+        }
+
+        @Override
+        public int read() throws IOException {
+            return content.read();
+        }
+
+        @Override
+        public int read(byte[] b) throws IOException {
+            return content.read(b);
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            return content.read(b, off, len);
+        }
+
+        @Override
+        public long skip(long n) throws IOException {
+            return content.skip(n);
+        }
+
+        @Override
+        public int available() throws IOException {
+            return content.available();
+        }
+
+        @Override
+        public void close() throws IOException {
+            content.close();
+            connection.disconnect();
+        }
+
+        @Override
+        public void mark(int readlimit) {
+            content.mark(readlimit);
+        }
+
+        @Override
+        public void reset() throws IOException {
+            content.reset();
+        }
+
+        @Override
+        public boolean markSupported() {
+            return content.markSupported();
+        }
     }
 }
