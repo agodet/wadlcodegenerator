@@ -388,6 +388,7 @@ public class ObjectiveCClientModule extends AbstractClientModule {
         reservedWord.add("oneway");
         reservedWord.add("self");
         reservedWord.add("super");
+        reservedWord.add("hash");
         return reservedWord;
     }
 
