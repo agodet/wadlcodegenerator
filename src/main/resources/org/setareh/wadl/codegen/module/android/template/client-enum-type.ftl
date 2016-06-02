@@ -17,28 +17,8 @@ public enum ${enum.name} {
      * ${constant.docComment?replace("\n", "\n   * ")?replace("\t", "")}
      */
   [/#if]
-    ${constant.name}("${constant.value}")[#if constant_has_next],[#else];[/#if]
+    ${constant.value?replace("\\s", "_")}[#if constant_has_next],[#else];[/#if]
   
   [/#list]
   
-    private final String value;
-  
-    ${enum.name}(String v) {
-        value = v;
-    }
-    
-    public String value() {
-        return value;
-    }
-
-    public static ${enum.name} fromValue(String v) {
-        if (v != null) {
-            for (${enum.name} c: ${enum.name}.values()) {
-                if (c.value.equals(v)) {
-                    return c;
-                }
-            }
-        }
-        throw new IllegalArgumentException(v);
-    }
 }
