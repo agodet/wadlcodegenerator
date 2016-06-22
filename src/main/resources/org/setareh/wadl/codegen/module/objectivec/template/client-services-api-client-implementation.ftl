@@ -273,6 +273,8 @@ cacheEnabled = enabled;
                                                    requestBody:body
                                         additionalHeaderParams:headerParams
                                            responseContentType:responseContentType];
+    [self.requestSerializer setValue:@"gzip" forHTTPHeaderField:@"Accept-Encoding"];
+
     //CACHE POLICY
     BOOL hasHeaderParams = NO;
     if(headerParams != nil && [headerParams count] > 0){
