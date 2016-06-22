@@ -1,7 +1,6 @@
 [#ftl]
 package ${packageName};
 
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Base64;
 
@@ -181,7 +180,6 @@ public class ApiInvoker {
         }
     }
 
-    @Nullable
     private static InputStream getErrorInputStream(HttpURLConnection connection) throws IOException {
         return getGzipInputStream(connection.getErrorStream(), connection);
     }
