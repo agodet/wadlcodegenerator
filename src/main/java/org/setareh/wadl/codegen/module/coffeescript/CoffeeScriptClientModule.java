@@ -63,7 +63,7 @@ public class CoffeeScriptClientModule extends AbstractClientModule {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < enumConstants.size(); i++) {
             EnumConstantInfo enumConstantInfo = enumConstants.get(i);
-            sb.append(enumConstantInfo.getName());
+            sb.append(enumConstantInfo.getValue());
             if (i != enumConstants.size() - 1) {
                 sb.append("|");
             }
