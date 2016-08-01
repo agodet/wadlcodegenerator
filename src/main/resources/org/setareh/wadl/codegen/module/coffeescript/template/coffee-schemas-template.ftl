@@ -136,3 +136,4 @@ addSchema(${clazz.name?uncap_first}Schema)
 module.exports =
 	addSchema: addSchema
 	validate: validate
+	availableSchemas: validator.schemas
