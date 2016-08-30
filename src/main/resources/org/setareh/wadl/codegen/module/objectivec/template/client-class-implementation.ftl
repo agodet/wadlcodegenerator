@@ -129,7 +129,6 @@
 
             if([(NSArray*)${field.name}_dict count] > 0) {
                 [#assign typeParameter = field.type.typeParameters?first]
-
                 [#if typeParameter.enum]
                 for (NSString * dictValue in (NSArray*)${field.name}_dict) {
                 ${projectPrefix}${typeParameter.fullName} * d = [${projectPrefix}${typeParameter.fullName} fromString:dictValue];
@@ -158,10 +157,11 @@
                     [/#if]
                 [#else]
                 for (NSDictionary* dict in (NSArray*)${field.name}_dict) {
-                ${projectPrefix}${typeParameter.fullName} * d = [[${projectPrefix}${typeParameter.fullName} alloc]initWithDictionnary:dict];
+                    ${projectPrefix}${typeParameter.fullName} * d = [[${projectPrefix}${typeParameter.fullName} alloc]initWithDictionnary:dict];
                 [/#if]
-
-                [${field.name}Array addObject:d];
+                    if(d != nil && d != [NSNull null]){
+                        [${field.name}Array addObject:d];
+                    }
                 }
             }
             self.${field.name} = ${field.name}Array;
