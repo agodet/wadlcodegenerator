@@ -4,23 +4,12 @@ package ${packageName};
 import android.text.TextUtils;
 import android.util.Base64;
 
-import com.sncf.fusion.api.client.ApiException;
-import com.sncf.fusion.api.client.ComputedHttpHeaderValue;
-import com.sncf.fusion.api.client.JsonUtil;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.Reader;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLSocketFactory;
-
-import java.util.zip.GZIPInputStream;
 
 /**
  * Generated API invoker.
@@ -46,7 +35,7 @@ public class ApiInvoker {
 
 
     public static <T> T invoke(final String path,
-                               final com.sncf.fusion.api.client.ApiInvoker.Method method,
+                               final Method method,
                                final Object userRequest,
                                final Class<T> responseClass,
                                final Map<Integer, Class<?>> faultClasses,
@@ -56,8 +45,10 @@ public class ApiInvoker {
                                final String password,
                                final Map<String, String> extraHeaders,
                                final Map<String, ComputedHttpHeaderValue> extraComputedHeaders,
-                               final SSLSocketFactory sslSocketFactory)
-            throws ApiException, com.sncf.fusion.api.client.ApiInvoker.ApiFunctionalError {
+                               final SSLSocketFactory sslSocketFactory,
+                               final int connectTimeout,
+                               final int readTimeout)
+            throws ApiException, ApiFunctionalError {
 
         HttpURLConnection connection = null;
         boolean closeConnectionWhenFinished = true;
@@ -66,6 +57,8 @@ public class ApiInvoker {
             final URL url = new URL(path);
             connection = (HttpURLConnection) url.openConnection();
             connection.setRequestProperty("User-Agent", userAgent);
+            connection.setConnectTimeout(connectTimeout);
+            connection.setReadTimeout(readTimeout);
             connection.setDoInput(true);
 
             if (!TextUtils.isEmpty(login)) {
@@ -87,7 +80,6 @@ public class ApiInvoker {
             }
 
             connection.addRequestProperty("Content-Type", "application/json");
-            connection.addRequestProperty("Accept-Encoding", "gzip");
 
             // Invoke
 
@@ -124,9 +116,9 @@ public class ApiInvoker {
 
             // Manage simple InputStream fetches.
             if (responseClass.equals(InputStream.class) && responseCode / 100 == 2) {
-                InputStream content = getInputStream(connection);
+                InputStream content = connection.getInputStream();
                 closeConnectionWhenFinished = false;
-                return (T) new com.sncf.fusion.api.client.ApiInvoker.ConnectionClosingInputStream(content, connection);
+                return (T) new ConnectionClosingInputStream(content, connection);
             }
 
             Reader reader = null;
@@ -135,25 +127,23 @@ public class ApiInvoker {
                 switch (responseFactor) {
                     case 2:
                         // Normal responses : 200, 201, ... 299
-                        InputStream content = getInputStream(connection);
+                        final InputStream content = connection.getInputStream();
                         if (content == null) {
                             return null;
                         }
-
-                        reader = enableLogging ? new com.sncf.fusion.api.client.ApiInvoker.LogInputStreamReader(content) : new InputStreamReader(content);
+                        reader = enableLogging ? new LogInputStreamReader(content) : new InputStreamReader(content);
                         return JsonUtil.readJson(reader, responseClass);
                     default:
                         // Other responses
-                        InputStream errorContent = getErrorInputStream(connection);
-
+                        final InputStream errorContent = connection.getErrorStream();
                         final Class<?> faultClass = faultClasses.get(responseCode);
                         if (errorContent == null || faultClass == null) {
                             throw new ApiException("Error " + responseCode);
                         }
-                        reader = enableLogging ? new com.sncf.fusion.api.client.ApiInvoker.LogInputStreamReader(errorContent) : new InputStreamReader(errorContent);
+                        reader = enableLogging ? new LogInputStreamReader(errorContent) : new InputStreamReader(errorContent);
 
                         final Object nestedError = JsonUtil.readJson(reader, faultClass);
-                        throw new com.sncf.fusion.api.client.ApiInvoker.ApiFunctionalError(responseCode, nestedError);
+                        throw new ApiFunctionalError(responseCode, nestedError);
                 }
             } finally {
                 if (reader != null) {
@@ -178,26 +168,6 @@ public class ApiInvoker {
                 android.util.Log.e(REST_API_LOGGER, "Error while closing client", e);
             }
         }
-    }
-
-    private static InputStream getErrorInputStream(HttpURLConnection connection) throws IOException {
-        return getGzipInputStream(connection.getErrorStream(), connection);
-    }
-
-    private static InputStream getInputStream(HttpURLConnection connection) throws IOException {
-        return getGzipInputStream(connection.getInputStream(), connection);
-    }
-
-    private static InputStream getGzipInputStream(InputStream content, HttpURLConnection connection) throws IOException {
-        if (content == null) {
-            return null;
-        }
-
-        String contentEncoding = connection.getContentEncoding();
-        if (contentEncoding != null && content != null && "gzip".equalsIgnoreCase(contentEncoding)) {
-            content = new GZIPInputStream(content);
-        }
-        return content;
     }
 
     public static final class LogInputStreamReader extends InputStreamReader {

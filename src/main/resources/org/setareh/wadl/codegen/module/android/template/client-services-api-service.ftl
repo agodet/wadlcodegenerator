@@ -126,7 +126,9 @@ public ${method.response.name} ${method.name} (
                 mConfig.getPassword(),
                 mConfig.getExtraHeaders(),
                 mConfig.getComputedExtraHeaders(),
-                mConfig.getSSLSocketFactory());
+                mConfig.getSSLSocketFactory(),
+                mConfig.getConnectTimeout(),
+                mConfig.getReadTimeout());
     } catch (ApiInvoker.ApiFunctionalError apiFunctionalError) {
             switch(apiFunctionalError.errorCode) {
             [#list method.faultsMap?keys as key]

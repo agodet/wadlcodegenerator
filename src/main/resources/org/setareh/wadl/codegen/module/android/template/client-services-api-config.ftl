@@ -17,5 +17,7 @@ public interface ApiConfig {
     Map<String, String> getExtraHeaders();
     Map<String, ComputedHttpHeaderValue> getComputedExtraHeaders();
     SSLSocketFactory getSSLSocketFactory();
+    int getConnectTimeout();
+    int getReadTimeout();
 
 }
