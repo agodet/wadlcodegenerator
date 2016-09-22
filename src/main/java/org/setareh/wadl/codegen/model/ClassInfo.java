@@ -53,6 +53,13 @@ public class ClassInfo implements Comparable<ClassInfo> {
         return superClassesFields;
     }
 
+    public List<FieldInfo> getAllFields() {
+        ArrayList<FieldInfo> allFields = new ArrayList<>();
+        allFields.addAll(getSuperClassesFields());
+        allFields.addAll(getFields());
+        return allFields;
+    }
+
     /**
      * the package name of this class
      *

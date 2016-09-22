@@ -2,6 +2,7 @@ package org.setareh.wadl.codegen.module;
 
 import org.setareh.wadl.codegen.module.android.AndroidClientModule;
 import org.setareh.wadl.codegen.module.coffeescript.CoffeeScriptClientModule;
+import org.setareh.wadl.codegen.module.es6.EcmaScript6ClientModule;
 import org.setareh.wadl.codegen.module.objectivec.ObjectiveCClientModule;
 import org.setareh.wadl.codegen.module.swift.SwiftClientModule;
 import org.setareh.wadl.codegen.module.typescript.TypeScriptModule;
@@ -10,6 +11,7 @@ public enum ModuleName {
 
     ANDROID(new AndroidClientModule()),  // android java
     COFFEESCRIPT(new CoffeeScriptClientModule()),
+    ECMASCRIPT6(new EcmaScript6ClientModule()),
     OBJECTIVEC(new ObjectiveCClientModule()), // ios objective-c
     SWIFT(new SwiftClientModule()), // ios swift
     TYPESCRIPT(new TypeScriptModule()); // TypeScript
