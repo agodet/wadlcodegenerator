@@ -19,5 +19,5 @@ public interface ApiConfig {
     SSLSocketFactory getSSLSocketFactory();
     int getConnectTimeout();
     int getReadTimeout();
-
+    ApiInvoker.ResponseProcessor getResponseProcessor();
 }

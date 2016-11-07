@@ -126,6 +126,7 @@ public ${method.response.name} ${method.name} (
                 mConfig.getPassword(),
                 mConfig.getExtraHeaders(),
                 mConfig.getComputedExtraHeaders(),
+                mConfig.getResponseProcessor(),
                 mConfig.getSSLSocketFactory(),
                 mConfig.getConnectTimeout(),
                 mConfig.getReadTimeout());

@@ -45,6 +45,7 @@ public class ApiInvoker {
                                final String password,
                                final Map<String, String> extraHeaders,
                                final Map<String, ComputedHttpHeaderValue> extraComputedHeaders,
+                               final ResponseProcessor preProcessor,
                                final SSLSocketFactory sslSocketFactory,
                                final int connectTimeout,
                                final int readTimeout)
@@ -127,7 +128,13 @@ public class ApiInvoker {
                 switch (responseFactor) {
                     case 2:
                         // Normal responses : 200, 201, ... 299
-                        final InputStream content = connection.getInputStream();
+                        InputStream content = connection.getInputStream();
+                        if (preProcessor != null) {
+                            if (enableLogging) {
+                                android.util.Log.v(REST_API_LOGGER, "Pre-processing data with " + preProcessor);
+                            }
+                            content = preProcessor.preProcess(responseCode, content);
+                        }
                         if (content == null) {
                             return null;
                         }
@@ -135,7 +142,14 @@ public class ApiInvoker {
                         return JsonUtil.readJson(reader, responseClass);
                     default:
                         // Other responses
-                        final InputStream errorContent = connection.getErrorStream();
+                        InputStream errorContent = connection.getErrorStream();
+                        if (preProcessor != null) {
+                            if (enableLogging) {
+                                android.util.Log.v(REST_API_LOGGER, "Pre-processing error data with " + preProcessor);
+                            }
+                            errorContent = preProcessor.preProcess(responseCode, errorContent);
+                        }
+
                         final Class<?> faultClass = faultClasses.get(responseCode);
                         if (errorContent == null || faultClass == null) {
                             throw new ApiException("Error " + responseCode);
@@ -263,5 +277,18 @@ public class ApiInvoker {
         public boolean markSupported() {
             return content.markSupported();
         }
+    }
+
+    /**
+     * A processor that pre-processes response before API invoker processes it.
+     */
+    public interface ResponseProcessor {
+        /**
+         * Pre-process data before Invoker does.
+         * @param responseCode the response code that was given by the server
+         * @param inputStream the input stream (nullable) that was answered by server
+         * @return the pre-processed input stream (error or success stream, depending on response type).
+         */
+        InputStream preProcess(int responseCode, InputStream inputStream);
     }
 }
