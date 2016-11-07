@@ -19,5 +19,9 @@ public interface ApiConfig {
     SSLSocketFactory getSSLSocketFactory();
     int getConnectTimeout();
     int getReadTimeout();
+    /**
+     * Instanciate a callback that will pre-process data before invoker does.
+     * @return null if you do not want to pre-process anything.
+     */
     ApiInvoker.ResponseProcessor getResponseProcessor();
 }
