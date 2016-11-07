@@ -24,6 +24,12 @@ public class ApiException extends Exception {
     this.message = message;
   }
 
+  public ApiException(int code, Throwable throwable) {
+    super("Error code : " + code, throwable);
+    this.code = code;
+    this.message = throwable == null ? null : throwable.getMessage();
+}
+
   public int getCode() {
       return code;
   }

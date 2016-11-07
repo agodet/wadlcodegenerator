@@ -136,7 +136,7 @@ public ${method.response.name} ${method.name} (
                     throw new ${className}${method.faultsMap[key].name}Exception((${method.faultsMap[key].name})apiFunctionalError.nestedError);
             [/#list]
                 default:
-                    throw new ApiException(apiFunctionalError.nestedError.toString(), apiFunctionalError);
+                    throw new ApiException(apiFunctionalError.errorCode, apiFunctionalError);
             }
     }
 }
