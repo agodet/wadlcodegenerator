@@ -39,7 +39,7 @@ public ${className}Api(final ApiConfig config) {
 
 [#list methods as method]
 
-public ${method.response.name} ${method.name} (
+public [#if method.response??]${method.response.name}[#else]void[/#if] ${method.name} (
     [#if method.templateParams??]
         [#list method.templateParams as param]
         final ${param.classInfo.name} ${param.name?uncap_first}[#if param_has_next || method.request?? || method.requestParams?has_content],[/#if]
@@ -114,11 +114,11 @@ public ${method.response.name} ${method.name} (
     [/#compress];
 
     try {
-        return ApiInvoker.invoke(
+        [#if method.response??]return[/#if] ApiInvoker.invoke(
                 mConfig.getBaseUrl() + basePath[#if hasRequestParams] + extraParams[/#if],
                 ApiInvoker.Method.${method.type},
                 [#if method.request??]body[#else]null[/#if],
-                ${method.response.name}.class,
+                [#if method.response??]${method.response.name}.class[#else]null[/#if],
                 faults,
                 mConfig.getUserAgent(),
                 mConfig.isDebugLogEnabled(),

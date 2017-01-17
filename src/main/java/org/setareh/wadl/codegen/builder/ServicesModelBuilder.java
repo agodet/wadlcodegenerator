@@ -85,7 +85,11 @@ public class ServicesModelBuilder {
         }
         for (Response response : method.getResponse()) {
             if (isSuccessHttpCode(response)) {
-                cgMethod.setResponse(createClassInfo(response.getRepresentation().get(0).getElement()));
+                if (response.getRepresentation().isEmpty()) {
+                    cgMethod.setResponse(null);
+                } else {
+                    cgMethod.setResponse(createClassInfo(response.getRepresentation().get(0).getElement()));
+                }
             } else {
                 cgMethod.addFault(response.getStatus().get(0), createClassInfo(response.getRepresentation().get(0).getElement()));
             }

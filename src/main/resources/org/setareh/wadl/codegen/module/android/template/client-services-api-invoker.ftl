@@ -116,7 +116,7 @@ public class ApiInvoker {
             android.util.Log.d(REST_API_LOGGER, "Server answered with response " + responseCode);
 
             // Manage simple InputStream fetches.
-            if (responseClass.equals(InputStream.class) && responseCode / 100 == 2) {
+            if (InputStream.class.equals(responseClass) && responseCode / 100 == 2) {
                 InputStream content = connection.getInputStream();
                 closeConnectionWhenFinished = false;
                 return (T) new ConnectionClosingInputStream(content, connection);
@@ -139,6 +139,7 @@ public class ApiInvoker {
                             return null;
                         }
                         reader = enableLogging ? new LogInputStreamReader(content) : new InputStreamReader(content);
+                        if (responseClass == null) return null;
                         return JsonUtil.readJson(reader, responseClass);
                     default:
                         // Other responses

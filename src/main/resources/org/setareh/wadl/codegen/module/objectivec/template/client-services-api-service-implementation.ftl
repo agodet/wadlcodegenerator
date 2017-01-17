@@ -67,7 +67,7 @@
         [#list method.requestParams as param]
             param${param.name}: (NSString *) ${param.name}
         [/#list]
-    [/#if]completionHandler: (void (^)(${projectPrefix}${method.response.name} *output, [#if method.faultsMap?has_content]id specificErrorObject, [/#if]NSError *error))completionBlock
+    [/#if]completionHandler: ([#if method.response??]void (^)(${projectPrefix}${method.response.name} *output,[/#if] [#if method.faultsMap?has_content]id specificErrorObject, [/#if]NSError *error))completionBlock
 [/#compress]{
 
     NSMutableString *requestUrl = [NSMutableString stringWithFormat:@"%@${method.path?replace('\\{.*\\}', '%@', 'r')}", self.basePath[#compress]
@@ -153,7 +153,10 @@
           responseContentType:responseContentType
               completionBlock:^(NSInteger responseStatusCode, NSDictionary *data, NSError *error) {
 
+        [#if method.response??]
         ${projectPrefix}${method.response.name} *result = nil;
+        [/#if]
+
         [#if method.faultsMap?has_content]
         id specificErrorObject = nil;
         [/#if]
@@ -167,6 +170,7 @@
                 [/#list]
                 default:{
             [/#if]
+                    [#if method.response??]
                     if(!error){
                         [#if method.response.name == "InputStream"]
                         // FIXME Caution : won't work. Waiting for fix.
@@ -175,13 +179,14 @@
                         result = [[${projectPrefix}${method.response.name} alloc] initWithDictionnary:data];
                         [/#if]
                     }
+                    [/#if]
             [#if method.faultsMap?has_content]
                 }
                 break;
             }
             [/#if]
         }
-        completionBlock(result, [#if method.faultsMap?has_content]specificErrorObject, [/#if]error);
+        completionBlock([#if method.response??]result,[/#if] [#if method.faultsMap?has_content]specificErrorObject, [/#if]error);
     }];
 }
 [/#list]

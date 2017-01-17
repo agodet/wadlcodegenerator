@@ -2,6 +2,8 @@ package org.setareh.wadl.codegen.model;
 
 import java.util.*;
 
+import static java.util.Collections.emptyList;
+
 /**
  * @author: alexandre_godet
  * @since: MXXX
@@ -13,8 +15,8 @@ public class CGMethod implements Cloneable {
     private String type;
     private String path;
     private HashMap<String, ClassInfo> faults = new HashMap<>();
-    private List<CGParam> requestParams;
-    private List<CGParam> templateParams;
+    private List<CGParam> requestParams = emptyList();
+    private List<CGParam> templateParams = emptyList();
 
     public ClassInfo getRequest() {
         return request;
