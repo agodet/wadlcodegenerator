@@ -31,8 +31,10 @@
         [#list method.requestParams as param]
             param${param.name}: (NSString *) ${param.name}
         [/#list]
-    [/#if]completionHandler: ([#if method.response??]void (^)(${projectPrefix}${method.response.name} *output,[/#if] [#if method.faultsMap?has_content]id specificErrorObject, [/#if] NSError *error))completionBlock;
+    [/#if]completionHandler: (void (^)([#if method.response??]${projectPrefix}${method.response.name} *output,[/#if] [#if method.faultsMap?has_content]id specificErrorObject, [/#if] NSError *error))completionBlock;
 [/#compress]
+
+
 [/#list]
 
 @end
