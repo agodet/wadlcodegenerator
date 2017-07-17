@@ -264,6 +264,8 @@ cacheEnabled = enabled;
      responseContentType:(NSString*) responseContentType
          completionBlock:(void (^)(NSInteger, NSDictionary *, NSError *))completionBlock {
 
+    @synchronized(self){
+
     NSString *completePath = [self pathWithQueryParamsToString:path queryParams:queryParams];
 
     //HEADERS
@@ -364,6 +366,8 @@ cacheEnabled = enabled;
              }];
     }
     return requestId;
+
+    }
 }
 
 
