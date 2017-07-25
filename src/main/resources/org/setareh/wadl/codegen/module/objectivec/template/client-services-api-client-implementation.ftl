@@ -209,24 +209,26 @@ cacheEnabled = enabled;
 #pragma mark - Utils
 
 - (BOOL)executeRequestWithId:(NSNumber*) requestId {
-    NSSet* matchingItems = [queuedRequests objectsPassingTest:^BOOL(id obj, BOOL *stop) {
-        if([obj intValue]  == [requestId intValue]) {
-            return TRUE;
+    @synchronized(self){
+        NSSet* matchingItems = [queuedRequests objectsPassingTest:^BOOL(id obj, BOOL *stop) {
+            if([obj intValue]  == [requestId intValue]) {
+                return TRUE;
+            }
+            else {
+                return FALSE;
+            }
+        }];
+
+        if(matchingItems.count == 1) {
+            if(loggingEnabled) {
+                DDLogDebug(@"removing request id %@", requestId);
+            }
+            [queuedRequests removeObject:requestId];
+            return true;
         }
         else {
-            return FALSE;
+            return false;
         }
-    }];
-
-    if(matchingItems.count == 1) {
-        if(loggingEnabled) {
-            DDLogDebug(@"removing request id %@", requestId);
-        }
-        [queuedRequests removeObject:requestId];
-        return true;
-    }
-    else {
-        return false;
     }
 }
 
