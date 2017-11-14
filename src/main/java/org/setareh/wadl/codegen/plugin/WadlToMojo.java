@@ -39,6 +39,9 @@ public class WadlToMojo extends AbstractMojo
     @Parameter( property = "wadlto.prefix.name", defaultValue = "WT" , required = false)
     private String prefixName;
 
+    @Parameter( property = "wadlto.persistant.name", required = false)
+    private String persistantName;
+
     @Parameter(property = "wadl.sourceRoot", defaultValue = "${project.build.directory}/generated-sources/wadlto")
     File sourceRoot;
 
@@ -55,6 +58,7 @@ public class WadlToMojo extends AbstractMojo
         cgConfig.wadlPath = wadlFile;
         cgConfig.packageName = packageName;
         cgConfig.prefix = prefixName;
+        cgConfig.persistantFilePath = persistantName;
 
         if(!sourceRoot.exists())
         {
