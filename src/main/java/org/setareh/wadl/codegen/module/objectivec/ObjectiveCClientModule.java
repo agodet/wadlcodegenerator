@@ -24,6 +24,8 @@ public class ObjectiveCClientModule extends AbstractClientModule {
     private URL clientFileIntTemplate;
     private URL clientObjectImplTemplate;
     private URL clientObjectIntTemplate;
+    private URL clientRLMObjectImplTemplate;
+    private URL clientRLMObjectIntTemplate;
     private URL clientServicesApiClientImplTemplate;
     private URL clientServicesApiClientIntTemplate;
     private URL clientServicesApiServiceImplTemplate;
@@ -63,6 +65,8 @@ public class ObjectiveCClientModule extends AbstractClientModule {
         clientFileIntTemplate = this.getTemplateURL("client-file-interface.ftl");
         clientObjectImplTemplate = this.getTemplateURL("client-object-implementation.ftl");
         clientObjectIntTemplate = this.getTemplateURL("client-object-interface.ftl");
+        clientRLMObjectImplTemplate = this.getTemplateURL("client-rlmobject-implementation.ftl");
+        clientRLMObjectIntTemplate = this.getTemplateURL("client-rlmobject-interface.ftl");
         clientServicesApiClientImplTemplate = this.getTemplateURL("client-services-api-client-implementation.ftl");
         clientServicesApiClientIntTemplate = this.getTemplateURL("client-services-api-client-interface.ftl");
         clientServicesApiServiceImplTemplate = this.getTemplateURL("client-services-api-service-implementation.ftl");
@@ -145,6 +149,11 @@ public class ObjectiveCClientModule extends AbstractClientModule {
         targetFileSet.add(clientObjectImpl);
         FileInfo clientObjectInt = this.generateFile(clientObjectIntTemplate, fmModel, projectPrefix + "Object", "h", "Classes", SOURCE_FOLDER);
         targetFileSet.add(clientObjectInt);
+
+        FileInfo clientRLMObjectImpl = this.generateFile(clientRLMObjectImplTemplate, fmModel, projectPrefix + "RLMObject", "m", "Classes", SOURCE_FOLDER);
+        targetFileSet.add(clientRLMObjectImpl);
+        FileInfo clientRLMObjectInt = this.generateFile(clientRLMObjectIntTemplate, fmModel, projectPrefix + "RLMObject", "h", "Classes", SOURCE_FOLDER);
+        targetFileSet.add(clientRLMObjectInt);
 
         FileInfo parentEnumImpl = this.generateFile(parentEnumDeclarationTemplate, fmModel, projectPrefix + "Enum", "m", "Classes", SOURCE_FOLDER);
         targetFileSet.add(parentEnumImpl);

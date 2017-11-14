@@ -133,9 +133,9 @@
                 for (NSString * dictValue in (NSArray*)${field.name}_dict) {
                 ${projectPrefix}${typeParameter.fullName} * d = [${projectPrefix}${typeParameter.fullName} fromString:dictValue];
                 [#elseif typeParameter.primitive]
-                    [#if field.type.wrapper == "TIMEZONEDATE"]
+                    [#if typeParameter.wrapper == "TIMEZONEDATE"]
                     for (NSString *dictValue in (NSArray*)${field.name}_dict) {
-                    ${typeParameter.fullName} * d = [${projectPrefix}${typeParameter.fullName} timeZoneDateFromString:dictValue];
+                    ${projectPrefix}${typeParameter.fullName} * d = [${projectPrefix}${typeParameter.fullName} timeZoneDateFromString:dictValue];
                     [#elseif typeParameter.wrapper == "BOOL"]
                     for (NSNumber* dictValue in (NSArray*)${field.name}_dict) {
                     ${typeParameter.fullName} * d = [((NSNumber *)dictValue) boolValue];
@@ -228,9 +228,9 @@
             for( ${projectPrefix}${typeParameter.fullName} *${field.name}Element in self.${field.name}) {
             [array addObject:${field.name}Element.value];
         [#elseif typeParameter.primitive]
-        for( ${typeParameter.fullName} *${field.name}Element in self.${field.name}) {
+        for( [#if typeParameter.wrapper == "TIMEZONEDATE"]${projectPrefix}[/#if]${typeParameter.fullName} *${field.name}Element in self.${field.name}) {
             [#if typeParameter.wrapper == "TIMEZONEDATE"]
-            [array addObject:[self.${field.name} asString]];
+            [array addObject:[${field.name}Element asString]];
             [#elseif typeParameter.wrapper == "BOOL"]
             [array addObject:[NSNumber numberWithBool:self.${field.name}]];
             [#elseif typeParameter.wrapper == "NSINTEGER"]

@@ -20,6 +20,8 @@ public class CGConfig {
 
     public ModuleName module;
 
+    public String persistantFilePath;
+
     public static CGConfig createCGConfigFromArgs(String[] args) {
         CGConfig cgConfig = new CGConfig();
         try{
@@ -28,6 +30,7 @@ public class CGConfig {
             cgConfig.prefix = args[1];
             cgConfig.targetDir = args[2];
             cgConfig.module = ModuleName.valueOf(args[3]);
+            cgConfig.persistantFilePath = args[4];
         }
         catch (Exception e)
         {

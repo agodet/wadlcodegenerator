@@ -31,6 +31,9 @@ public class ClassInfo implements Comparable<ClassInfo> {
     // is this a nest class?
     private boolean nestClass = false;
 
+    // is this a nest class?
+    private boolean persistentClass = false;
+
     private RootElementAnnotation rootElementAnnotation;
 
     private XmlTypeAnnotation xmlTypeAnnotation;
@@ -90,7 +93,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
     /**
      * set simple name of this class
      */
-    public void setName(String name) {
+    public void  setName(String name) {
         this.name = name;
     }
 
@@ -198,6 +201,24 @@ public class ClassInfo implements Comparable<ClassInfo> {
      */
     public void setNestClass(boolean nestClass) {
         this.nestClass = nestClass;
+    }
+
+    /**
+     * Is this a persistent class or not
+     *
+     * @return true if persistent class, false otherwise
+     */
+    public boolean isPersistentClass() {
+        return persistentClass;
+    }
+
+    /**
+     * Set is this a persistent class or not
+     *
+     * @param persistentClass
+     */
+    public void setPersistentClass(boolean persistentClass) {
+        this.persistentClass = persistentClass;
     }
 
 

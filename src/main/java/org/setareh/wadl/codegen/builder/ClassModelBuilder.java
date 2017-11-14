@@ -22,13 +22,19 @@ import org.setareh.wadl.codegen.model.annotation.RootElementAnnotation;
 import org.setareh.wadl.codegen.model.annotation.XmlTypeAnnotation;
 import org.setareh.wadl.codegen.module.ClientModule;
 import org.setareh.wadl.codegen.utils.ClassNameUtil;
+import org.setareh.wadl.codegen.utils.IOUtils;
 import org.setareh.wadl.codegen.utils.StringUtil;
 
 import javax.xml.namespace.QName;
+import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
 
 public class ClassModelBuilder {
 
@@ -36,6 +42,12 @@ public class ClassModelBuilder {
 
         // build class full name to element qname mapping
         Map<String, QName> mapping = buildClass2ElementMapping(outline);
+
+        String[] persistentFileArray = {};
+
+        try
+            { persistentFileArray = ClassModelBuilder.generatePersistentData(cgConfig); }
+        catch(Exception e) { e.printStackTrace(); }
 
         for (ClassOutline co : outline.getClasses()) {
             ClassInfo classInfo = new ClassInfo();
@@ -53,6 +65,10 @@ public class ClassModelBuilder {
             setSuperClass(co, classInfo);
             classInfo.setRootElementAnnotation(getRootElementAnnotation(co, mapping, classInfo));
             classInfo.setDocComment(ModelBuilder.getDocumentation(co.target.getSchemaComponent()));
+
+            if (Arrays.asList(persistentFileArray).contains(classInfo.getName())){
+                classInfo.setPersistentClass(true);
+            }
 
             addFields(cgConfig, co, classInfo);
             addSuperClassesFields(cgConfig, co, classInfo);
@@ -310,5 +326,33 @@ public class ClassModelBuilder {
         }
         return mapping;
     }
+
+
+    public static String[] generatePersistentData(CGConfig cgConfig) throws URISyntaxException, IOException {
+
+        String[] persistentClassArray = {};
+
+        URI persistentFileUri = new URI(cgConfig.persistantFilePath);
+
+        System.out.println("Reading persistentFile from URI : " + persistentFileUri);
+        String persistentData = readPersistentFile(persistentFileUri.toString());
+
+        persistentClassArray = persistentData.split("\\r?\\n");
+
+        return persistentClassArray;
+    }
+
+
+    protected static String readPersistentFile(String persistentFileURI) {
+        try {
+            URL url = new URL(persistentFileURI);
+            InputStream in = url.openStream();
+            Reader reader = new InputStreamReader(in, "UTF-8");
+            return IOUtils.toString(reader);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
 }
