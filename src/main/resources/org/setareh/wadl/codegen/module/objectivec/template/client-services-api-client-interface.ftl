@@ -1,6 +1,6 @@
 [#ftl]
 #import <Foundation/Foundation.h>
-#import "AFHTTPRequestOperationManager.h"
+@import AFNetworking;
 #import <CocoaLumberjack/CocoaLumberjack.h>
 
 @interface ${projectPrefix}ApiClient : AFHTTPRequestOperationManager
