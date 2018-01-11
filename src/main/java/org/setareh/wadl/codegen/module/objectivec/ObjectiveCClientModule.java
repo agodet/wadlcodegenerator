@@ -32,6 +32,8 @@ public class ObjectiveCClientModule extends AbstractClientModule {
     private URL clientServicesApiServiceIntTemplate;
     private URL parentEnumDeclarationTemplate;
     private URL parentEnumDefinitionTemplate;
+    private URL parentRLMEnumIntTemplate;
+    private URL parentRLMEnumImplTemplate;
     private URL inputstreamInterfaceTemplate;
     private URL inputstreamImplementationTemplate;
     private URL clientServicesRegistryManagerIntTemplate;
@@ -48,7 +50,7 @@ public class ObjectiveCClientModule extends AbstractClientModule {
         //info("ObjectiveCClientModule loading templates ...");
         loadTemplates();
     }
-
+    
     private void loadTemplates() throws ModuleException {
         //load template
         clientClassIntTemplate = this.getTemplateURL("client-class-interface.ftl");
@@ -57,6 +59,8 @@ public class ObjectiveCClientModule extends AbstractClientModule {
         enumDefinitionTemplate = this.getTemplateURL("client-enum-definition.ftl");
         parentEnumDeclarationTemplate = this.getTemplateURL("client-enum-parent-implementation.ftl");
         parentEnumDefinitionTemplate = this.getTemplateURL("client-enum-parent-interface.ftl");
+        parentRLMEnumIntTemplate = this.getTemplateURL("client-rlmenum-parent-interface.ftl");
+        parentRLMEnumImplTemplate = this.getTemplateURL("client-rlmenum-parent-implementation.ftl");
         clientDateImplTemplate = this.getTemplateURL("client-date-implementation.ftl");
         clientDateIntTemplate = this.getTemplateURL("client-date-interface.ftl");
         clientTimeZoneDateIntTemplate = this.getTemplateURL("client-timezone-date-interface.ftl");
@@ -159,6 +163,11 @@ public class ObjectiveCClientModule extends AbstractClientModule {
         targetFileSet.add(parentEnumImpl);
         FileInfo parentEnumInt = this.generateFile(parentEnumDefinitionTemplate, fmModel, projectPrefix + "Enum", "h", "Classes", SOURCE_FOLDER);
         targetFileSet.add(parentEnumInt);
+
+        FileInfo parentRLMEnumInt = this.generateFile(parentRLMEnumIntTemplate, fmModel, projectPrefix + "RLMEnum", "h", "Classes", SOURCE_FOLDER);
+        targetFileSet.add(parentRLMEnumInt);
+        FileInfo parentRLMEnumImpl = this.generateFile(parentRLMEnumImplTemplate, fmModel, projectPrefix + "RLMEnum", "m", "Classes", SOURCE_FOLDER);
+        targetFileSet.add(parentRLMEnumImpl);
 
         final FileInfo inputStreamImplem = this.generateFile(inputstreamImplementationTemplate, fmModel, projectPrefix + "InputStream", "m", "Classes", SOURCE_FOLDER);
         targetFileSet.add(inputStreamImplem);
