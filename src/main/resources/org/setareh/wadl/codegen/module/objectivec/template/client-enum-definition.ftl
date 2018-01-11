@@ -27,7 +27,7 @@ ${projectPrefix}${enum.name} * ${enum.name?upper_case}_${constant.name?upper_cas
 
 @implementation ${projectPrefix}${enum.name}
 
-+(id)fromString:(NSString *)string {
++ (id)fromString:(NSString *)string {
 [#list enum.enumConstants as constant]
     [#if constant_index = 0]if[#else]else if[/#if]([${enum.name?upper_case}_${constant.name?upper_case}.value isEqualToString:string]){
         return ${enum.name?upper_case}_${constant.name?upper_case};
