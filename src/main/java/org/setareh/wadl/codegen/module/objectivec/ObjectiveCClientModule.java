@@ -50,8 +50,7 @@ public class ObjectiveCClientModule extends AbstractClientModule {
         //info("ObjectiveCClientModule loading templates ...");
         loadTemplates();
     }
-
-    // client-rlmenum-parent-implementation.ftl
+    
     private void loadTemplates() throws ModuleException {
         //load template
         clientClassIntTemplate = this.getTemplateURL("client-class-interface.ftl");
