@@ -31,7 +31,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
     // is this a nest class?
     private boolean nestClass = false;
 
-    // is this a nest class?
+    // is this a persistent class
     private boolean persistentClass = false;
 
     private RootElementAnnotation rootElementAnnotation;
