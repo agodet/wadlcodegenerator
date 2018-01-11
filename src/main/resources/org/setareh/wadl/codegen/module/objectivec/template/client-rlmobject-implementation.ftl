@@ -3,15 +3,15 @@
 
 @implementation ${projectPrefix}RLMObject
 
-- (id) initWithDictionnary:(NSDictionary*)dict {
+- (id)initWithDictionnary:(NSDictionary *)dict {
     return self;
 }
 
-- (NSDictionary*) asDictionary{
+- (NSDictionary *) asDictionary{
     return [[NSDictionary alloc] init];
 }
 
-- (NSString*)description {
+- (NSString *)description {
     return [NSString stringWithFormat:@"%@ %@", [super description], [self asDictionary]];
 }
 
