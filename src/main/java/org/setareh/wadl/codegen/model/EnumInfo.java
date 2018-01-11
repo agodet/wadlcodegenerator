@@ -24,6 +24,9 @@ public class EnumInfo implements Serializable, Comparable<EnumInfo> {
     // a list of enum constant this enum contains
     private final List<EnumConstantInfo> enumConstants = new ArrayList<EnumConstantInfo>();
 
+    // is it persisted (inherit from SURLMEnum is iOS)
+    private boolean persistentEnum = false;
+
     /**
      * the package name of this enum type
      *
@@ -101,6 +104,24 @@ public class EnumInfo implements Serializable, Comparable<EnumInfo> {
      */
     public void setFullName(String fullName) {
         this.fullName = fullName;
+    }
+
+    /**
+     * Is this a persistent enum or not
+     *
+     * @return true if persistent enum, false otherwise
+     */
+    public boolean isPersistentEnum() {
+        return persistentEnum;
+    }
+
+    /**
+     * Set is this a persistent class or not
+     *
+     * @param persistentEnum
+     */
+    public void setPersistentEnum(boolean persistentEnum) {
+        this.persistentEnum = persistentEnum;
     }
 
     @Override
