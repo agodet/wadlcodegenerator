@@ -46,8 +46,9 @@ public class ClassModelBuilder {
         String[] persistentFileArray = {};
 
         try
-            { persistentFileArray = ClassModelBuilder.generatePersistentData(cgConfig); }
-        catch(Exception e) { e.printStackTrace(); }
+            {
+                persistentFileArray = Common.generatePersistentData(cgConfig.persistantFilePath);
+            } catch(Exception e) { e.printStackTrace(); }
 
         for (ClassOutline co : outline.getClasses()) {
             ClassInfo classInfo = new ClassInfo();
@@ -326,33 +327,4 @@ public class ClassModelBuilder {
         }
         return mapping;
     }
-
-
-    public static String[] generatePersistentData(CGConfig cgConfig) throws URISyntaxException, IOException {
-
-        String[] persistentClassArray = {};
-
-        URI persistentFileUri = new URI(cgConfig.persistantFilePath);
-
-        System.out.println("Reading persistentFile from URI : " + persistentFileUri);
-        String persistentData = readPersistentFile(persistentFileUri.toString());
-
-        persistentClassArray = persistentData.split("\\r?\\n");
-
-        return persistentClassArray;
-    }
-
-
-    protected static String readPersistentFile(String persistentFileURI) {
-        try {
-            URL url = new URL(persistentFileURI);
-            InputStream in = url.openStream();
-            Reader reader = new InputStreamReader(in, "UTF-8");
-            return IOUtils.toString(reader);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
 }

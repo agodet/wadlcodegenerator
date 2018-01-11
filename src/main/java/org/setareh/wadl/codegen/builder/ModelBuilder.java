@@ -33,7 +33,7 @@ public class ModelBuilder {
 		ClassModelBuilder.buildClassModel(outline, cgModel, cgConfig);
 
 		// build enum model
-		EnumModelBuilder.buildEnumModel(outline, cgModel);
+		EnumModelBuilder.buildEnumModel(outline, cgModel, cgConfig);
 		
 		return cgModel;
 	}
