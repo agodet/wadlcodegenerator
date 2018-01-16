@@ -55,4 +55,10 @@
     return [[${projectPrefix}TimeZoneDate alloc] initWithDate:date timeZone:timeZone];
 }
 
+#pragma mark - Realm
+
++ (NSArray *)ignoredProperties {
+    return @[@"timeZone"];
+}
+
 @end
