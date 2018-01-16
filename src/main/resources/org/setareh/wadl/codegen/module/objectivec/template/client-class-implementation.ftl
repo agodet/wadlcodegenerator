@@ -28,6 +28,9 @@
         [/#if]
     [/#if]
     @property (nonatomic, strong) ${fieldType} *${field.name};
+[#elseif clazz.persistentClass & field.type.enum]
+@property (nonatomic, strong) ${projectPrefix}${field.type.fullName} *${field.name};
+@property (nonatomic, copy) NSString *${field.name}String;
 [/#if]
 [/#list]
 @end
@@ -107,6 +110,9 @@
     [#list clazz.fields as field]
     [#if !field.value??]
         self.${field.name} = ${field.name}Param;
+    [#if clazz.persistentClass & field.type.enum]
+        self.${field.name}String = ${field.name}Param.value;
+    [/#if]
     [/#if]
     [/#list]
     }
@@ -122,6 +128,9 @@
         {
             [#if field.type.enum]
             self.${field.name} = [${projectPrefix}${field.type.fullName} fromString:dict${"["}@"${field.initialName}"]];
+            [#if clazz.persistentClass & field.type.enum]
+            self.${field.name}String = dict${"["}@"${field.initialName}"];
+            [/#if]
             [#elseif field.type.collection || field.type.array]
             id ${field.name}_dict = dict${"["}@"${field.initialName}"];
 
@@ -259,4 +268,36 @@
 [/#list]
     return dict;
 }
+
+[#if clazz.persistentClass]
+[#assign fieldIndex = 0]
+[#assign ignoredProp = ""]
+#pragma mark - Custom getters
+[#list clazz.fields as field]
+    [#if field.type.enum]
+      [#if fieldIndex > 0]
+        [#assign ignoredProp = "${ignoredProp}, "]
+      [/#if]
+      [#assign ignoredProp = "${ignoredProp}"+"@\""+"${field.name}\""]
+      [#assign fieldIndex = fieldIndex + 1]
+
+- (${projectPrefix}${field.type.fullName} *)${field.name} {
+  if (_${field.name}) return _${field.name};
+  if (!self.${field.name}String) return nil;
+
+  _${field.name} = [${projectPrefix}${field.type.fullName} fromString:self.${field.name}String];
+
+  return _${field.name};
+}
+
+    [/#if]
+[/#list]
+
+#pragma mark - Realm
+
++ (NSArray *)ignoredProperties {
+    return @[${ignoredProp}];
+}
+[/#if]
+
 @end
