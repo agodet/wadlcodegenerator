@@ -39,6 +39,7 @@
 /**
  ${field.docComment?default("(public property)")?replace("\n", "\n ")?replace("\t", "")}
 */
+    [#assign forceReadOnly = false]
     [#assign fieldTypePersistent = ""]
     [#if field.type.collection]
         [#assign type = field.type.typeParameters?first]
@@ -52,6 +53,7 @@
         [#assign fieldType = "${fieldType}${type.fullName}*/"]
     [#elseif field.type.enum]
             [#assign fieldType = "${projectPrefix}${field.type.fullName}"]
+            [#if clazz.persistentClass] [#assign forceReadOnly = true] [/#if]
     [#elseif field.propertyKindAny]
             [#assign fieldType = "NSMutableArray"]
             [#if clazz.persistentClass][#assign fieldTypePersistent = "RLMArray<Object *><Object>"][/#if]
@@ -78,7 +80,7 @@
                 [#assign fieldType = "${projectPrefix}${field.type.fullName}"]
         [/#if]
     [/#if]
-@property (nonatomic, [#if field.fixedValue]readonly[#else]${field.type.wrapper.qualifier.qualifierName}[/#if]) [#if fieldTypePersistent?has_content]${fieldTypePersistent}[#else]${fieldType}[/#if] [#if field.type.wrapper.pointer]*[/#if]${field.name};
+@property (nonatomic, [#if field.fixedValue || forceReadOnly]readonly[#else]${field.type.wrapper.qualifier.qualifierName}[/#if]) [#if fieldTypePersistent?has_content]${fieldTypePersistent}[#else]${fieldType}[/#if] [#if field.type.wrapper.pointer]*[/#if]${field.name};
 
 [/#list]
 [#assign fieldIndex = 0]
